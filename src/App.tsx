@@ -6,29 +6,72 @@ import {
   createRoute 
 } from '@tanstack/react-router'
 import HomePage from './pages/home'
+import AboutPage from './pages/about'
+import FaqsPage from './pages/faqs'
+import ContactPage from './pages/contact'
 import { Header } from './components/header'
+import { Footer } from './components/footer'
 
 // Create a root route
 const rootRoute = createRootRoute({
   component: () => (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="min-h-screen flex flex-col bg-slate-900 text-white">
       <Header />
-      <main className="pt-16">
+      <main className="flex-1 ">
         <Outlet />
       </main>
+      <Footer />
     </div>
   ),
 })
 
-// Create the home route
+// Create routes
 const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: HomePage,
 })
 
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/about',
+  component: AboutPage,
+})
+
+const contactRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/contact',
+  component: ContactPage,
+})
+
+const faqsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/faqs',
+  component: FaqsPage,
+})
+
+const privacyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/privacy',
+  component: () => <div>Privacy Policy Page</div>, // Placeholder
+})
+
+const termsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/terms',
+  component: () => <div>Terms of Service Page</div>, // Placeholder
+})
+
 // Create and configure the router
-const routeTree = rootRoute.addChildren([homeRoute])
+const routeTree = rootRoute.addChildren([
+  homeRoute,
+  aboutRoute,
+  contactRoute,
+  faqsRoute,
+  privacyRoute,
+  termsRoute,
+])
+
 const router = createRouter({ routeTree })
 
 // Register the router for type safety
