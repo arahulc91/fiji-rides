@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuery } from '@tanstack/react-query';
-import { apiService } from '../lib/axios';
-import { LocationAutocomplete } from './location-autocomplete';
-import { PickupDropoffLocation } from '../types';
-import { useDateTimePicker } from '../hooks/useDateTimePicker';
-
+import { useQuery } from "@tanstack/react-query";
+import { apiService } from "../lib/axios";
+import { LocationAutocomplete } from "./location-autocomplete";
+import { PickupDropoffLocation } from "../types";
+import { useDateTimePicker } from "../hooks/useDateTimePicker";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -13,35 +12,68 @@ const containerVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.2,
-      delayChildren: 0.3
-    }
-  }
+      delayChildren: 0.3,
+    },
+  },
 };
 
 
-
-type TripType = 'one-way' | 'return';
+type TripType = "one-way" | "return";
 
 export function BookingForm() {
-  const [tripType, setTripType] = useState<TripType>('one-way');
+  const [tripType, setTripType] = useState<TripType>("return");
   const [passengers, setPassengers] = useState(1);
-  const [pickupLocation, setPickupLocation] = useState<PickupDropoffLocation | null>(null);
-  const [dropoffLocation, setDropoffLocation] = useState<PickupDropoffLocation | null>(null);
-  const [pickupDateTime, setPickupDateTime] = useState('');
-  const [returnDateTime, setReturnDateTime] = useState('');
+  const [pickupLocation, setPickupLocation] =
+    useState<PickupDropoffLocation | null>(null);
+  const [dropoffLocation, setDropoffLocation] =
+    useState<PickupDropoffLocation | null>(null);
+  const [pickupDateTime, setPickupDateTime] = useState("");
+  const [returnDateTime, setReturnDateTime] = useState("");
 
   const { data: locations = [], isLoading } = useQuery({
-    queryKey: ['pickupLocations'],
+    queryKey: ["pickupLocations"],
     queryFn: apiService.getPickupLocations,
   });
 
-  const pickupRef = useDateTimePicker((date) => {
-    setPickupDateTime(date.toISOString());
-  });
+  useEffect(() => {
+    if (locations.length > 0 && !pickupLocation) {
+      const defaultLocation = locations.find(loc => loc.id === 593);
+      if (defaultLocation) {
+        setPickupLocation(defaultLocation);
+      }
+    }
+  }, [locations, pickupLocation]);
 
-  const returnRef = useDateTimePicker((date) => {
-    setReturnDateTime(date.toISOString());
-  });
+  const [pickupRef, pickupPickerRef] = useDateTimePicker(
+    (date) => {
+      setPickupDateTime(date.toISOString());
+    },
+    {
+      isRangePicker: tripType === "return",
+      rangeStart: pickupDateTime ? new Date(pickupDateTime) : null
+    }
+  );
+
+  const [returnRef, returnPickerRef] = useDateTimePicker(
+    (date) => {
+      setReturnDateTime(date.toISOString());
+    },
+    {
+      isRangePicker: tripType === "return",
+      linkedPicker: pickupPickerRef?.current,
+      minDate: pickupDateTime ? new Date(pickupDateTime) : new Date(),
+      rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
+      rangeEnd: returnDateTime ? new Date(returnDateTime) : null
+    }
+  );
+
+  // Update return picker options when pickup date changes
+  useEffect(() => {
+    if (returnPickerRef.current && pickupDateTime) {
+      returnPickerRef.current.options.rangeStart = new Date(pickupDateTime);
+      returnPickerRef.current.options.minDate = new Date(pickupDateTime);
+    }
+  }, [pickupDateTime]);
 
   return (
     <motion.div
@@ -57,8 +89,8 @@ export function BookingForm() {
             <input
               type="radio"
               className="form-radio text-content-primary h-4 w-4"
-              checked={tripType === 'one-way'}
-              onChange={() => setTripType('one-way')}
+              checked={tripType === "one-way"}
+              onChange={() => setTripType("one-way")}
             />
             <span className="ml-2 text-gray-700">One-way</span>
           </label>
@@ -66,8 +98,8 @@ export function BookingForm() {
             <input
               type="radio"
               className="form-radio text-content-primary h-4 w-4"
-              checked={tripType === 'return'}
-              onChange={() => setTripType('return')}
+              checked={tripType === "return"}
+              onChange={() => setTripType("return")}
             />
             <span className="ml-2 text-gray-700">Return</span>
           </label>
@@ -86,7 +118,9 @@ export function BookingForm() {
             >
               -
             </button>
-            <span className="text-lg font-medium w-8 text-center text-gray-700">{passengers}</span>
+            <span className="text-lg font-medium w-8 text-center text-gray-700">
+              {passengers}
+            </span>
             <button
               type="button"
               onClick={() => setPassengers(passengers + 1)}
@@ -128,7 +162,7 @@ export function BookingForm() {
         {/* Pickup Date & Time */}
         <div className="text-center">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {tripType === 'return' ? 'Pickup Date & Time' : 'Date & Time'}
+            {tripType === "return" ? "Pickup Date & Time" : "Date & Time"}
           </label>
           <input
             ref={pickupRef}
@@ -140,39 +174,39 @@ export function BookingForm() {
           />
         </div>
 
-        {/* Return Date & Time with smooth animation */}
+        {/* Return Date & Time */}
         <AnimatePresence mode="sync">
-          {tripType === 'return' && (
+          {tripType === "return" && (
             <motion.div
               initial={{ height: 0, opacity: 0, marginTop: 0 }}
-              animate={{ 
-                height: 'auto', 
-                opacity: 1, 
-                marginTop: '1.5rem',
-                transition: { 
+              animate={{
+                height: "auto",
+                opacity: 1,
+                marginTop: "1.5rem",
+                transition: {
                   height: {
                     duration: 0.3,
-                    ease: "easeOut"
+                    ease: "easeOut",
                   },
                   opacity: {
                     duration: 0.2,
-                    delay: 0.1
-                  }
-                }
+                    delay: 0.1,
+                  },
+                },
               }}
-              exit={{ 
-                height: 0, 
+              exit={{
+                height: 0,
                 opacity: 0,
                 marginTop: 0,
                 transition: {
                   height: {
                     duration: 0.3,
-                    ease: "easeIn"
+                    ease: "easeIn",
                   },
                   opacity: {
-                    duration: 0.2
-                  }
-                }
+                    duration: 0.2,
+                  },
+                },
               }}
               className="text-center overflow-hidden"
             >
@@ -204,4 +238,4 @@ export function BookingForm() {
       </form>
     </motion.div>
   );
-} 
+}

@@ -1,3 +1,11 @@
+declare global {
+  interface Window {
+    DateTimePicker: {
+      new (options: DateTimePickerOptions): DateTimePicker;
+    };
+  }
+}
+
 import { useEffect, useRef } from 'react';
 
 interface DateTimePickerOptions {
@@ -7,37 +15,47 @@ interface DateTimePickerOptions {
   isRangePicker?: boolean;
   rangeStart?: Date | null;
   rangeEnd?: Date | null;
-  linkedPicker?: unknown;
+  linkedPicker?: DateTimePicker | null;
 }
 
 interface DateTimePicker {
-  new (options: DateTimePickerOptions): {
-    attach: (element: HTMLElement) => void;
-    setMinDate: (date: Date) => void;
-    hide: () => void;
-    show: () => void;
-    updateUI: () => void;
-  };
+  options: DateTimePickerOptions;
+  visible: boolean;
+  selectedDate: Date;
+  attach: (input: HTMLInputElement) => void;
+  show: () => void;
+  hide: () => void;
+  confirm: () => void;
+  setMinDate: (date: Date) => void;
 }
 
-declare global {
-  interface Window {
-    DateTimePicker: DateTimePicker;
-  }
-}
-
-export function useDateTimePicker(onChange?: (date: Date) => void) {
+export function useDateTimePicker(
+  onConfirm?: (date: Date) => void,
+  options: Partial<DateTimePickerOptions> = {}
+) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const pickerRef = useRef<DateTimePicker | null>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
-      const picker = new window.DateTimePicker({
+    if (inputRef.current && !pickerRef.current) {
+      pickerRef.current = new window.DateTimePicker({
         minDate: new Date(),
-        onConfirm: onChange
+        onConfirm: (date: Date) => {
+          if (onConfirm) {
+            onConfirm(date);
+          }
+        },
+        ...options
       });
-      picker.attach(inputRef.current);
+      pickerRef.current?.attach(inputRef.current);
     }
-  }, [onChange]);
 
-  return inputRef;
+    return () => {
+      if (pickerRef.current) {
+        // Clean up if needed
+      }
+    };
+  }, [onConfirm, options]);
+
+  return [inputRef, pickerRef] as const;
 } 
