@@ -91,62 +91,62 @@ function HomePage() {
 
   const vehicleSlides: VehicleSlide[] = [
     {
-      image: "/public/assets/slideshow/VIP Ford 1.png",
+      image: "/assets/slideshow/VIP Ford 1.png",
       title: "VIP Ford Transport",
       description: "Premium luxury travel for executive needs",
     },
     {
-      image: "/public/assets/slideshow/15 seater 1 (1).jpg",
+      image: "/assets/slideshow/15 seater 1 (1).jpg",
       title: "15 Seater Van",
       description: "Perfect for medium-sized group travel",
     },
     {
-      image: "/public/assets/slideshow/15 seater with cariage.jpg",
+      image: "/assets/slideshow/15 seater with cariage.jpg",
       title: "15 Seater with Luggage Space",
       description: "Extended luggage capacity for your belongings",
     },
     {
-      image: "/public/assets/slideshow/22 seater bus 1.png",
+      image: "/assets/slideshow/22 seater bus 1.png",
       title: "22 Seater Bus",
       description: "Ideal for large group tours and events",
     },
     {
-      image: "/public/assets/slideshow/5 seater.jpg",
+      image: "/assets/slideshow/5 seater.jpg",
       title: "5 Seater Vehicle",
       description: "Perfect for small families and groups",
     },
     {
-      image: "/public/assets/slideshow/7 seater.jpg",
+      image: "/assets/slideshow/7 seater.jpg",
       title: "7 Seater Vehicle",
       description: "Spacious comfort for larger families",
     },
     {
-      image: "/public/assets/slideshow/Garden-of-the-Sleeping-Giant 1 1.png",
+      image: "/assets/slideshow/Garden-of-the-Sleeping-Giant 1 1.png",
       title: "Garden of the Sleeping Giant",
       description: "Explore Fiji's stunning orchid gardens",
     },
     {
-      image: "/public/assets/slideshow/lawai 1 (1).png",
+      image: "/assets/slideshow/lawai 1 (1).png",
       title: "Lawai Scenic View",
       description: "Discover the beauty of Lawai",
     },
     {
-      image: "/public/assets/slideshow/Nadi Temple 2.png",
+      image: "/assets/slideshow/Nadi Temple 2.png",
       title: "Sri Siva Subramaniya Temple",
       description: "Visit Nadi's iconic Hindu temple",
     },
     {
-      image: "/public/assets/slideshow/Namaka-Marketzzz 1 1.png",
+      image: "/assets/slideshow/Namaka-Marketzzz 1 1.png",
       title: "Namaka Market",
       description: "Experience local culture and fresh produce",
     },
     {
-      image: "/public/assets/slideshow/Sgtka Road Side.jpg",
+      image: "/assets/slideshow/Sgtka Road Side.jpg",
       title: "Sigatoka Scenic Drive",
       description: "Enjoy beautiful coastal views",
     },
     {
-      image: "/public/assets/slideshow/Sigatoka-Market- 1 1.png",
+      image: "/assets/slideshow/Sigatoka-Market- 1 1.png",
       title: "Sigatoka Market",
       description: "Explore the vibrant local marketplace",
     },
