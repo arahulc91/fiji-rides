@@ -12,6 +12,7 @@ import FaqsPage from './pages/faqs'
 import ContactPage from './pages/contact'
 import { Header } from './components/header'
 import { Footer } from './components/footer'
+import TermsPage from './pages/terms';
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -72,7 +73,7 @@ const privacyRoute = createRoute({
 const termsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/terms',
-  component: () => <div>Terms of Service Page</div>, // Placeholder
+  component: TermsPage,
 })
 
 // Create and configure the router

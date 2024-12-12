@@ -1,6 +1,6 @@
-import { Link } from '@tanstack/react-router'
-import { Car } from 'lucide-react'
-import { SocialIcon } from 'react-social-icons'
+import { Link } from "@tanstack/react-router";
+import { Car } from "lucide-react";
+import { SocialIcon } from "react-social-icons";
 
 export function Footer() {
   return (
@@ -10,33 +10,37 @@ export function Footer() {
           <div className="col-span-1">
             <Link to="/" className="flex items-center">
               <Car className="h-8 w-8 text-indigo-500" />
-              <span className="ml-2 text-xl font-bold text-white">Fiji Rides</span>
+              <span className="ml-2 text-xl font-bold text-white">
+                Fiji Rides
+              </span>
             </Link>
-            <p className="mt-2 text-gray-300">Fiji's Premium Transfer Service</p>
+            <p className="mt-2 text-gray-300">
+              Fiji's Premium Transfer Service
+            </p>
           </div>
-          
+
           <div>
             <h3 className="text-white font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className="text-gray-300 hover:text-indigo-500 transition-colors"
                 >
                   Home
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/about" 
+                <Link
+                  to="/about"
                   className="text-gray-300 hover:text-indigo-500 transition-colors"
                 >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/contact" 
+                <Link
+                  to="/contact"
                   className="text-gray-300 hover:text-indigo-500 transition-colors"
                 >
                   Contact
@@ -44,29 +48,29 @@ export function Footer() {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="text-white font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <Link 
-                  to="/faqs" 
+                <Link
+                  to="/faqs"
                   className="text-gray-300 hover:text-indigo-500 transition-colors"
                 >
                   FAQs
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/privacy" 
+                <Link
+                  to="/privacy"
                   className="text-gray-300 hover:text-indigo-500 transition-colors"
                 >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/terms" 
+                <Link
+                  to="/terms"
                   className="text-gray-300 hover:text-indigo-500 transition-colors"
                 >
                   Terms of Service
@@ -74,28 +78,28 @@ export function Footer() {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="text-white font-semibold mb-4">Follow Us</h3>
             <div className="flex space-x-4">
-              <SocialIcon 
-                url="https://facebook.com" 
+              <SocialIcon
+                url="https://facebook.com"
                 target="_blank"
                 bgColor="transparent"
                 fgColor="#9CA3AF"
                 className="hover:opacity-75 transition-opacity"
                 style={{ height: 32, width: 32 }}
               />
-              <SocialIcon 
-                url="https://twitter.com" 
+              <SocialIcon
+                url="https://twitter.com"
                 target="_blank"
                 bgColor="transparent"
                 fgColor="#9CA3AF"
                 className="hover:opacity-75 transition-opacity"
                 style={{ height: 32, width: 32 }}
               />
-              <SocialIcon 
-                url="https://instagram.com" 
+              <SocialIcon
+                url="https://instagram.com"
                 target="_blank"
                 bgColor="transparent"
                 fgColor="#9CA3AF"
@@ -105,7 +109,7 @@ export function Footer() {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-8 border-t border-slate-700 pt-8">
           <p className="text-center text-gray-300">
             © {new Date().getFullYear()} Fiji Rides. All rights reserved.
@@ -113,5 +117,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
-} 
+  );
+}
