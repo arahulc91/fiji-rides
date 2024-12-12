@@ -54,7 +54,7 @@ api.interceptors.response.use(
 // API endpoints
 export const endpoints = {
   pickupLocations: '/pickup-locations',
-  // Add more endpoints as needed
+  dropoffLocations: '/dropoff-locations',
 } as const;
 
 
@@ -63,6 +63,12 @@ export const apiService = {
   getPickupLocations: async () => {
     const response = await api.get<PickupDropoffLocation[]>(endpoints.pickupLocations);
     return response.data; // Return the data directly since it's already in the correct format
+  },
+  getDropoffLocations: async (pickupLocationId: number) => {
+    const response = await api.get<PickupDropoffLocation[]>(
+      `${endpoints.dropoffLocations}/?pickup_location=${pickupLocationId}`
+    );
+    return response.data;
   },
   // Add more API functions as needed
 }; 

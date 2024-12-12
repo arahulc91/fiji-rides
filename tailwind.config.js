@@ -39,6 +39,10 @@ export default {
         },
         'content-primary': '#19AB6A',
       },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+      },
     },
   },
   plugins: [

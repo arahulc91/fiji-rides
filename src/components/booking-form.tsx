@@ -30,19 +30,39 @@ export function BookingForm() {
   const [pickupDateTime, setPickupDateTime] = useState("");
   const [returnDateTime, setReturnDateTime] = useState("");
 
-  const { data: locations = [], isLoading } = useQuery({
+  const { data: unsortedPickupLocations = [], isLoading: isLoadingPickup } = useQuery({
     queryKey: ["pickupLocations"],
     queryFn: apiService.getPickupLocations,
   });
 
+  const pickupLocations = [...unsortedPickupLocations].sort((a, b) => 
+    (a?.description ?? '').localeCompare(b?.description ?? '')
+  );
+
+  const { data: unsortedDropoffLocations = [], isLoading: isLoadingDropoff } = useQuery({
+    queryKey: ["dropoffLocations", pickupLocation?.id],
+    queryFn: () => apiService.getDropoffLocations(pickupLocation?.id || 0),
+    enabled: !!pickupLocation?.id,
+  });
+
+  const dropoffLocations = [...unsortedDropoffLocations].sort((a, b) => 
+    (a?.description ?? '').localeCompare(b?.description ?? '')
+  );
+
   useEffect(() => {
-    if (locations.length > 0 && !pickupLocation) {
-      const defaultLocation = locations.find(loc => loc.id === 593);
+    if (pickupLocations.length > 0 && !pickupLocation) {
+      const defaultLocation = pickupLocations.find(loc => loc.id === 593);
       if (defaultLocation) {
         setPickupLocation(defaultLocation);
       }
     }
-  }, [locations, pickupLocation]);
+  }, [pickupLocations, pickupLocation]);
+
+  useEffect(() => {
+    if (dropoffLocations.length > 0 && pickupLocation) {
+      setDropoffLocation(dropoffLocations[0]);
+    }
+  }, [pickupLocation, dropoffLocations.length]);
 
   const [pickupRef, pickupPickerRef] = useDateTimePicker(
     (date) => {
@@ -137,11 +157,11 @@ export function BookingForm() {
             Pickup Location
           </label>
           <LocationAutocomplete
-            locations={locations}
+            locations={pickupLocations}
             value={pickupLocation}
             onChange={setPickupLocation}
             placeholder="Nadi International Airport"
-            isLoading={isLoading}
+            isLoading={isLoadingPickup}
           />
         </div>
 
@@ -151,11 +171,12 @@ export function BookingForm() {
             Dropoff Location
           </label>
           <LocationAutocomplete
-            locations={locations}
+            locations={dropoffLocations}
             value={dropoffLocation}
             onChange={setDropoffLocation}
             placeholder="Select hotel/resort"
-            isLoading={isLoading}
+            isLoading={isLoadingDropoff}
+            //disabled={!pickupLocation}
           />
         </div>
 
