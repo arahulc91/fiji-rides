@@ -27,7 +27,7 @@ export function Header() {
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/70 shadow-lg' 
+          ? 'bg-black shadow-lg' 
           : 'bg-transparent'
       }`}
     >
@@ -53,7 +53,7 @@ export function Header() {
                 to={item.path}
                 className={`text-sm font-medium transition-colors duration-300 ${
                   isScrolled 
-                    ? 'text-secondary hover:text-primary' 
+                    ? 'text-white hover:text-primary' 
                     : 'text-white/90 hover:text-white'
                 }`}
                 activeProps={{
