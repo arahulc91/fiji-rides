@@ -10,7 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
+    "@tanstack/react-query": "^5.62.7",
     "@tanstack/react-router": "^1.87.9",
+    "axios": "^1.7.9",
     "fiji-rides-fe": "file:",
     "framer-motion": "^11.13.5",
     "lucide-react": "^0.468.0",

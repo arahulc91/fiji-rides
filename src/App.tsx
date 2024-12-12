@@ -5,6 +5,7 @@ import {
   createRootRoute,
   createRoute 
 } from '@tanstack/react-router'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import HomePage from './pages/home'
 import AboutPage from './pages/about'
 import FaqsPage from './pages/faqs'
@@ -12,16 +13,28 @@ import ContactPage from './pages/contact'
 import { Header } from './components/header'
 import { Footer } from './components/footer'
 
+// Create a QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+})
+
 // Create a root route
 const rootRoute = createRootRoute({
   component: () => (
-    <div className="min-h-screen flex flex-col bg-slate-900 text-white">
-      <Header />
-      <main className="flex-1 ">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen flex flex-col bg-slate-900 text-white">
+        <Header />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+    </QueryClientProvider>
   ),
 })
 
