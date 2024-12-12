@@ -293,6 +293,8 @@ function HomePage() {
               </motion.div>
             ))}
           </motion.div>
+
+         
         </motion.div>
       </div>
 
@@ -334,6 +336,35 @@ function HomePage() {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             />
+
+            {/* Add TripAdvisor Widget */}
+            {/* <motion.div 
+              className="mt-12 flex justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <div 
+                id="TA_selfserveprop529" 
+                className="TA_selfserveprop"
+              >
+                <ul id="7TZZG8VVWy" className="TA_links Gr5pyk7jSQ8">
+                  <li id="aNmI1ebQxI" className="DTP6fgqzUg">
+                    <a 
+                      target="_blank" 
+                      href="https://www.tripadvisor.com/Attraction_Review-g294335-d32698721-Reviews-Fiji_Rides-Nadi_Viti_Levu.html"
+                      rel="noopener noreferrer"
+                    >
+                      <img 
+                        src="https://www.tripadvisor.com/img/cdsi/img2/branding/v2/Tripadvisor_lockup_horizontal_secondary_registered-11900-2.svg" 
+                        alt="TripAdvisor"
+                      />
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </motion.div> */}
           </motion.div>
         </motion.div>
       </div>
@@ -458,6 +489,54 @@ function HomePage() {
               </ul>
             </motion.div>
           </div>
+        </div>
+      </div>
+
+      {/* Social Proof Section */}
+      <div className="bg-white border-t border-primary-100">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:px-8">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-2xl font-semibold text-secondary-500">
+              Trusted by Travelers Worldwide
+            </h2>
+            <div className="mt-4 h-1 w-20 bg-primary-300 mx-auto rounded-full" />
+          </motion.div>
+
+          <motion.div 
+            className="flex justify-center items-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div 
+              id="TA_selfserveprop529" 
+              className="TA_selfserveprop bg-gradient-to-b from-white to-primary-50 px-6 py-4 rounded-xl shadow-sm border border-primary-100"
+            >
+              <ul id="7TZZG8VVWy" className="TA_links Gr5pyk7jSQ8">
+                <li id="aNmI1ebQxI" className="DTP6fgqzUg">
+                  <a 
+                    target="_blank" 
+                    href="https://www.tripadvisor.com/Attraction_Review-g294335-d32698721-Reviews-Fiji_Rides-Nadi_Viti_Levu.html"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center"
+                  >
+                    <img 
+                      src="https://www.tripadvisor.com/img/cdsi/img2/branding/v2/Tripadvisor_lockup_horizontal_secondary_registered-11900-2.svg" 
+                      alt="TripAdvisor"
+                      className="h-10 w-auto"
+                    />
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
