@@ -37,6 +37,7 @@ export default {
           900: '#010102',
           950: '#000000',
         },
+        'content-primary': '#19AB6A',
       },
     },
   },

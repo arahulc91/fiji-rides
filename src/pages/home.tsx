@@ -9,7 +9,7 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white sm:text-7xl">
-              Your Premium Transport
+              <div>Your Premium Transport</div>
               <span className="block text-primary-300">Across Fiji Islands</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-white/80">

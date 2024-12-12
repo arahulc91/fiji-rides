@@ -3,7 +3,7 @@ interface HeroBackgroundProps {
   className?: string;
 }
 
-export function HeroBackground({ children, className = '' }: HeroBackgroundProps) {
+export function HeroBackground({ children, className = '' }: Readonly<HeroBackgroundProps>) {
   return (
     <div className={`relative min-h-[600px] flex items-center justify-center ${className}`}>
       {/* Background Pattern */}
