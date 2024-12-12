@@ -1,48 +1,61 @@
 import { Link } from "@tanstack/react-router";
-import { Car } from "lucide-react";
 import { SocialIcon } from "react-social-icons";
+import logo from '../assets/logo.svg'
 
 export function Footer() {
   return (
     <footer className="bg-[#111827] text-white">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div className="col-span-1">
-            <Link to="/" className="flex items-center">
-              <Car className="h-8 w-8 text-indigo-500" />
-              <span className="ml-2 text-xl font-bold text-white">
-                Fiji Rides
-              </span>
+            <Link 
+              to="/" 
+              className="inline-flex items-center bg-white/5 rounded-2xl p-4 hover:bg-white/10 transition-colors"
+            >
+           
+              <div className="ml-3">
+              <img 
+                src={logo} 
+                alt="Fiji Rides Logo" 
+                className={`h-8 w-auto transition-opacity duration-300 `}
+              />
+                <span className="text-sm text-gray-400">
+                  Premium Transfer Service
+                </span>
+              </div>
             </Link>
-            <p className="mt-2 text-gray-300">
-              Fiji's Premium Transfer Service
+            <p className="mt-4 text-gray-400 leading-relaxed">
+              Your trusted partner for premium transportation services across Fiji. Available 24/7 for your convenience.
             </p>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-semibold text-white mb-6">Quick Links</h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   to="/"
-                  className="text-gray-300 hover:text-indigo-500 transition-colors"
+                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
+                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
                   Home
                 </Link>
               </li>
               <li>
                 <Link
                   to="/about"
-                  className="text-gray-300 hover:text-indigo-500 transition-colors"
+                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
+                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
                   About Us
                 </Link>
               </li>
               <li>
                 <Link
                   to="/contact"
-                  className="text-gray-300 hover:text-indigo-500 transition-colors"
+                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
+                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
                   Contact
                 </Link>
               </li>
@@ -50,68 +63,59 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">Support</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-semibold text-white mb-6">Support</h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   to="/faqs"
-                  className="text-gray-300 hover:text-indigo-500 transition-colors"
+                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
+                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
                   FAQs
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/privacy"
-                  className="text-gray-300 hover:text-indigo-500 transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
                   to="/terms"
-                  className="text-gray-300 hover:text-indigo-500 transition-colors"
+                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
+                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
                   Terms of Service
                 </Link>
               </li>
             </ul>
-          </div>
 
-          <div>
-            <h3 className="text-white font-semibold mb-4">Follow Us</h3>
-            <div className="flex space-x-4">
-              <SocialIcon
-                url="https://facebook.com"
-                target="_blank"
-                bgColor="transparent"
-                fgColor="#9CA3AF"
-                className="hover:opacity-75 transition-opacity"
-                style={{ height: 32, width: 32 }}
-              />
-              <SocialIcon
-                url="https://twitter.com"
-                target="_blank"
-                bgColor="transparent"
-                fgColor="#9CA3AF"
-                className="hover:opacity-75 transition-opacity"
-                style={{ height: 32, width: 32 }}
-              />
-              <SocialIcon
-                url="https://instagram.com"
-                target="_blank"
-                bgColor="transparent"
-                fgColor="#9CA3AF"
-                className="hover:opacity-75 transition-opacity"
-                style={{ height: 32, width: 32 }}
-              />
+            <div className="mt-8">
+              <h4 className="text-sm font-semibold text-white mb-4">Follow Us</h4>
+              <div className="flex space-x-4">
+                <SocialIcon
+                  url="https://facebook.com"
+                  target="_blank"
+                  bgColor="transparent"
+                  fgColor="#9CA3AF"
+                  className="hover:opacity-75 transition-opacity !h-8 !w-8"
+                />
+                <SocialIcon
+                  url="https://twitter.com"
+                  target="_blank"
+                  bgColor="transparent"
+                  fgColor="#9CA3AF"
+                  className="hover:opacity-75 transition-opacity !h-8 !w-8"
+                />
+                <SocialIcon
+                  url="https://instagram.com"
+                  target="_blank"
+                  bgColor="transparent"
+                  fgColor="#9CA3AF"
+                  className="hover:opacity-75 transition-opacity !h-8 !w-8"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 border-t border-slate-700 pt-8">
-          <p className="text-center text-gray-300">
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <p className="text-center text-gray-400 text-sm">
             © {new Date().getFullYear()} Fiji Rides. All rights reserved.
           </p>
         </div>
