@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Car } from "lucide-react";
 import { SocialIcon } from "react-social-icons";
+import logo from "../assets/logo.svg";
 
 export function Footer() {
   return (
@@ -8,27 +8,31 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div className="col-span-1">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="inline-flex items-center bg-white/5 rounded-2xl p-4 hover:bg-white/10 transition-colors"
             >
-              <Car className="h-8 w-8 text-primary-400" />
               <div className="ml-3">
-                <span className="block text-xl font-bold text-white">
-                  Fiji Rides
-                </span>
+                <img
+                  src={logo}
+                  alt="Fiji Rides Logo"
+                  className={`h-8 w-auto transition-opacity duration-300`}
+                />
                 <span className="text-sm text-gray-400">
                   Premium Transfer Service
                 </span>
               </div>
             </Link>
             <p className="mt-4 text-gray-400 leading-relaxed">
-              Your trusted partner for premium transportation services across Fiji. Available 24/7 for your convenience.
+              Your trusted partner for premium transportation services across
+              Fiji. Available 24/7 for your convenience.
             </p>
           </div>
 
           <div className="md:ml-auto md:mr-auto">
-            <h3 className="text-lg font-semibold text-white mb-6">Quick Links</h3>
+            <h3 className="text-lg font-semibold text-white mb-6">
+              Quick Links
+            </h3>
             <ul className="space-y-3">
               <li>
                 <Link
@@ -84,7 +88,9 @@ export function Footer() {
             </ul>
 
             <div className="mt-8">
-              <h4 className="text-sm font-semibold text-white mb-4">Follow Us</h4>
+              <h4 className="text-sm font-semibold text-white mb-4">
+                Follow Us
+              </h4>
               <div className="flex space-x-4">
                 <SocialIcon
                   url="https://facebook.com"
