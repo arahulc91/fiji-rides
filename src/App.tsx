@@ -13,6 +13,7 @@ import ContactPage from './pages/contact'
 import { Header } from './components/header'
 import { Footer } from './components/footer'
 import TermsPage from './pages/terms';
+import { NotFoundPage } from './pages/404'
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -76,6 +77,13 @@ const termsRoute = createRoute({
   component: TermsPage,
 })
 
+// Create a catch-all route for 404
+const notFoundRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '*',
+  component: NotFoundPage,
+})
+
 // Create and configure the router
 const routeTree = rootRoute.addChildren([
   homeRoute,
@@ -84,6 +92,7 @@ const routeTree = rootRoute.addChildren([
   faqsRoute,
   privacyRoute,
   termsRoute,
+  notFoundRoute, // Add the catch-all route last
 ])
 
 const router = createRouter({ routeTree })

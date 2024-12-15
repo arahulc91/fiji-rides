@@ -20,7 +20,20 @@ const containerVariants = {
 
 type TripType = "one-way" | "return";
 
-export function BookingForm() {
+interface BookingData {
+  pickupLocation: PickupDropoffLocation;
+  dropoffLocation: PickupDropoffLocation;
+  passengers: number;
+  tripType: "one-way" | "return";
+  pickupDateTime: string;
+  returnDateTime?: string;
+}
+
+interface BookingFormProps {
+  onNext: (bookingData: BookingData) => void;
+}
+
+export function BookingForm({ onNext }: BookingFormProps) {
   const [tripType, setTripType] = useState<TripType>("return");
   const [passengers, setPassengers] = useState(1);
   const [pickupLocation, setPickupLocation] =
@@ -95,14 +108,29 @@ export function BookingForm() {
     }
   }, [pickupDateTime]);
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (pickupLocation && dropoffLocation) {
+      onNext({
+        pickupLocation,
+        dropoffLocation,
+        passengers,
+        tripType,
+        pickupDateTime,
+        returnDateTime: tripType === 'return' ? returnDateTime : undefined
+      });
+    }
+  }
+
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      exit={{ opacity: 0, y: -20 }}
       className="bg-white rounded-2xl p-8 shadow-xl max-w-md mx-auto w-full"
     >
-      <form className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Trip Type Selection */}
         <div className="flex justify-center space-x-8">
           <label className="inline-flex items-center cursor-pointer">

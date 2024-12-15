@@ -1,6 +1,7 @@
 import { HeroBackground } from "../components/hero-background";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { BookingForm } from "../components/booking-form";
+import { AddOnSelector } from "../components/add-ons-selector";
 import {
   Clock,
   Car,
@@ -11,11 +12,24 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { apiService } from "../lib/axios";
+import { BookingSummary } from "../components/booking-summary";
+import { PickupDropoffLocation } from "../types/index";
 
 interface VehicleSlide {
   image: string;
   title: string;
   description: string;
+}
+
+interface BookingData {
+  pickupLocation: PickupDropoffLocation;
+  dropoffLocation: PickupDropoffLocation;
+  passengers: number;
+  tripType: "one-way" | "return";
+  pickupDateTime: string;
+  returnDateTime?: string;
 }
 
 function HomePage() {
@@ -153,6 +167,31 @@ function HomePage() {
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentStep, setCurrentStep] = useState<'booking' | 'addons' | 'summary'>('booking');
+  const [bookingData, setBookingData] = useState<BookingData | null>(null);
+  const [selectedAddons, setSelectedAddons] = useState<Record<number, number>>({});
+
+  // Prefetch add-ons when pickup location changes
+  const { data: addons = [], isLoading: isLoadingAddons } = useQuery({
+    queryKey: ['addons', bookingData?.pickupLocation, bookingData?.dropoffLocation, bookingData?.passengers],
+    queryFn: () => apiService.getTransferAddons({
+      pickup_location: bookingData?.pickupLocation?.id || 0,
+      dropoff_location: bookingData?.dropoffLocation?.id || 0,
+      pax: bookingData?.passengers || 1
+    }),
+    enabled: !!bookingData?.pickupLocation // Only fetch when pickup location is selected
+  });
+
+  // Add transfer options query
+  const { data: transferOptions = [] } = useQuery({
+    queryKey: ['transferOptions', bookingData?.pickupLocation?.id, bookingData?.dropoffLocation?.id, bookingData?.passengers],
+    queryFn: () => apiService.getTransferOptions({
+      pickup_location: bookingData?.pickupLocation?.id || 0,
+      dropoff_location: bookingData?.dropoffLocation?.id || 0,
+      pax: bookingData?.passengers || 1
+    }),
+    enabled: !!bookingData?.pickupLocation?.id
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -170,6 +209,11 @@ function HomePage() {
     setCurrentSlide(
       (prev) => (prev - 1 + vehicleSlides.length) % vehicleSlides.length
     );
+  };
+
+  const handleBookingNext = (data: BookingData) => {
+    setBookingData(data);
+    setCurrentStep('addons');
   };
 
   return (
@@ -204,8 +248,38 @@ function HomePage() {
               </motion.p>
             </motion.div>
 
-            {/* Booking Form */}
-            <BookingForm />
+            {/* Form Section */}
+            <AnimatePresence mode="wait">
+              {currentStep === 'booking' ? (
+                <BookingForm
+                  key="booking"
+                  onNext={handleBookingNext}
+                />
+              ) : currentStep === 'addons' ? (
+                <AddOnSelector
+                  key="addons"
+                  bookingData={bookingData!}
+                  addons={addons}
+                  isLoading={isLoadingAddons}
+                  onBack={() => setCurrentStep('booking')}
+                  onNext={() => setCurrentStep('summary')}
+                  onAddonsChange={setSelectedAddons}
+                  selectedAddons={selectedAddons}
+                />
+              ) : currentStep === 'summary' && transferOptions?.[0] ? (
+                <BookingSummary
+                  key="summary"
+                  bookingData={bookingData!}
+                  selectedAddons={selectedAddons}
+                  addons={addons}
+                  transferOption={transferOptions[0]}
+                  onBack={() => setCurrentStep('addons')}
+                  onNext={() => {
+                    console.log('Proceeding to payment');
+                  }}
+                />
+              ) : null}
+            </AnimatePresence>
           </div>
         </div>
       </HeroBackground>

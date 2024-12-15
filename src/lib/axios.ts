@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PickupDropoffLocation } from '../types';
+import { PickupDropoffLocation, TransferAddon, TransferOption } from '../types';
 
 const API_TOKEN = '1fb28c670954dde94383814e211dc74568d6eddd';
 
@@ -55,6 +55,8 @@ api.interceptors.response.use(
 export const endpoints = {
   pickupLocations: '/pickup-locations',
   dropoffLocations: '/dropoff-locations',
+  addons: '/addons',
+  transferOptions: '/rates',
 } as const;
 
 
@@ -68,6 +70,26 @@ export const apiService = {
     const response = await api.get<PickupDropoffLocation[]>(
       `${endpoints.dropoffLocations}/?pickup_location=${pickupLocationId}`
     );
+    return response.data;
+  },
+  getTransferAddons: async (params: {
+    pickup_location: number;
+    dropoff_location: number;
+    pax: number;
+  }) => {
+    const response = await api.get<TransferAddon[]>(endpoints.addons, {
+      params
+    });
+    return response.data;
+  },
+  getTransferOptions: async (params: {
+    pickup_location: number;
+    dropoff_location: number;
+    pax: number;
+  }) => {
+    const response = await api.get<TransferOption[]>(endpoints.transferOptions, {
+      params
+    });
     return response.data;
   },
   // Add more API functions as needed
