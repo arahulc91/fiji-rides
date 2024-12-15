@@ -38,7 +38,7 @@ export function BookingSummary({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="bg-white rounded-2xl p-8 shadow-xl max-w-md mx-auto w-full"
+        className="bg-white rounded-2xl p-6 shadow-xl max-w-4xl mx-auto w-full"
       >
         <div className="flex flex-col items-center justify-center space-y-4">
           <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -48,10 +48,13 @@ export function BookingSummary({
     );
   }
 
-  const totalAddons = Object.entries(selectedAddons).reduce((sum, [id, quantity]) => {
-    const addon = addons.find(a => a.id === parseInt(id));
-    return sum + (addon ? parseFloat(addon.price) * quantity : 0);
-  }, 0);
+  const totalAddons = Object.entries(selectedAddons).reduce(
+    (sum, [id, quantity]) => {
+      const addon = addons.find((a) => a.id === parseInt(id));
+      return sum + (addon ? parseFloat(addon.price) * quantity : 0);
+    },
+    0
+  );
 
   const transferPrice = parseFloat(transferOption.price);
   const grandTotal = transferPrice + totalAddons;
@@ -61,94 +64,149 @@ export function BookingSummary({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-2xl p-8 shadow-xl max-w-md mx-auto w-full"
+      className="bg-white rounded-2xl p-6 shadow-xl max-w-4xl mx-auto w-full"
     >
-      <h2 className="text-xl font-semibold text-center mb-6 text-secondary-500">Booking Summary</h2>
+      <h2 className="text-2xl font-semibold text-center mb-6 text-secondary-500">
+        Booking Summary
+      </h2>
 
-      {/* Location Details */}
-      <div className="space-y-4 mb-6">
-        <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-          <div>
-            <div className="text-sm text-gray-500">Pickup Location</div>
-            <div className="font-medium text-gray-900">{bookingData.pickupLocation.description}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Trip Details */}
+          <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                Pickup Location
+              </div>
+              <div className="text-gray-900">
+                {bookingData.pickupLocation.description}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                Dropoff Location
+              </div>
+              <div className="text-gray-900">
+                {bookingData.dropoffLocation.description}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                Return Type
+              </div>
+              <div className="text-gray-900 capitalize">
+                {bookingData.tripType}
+              </div>
+            </div>
           </div>
+
+          {/* Vehicle Details */}
           <div>
-            <div className="text-sm text-gray-500">Dropoff Location</div>
-            <div className="font-medium text-gray-900">{bookingData.dropoffLocation.description}</div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-500">Trip Type</div>
-            <div className="font-medium text-gray-900 capitalize">{bookingData.tripType}</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              This is your ride:
+            </h3>
+            <div className="bg-gray-50 rounded-xl p-4">
+              {transferOption.vehicle_image_base64 && (
+                <img
+                  src={`data:image/jpeg;base64,${transferOption.vehicle_image_base64}`}
+                  alt="Vehicle"
+                  className="w-full h-32 object-cover rounded-lg mb-2"
+                />
+              )}
+              <div className="text-sm text-gray-600">
+                {transferOption.transfer_option}
+              </div>
+              <div className="text-sm text-gray-600">
+                {transferOption.transfer_company}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Price Breakdown */}
-      <div className="space-y-4 mb-8">
-        <div className="bg-primary-50 p-4 rounded-xl">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-gray-700">Your Ride</span>
-            <span className="font-semibold text-gray-900">FJ${transferPrice.toFixed(2)}</span>
-          </div>
-          {totalAddons > 0 && (
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Price Breakdown */}
+          <div className="bg-primary-50 p-4 rounded-xl">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-700">Transfer Price</span>
+              <span className="font-semibold text-gray-900">
+                FJ${transferPrice.toFixed(2)}
+              </span>
+            </div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-700">Total Addons</span>
-              <span className="font-semibold text-gray-900">FJ${totalAddons.toFixed(2)}</span>
+              <span className="font-semibold text-gray-900">
+                FJ${totalAddons.toFixed(2)}
+              </span>
             </div>
-          )}
-          <div className="border-t border-primary-100 mt-2 pt-2">
-            <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-700">Grand Total</span>
-              <span className="font-bold text-gray-900">FJ${grandTotal.toFixed(2)}</span>
+            <div className="border-t border-primary-100 mt-2 pt-2">
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-gray-700">Grand Total</span>
+                <span className="font-bold text-gray-900">
+                  FJ${grandTotal.toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Form Fields */}
-      <div className="space-y-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-          <input
-            type="text"
-            value={formData.fullName}
-            onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            placeholder="Enter your full name"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            placeholder="Enter your email address"
-          />
-        </div>
-      </div>
+          {/* Form Fields */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, fullName: e.target.value }))
+                }
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Enter your full name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Enter your email address"
+              />
+            </div>
+          </div>
 
-      {/* Terms Checkbox */}
-      <div className="mb-6">
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={acceptedTerms}
-            onChange={(e) => setAcceptedTerms(e.target.checked)}
-            className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-          />
-          <span className="text-sm text-gray-700">
-            I Accept the{" "}
-            <a href="/terms" className="text-primary-600 hover:text-primary-700 underline">
-              terms and conditions
-            </a>
-          </span>
-        </label>
+          {/* Terms Checkbox */}
+          <div>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <span className="text-sm text-gray-700">
+                I Accept the{" "}
+                <a
+                  href="/terms"
+                  className="text-primary-600 hover:text-primary-700 underline"
+                >
+                  terms and conditions
+                </a>
+              </span>
+            </label>
+          </div>
+        </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 mt-6">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -172,4 +230,4 @@ export function BookingSummary({
       </div>
     </motion.div>
   );
-} 
+}

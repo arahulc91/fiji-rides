@@ -5,7 +5,7 @@ interface HeroBackgroundProps {
 
 export function HeroBackground({ children, className = '' }: Readonly<HeroBackgroundProps>) {
   return (
-    <div className={`relative min-h-screen max-h-screen flex items-center justify-center ${className}`}>
+    <div className={`relative isolate min-h-screen max-h-screen pt-16 flex items-center justify-center ${className}`}>
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-secondary">
         <div 
@@ -23,8 +23,8 @@ export function HeroBackground({ children, className = '' }: Readonly<HeroBackgr
         <div className="absolute inset-0 bg-black/30" />
       </div>
       
-      {/* Content */}
-      <div className="relative z-10 w-full">
+      {/* Content with overflow handling */}
+      <div className="relative z-10 w-full max-h-full overflow-y-auto">
         {children}
       </div>
     </div>

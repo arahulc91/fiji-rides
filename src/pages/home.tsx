@@ -167,30 +167,46 @@ function HomePage() {
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [currentStep, setCurrentStep] = useState<'booking' | 'addons' | 'summary'>('booking');
+  const [currentStep, setCurrentStep] = useState<
+    "booking" | "addons" | "summary"
+  >("booking");
   const [bookingData, setBookingData] = useState<BookingData | null>(null);
-  const [selectedAddons, setSelectedAddons] = useState<Record<number, number>>({});
+  const [selectedAddons, setSelectedAddons] = useState<Record<number, number>>(
+    {}
+  );
 
   // Prefetch add-ons when pickup location changes
   const { data: addons = [], isLoading: isLoadingAddons } = useQuery({
-    queryKey: ['addons', bookingData?.pickupLocation, bookingData?.dropoffLocation, bookingData?.passengers],
-    queryFn: () => apiService.getTransferAddons({
-      pickup_location: bookingData?.pickupLocation?.id || 0,
-      dropoff_location: bookingData?.dropoffLocation?.id || 0,
-      pax: bookingData?.passengers || 1
-    }),
-    enabled: !!bookingData?.pickupLocation // Only fetch when pickup location is selected
+    queryKey: [
+      "addons",
+      bookingData?.pickupLocation,
+      bookingData?.dropoffLocation,
+      bookingData?.passengers,
+    ],
+    queryFn: () =>
+      apiService.getTransferAddons({
+        pickup_location: bookingData?.pickupLocation?.id || 0,
+        dropoff_location: bookingData?.dropoffLocation?.id || 0,
+        pax: bookingData?.passengers || 1,
+      }),
+    enabled: !!bookingData?.pickupLocation, // Only fetch when pickup location is selected
   });
 
   // Add transfer options query
   const { data: transferOptions = [] } = useQuery({
-    queryKey: ['transferOptions', bookingData?.pickupLocation?.id, bookingData?.dropoffLocation?.id, bookingData?.passengers],
-    queryFn: () => apiService.getTransferOptions({
-      pickup_location: bookingData?.pickupLocation?.id || 0,
-      dropoff_location: bookingData?.dropoffLocation?.id || 0,
-      pax: bookingData?.passengers || 1
-    }),
-    enabled: !!bookingData?.pickupLocation?.id
+    queryKey: [
+      "transferOptions",
+      bookingData?.pickupLocation?.id,
+      bookingData?.dropoffLocation?.id,
+      bookingData?.passengers,
+    ],
+    queryFn: () =>
+      apiService.getTransferOptions({
+        pickup_location: bookingData?.pickupLocation?.id || 0,
+        dropoff_location: bookingData?.dropoffLocation?.id || 0,
+        pax: bookingData?.passengers || 1,
+      }),
+    enabled: !!bookingData?.pickupLocation?.id,
   });
 
   useEffect(() => {
@@ -213,34 +229,35 @@ function HomePage() {
 
   const handleBookingNext = (data: BookingData) => {
     setBookingData(data);
-    setCurrentStep('addons');
+    setCurrentStep("addons");
   };
 
   return (
     <div className="flex flex-col">
-      <HeroBackground className="min-h-[800px]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-24">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <HeroBackground className="min-h-screen pt-36 lg:pt-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Hero Text */}
             <motion.div
               variants={containerVariants}
               initial="hidden"
               animate="visible"
+              className="text-center lg:text-left"
             >
               <motion.h1
-                className="text-5xl font-bold tracking-tight text-white"
+                className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight text-white"
                 variants={itemVariants}
               >
                 Fiji's Exclusive
-                <span className="block text-primary-300 mt-2">
+                <span className="block text-primary-300 mt-1 lg:mt-2">
                   24-Hour Private
                 </span>
-                <span className="block text-white mt-2">
+                <span className="block text-white mt-1 lg:mt-2">
                   Transfer Experience
                 </span>
               </motion.h1>
               <motion.p
-                className="mt-6 text-lg leading-8 text-white/90"
+                className="mt-4 lg:mt-6 text-base lg:text-lg leading-7 lg:leading-8 text-white/90"
                 variants={itemVariants}
               >
                 Seamless, comfortable, and personalized transfers at your
@@ -250,32 +267,29 @@ function HomePage() {
 
             {/* Form Section */}
             <AnimatePresence mode="wait">
-              {currentStep === 'booking' ? (
-                <BookingForm
-                  key="booking"
-                  onNext={handleBookingNext}
-                />
-              ) : currentStep === 'addons' ? (
+              {currentStep === "booking" ? (
+                <BookingForm key="booking" onNext={handleBookingNext} />
+              ) : currentStep === "addons" ? (
                 <AddOnSelector
                   key="addons"
                   bookingData={bookingData!}
                   addons={addons}
                   isLoading={isLoadingAddons}
-                  onBack={() => setCurrentStep('booking')}
-                  onNext={() => setCurrentStep('summary')}
+                  onBack={() => setCurrentStep("booking")}
+                  onNext={() => setCurrentStep("summary")}
                   onAddonsChange={setSelectedAddons}
                   selectedAddons={selectedAddons}
                 />
-              ) : currentStep === 'summary' && transferOptions?.[0] ? (
+              ) : currentStep === "summary" && transferOptions?.[0] ? (
                 <BookingSummary
                   key="summary"
                   bookingData={bookingData!}
                   selectedAddons={selectedAddons}
                   addons={addons}
                   transferOption={transferOptions[0]}
-                  onBack={() => setCurrentStep('addons')}
+                  onBack={() => setCurrentStep("addons")}
                   onNext={() => {
-                    console.log('Proceeding to payment');
+                    console.log("Proceeding to payment");
                   }}
                 />
               ) : null}
@@ -367,8 +381,6 @@ function HomePage() {
               </motion.div>
             ))}
           </motion.div>
-
-         
         </motion.div>
       </div>
 
@@ -582,27 +594,27 @@ function HomePage() {
             <div className="mt-4 h-1 w-20 bg-primary-300 mx-auto rounded-full" />
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="flex justify-center items-center"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div 
-              id="TA_selfserveprop529" 
+            <div
+              id="TA_selfserveprop529"
               className="TA_selfserveprop bg-gradient-to-b from-white to-primary-50 px-6 py-4 rounded-xl shadow-sm border border-primary-100"
             >
               <ul id="7TZZG8VVWy" className="TA_links Gr5pyk7jSQ8">
                 <li id="aNmI1ebQxI" className="DTP6fgqzUg">
-                  <a 
-                    target="_blank" 
+                  <a
+                    target="_blank"
                     href="https://www.tripadvisor.com/Attraction_Review-g294335-d32698721-Reviews-Fiji_Rides-Nadi_Viti_Levu.html"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center"
                   >
-                    <img 
-                      src="https://www.tripadvisor.com/img/cdsi/img2/branding/v2/Tripadvisor_lockup_horizontal_secondary_registered-11900-2.svg" 
+                    <img
+                      src="https://www.tripadvisor.com/img/cdsi/img2/branding/v2/Tripadvisor_lockup_horizontal_secondary_registered-11900-2.svg"
                       alt="TripAdvisor"
                       className="h-10 w-auto"
                     />

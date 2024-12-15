@@ -17,7 +17,6 @@ const containerVariants = {
   },
 };
 
-
 type TripType = "one-way" | "return";
 
 interface BookingData {
@@ -43,28 +42,30 @@ export function BookingForm({ onNext }: BookingFormProps) {
   const [pickupDateTime, setPickupDateTime] = useState("");
   const [returnDateTime, setReturnDateTime] = useState("");
 
-  const { data: unsortedPickupLocations = [], isLoading: isLoadingPickup } = useQuery({
-    queryKey: ["pickupLocations"],
-    queryFn: apiService.getPickupLocations,
-  });
+  const { data: unsortedPickupLocations = [], isLoading: isLoadingPickup } =
+    useQuery({
+      queryKey: ["pickupLocations"],
+      queryFn: apiService.getPickupLocations,
+    });
 
-  const pickupLocations = [...unsortedPickupLocations].sort((a, b) => 
-    (a?.description ?? '').localeCompare(b?.description ?? '')
+  const pickupLocations = [...unsortedPickupLocations].sort((a, b) =>
+    (a?.description ?? "").localeCompare(b?.description ?? "")
   );
 
-  const { data: unsortedDropoffLocations = [], isLoading: isLoadingDropoff } = useQuery({
-    queryKey: ["dropoffLocations", pickupLocation?.id],
-    queryFn: () => apiService.getDropoffLocations(pickupLocation?.id || 0),
-    enabled: !!pickupLocation?.id,
-  });
+  const { data: unsortedDropoffLocations = [], isLoading: isLoadingDropoff } =
+    useQuery({
+      queryKey: ["dropoffLocations", pickupLocation?.id],
+      queryFn: () => apiService.getDropoffLocations(pickupLocation?.id || 0),
+      enabled: !!pickupLocation?.id,
+    });
 
-  const dropoffLocations = [...unsortedDropoffLocations].sort((a, b) => 
-    (a?.description ?? '').localeCompare(b?.description ?? '')
+  const dropoffLocations = [...unsortedDropoffLocations].sort((a, b) =>
+    (a?.description ?? "").localeCompare(b?.description ?? "")
   );
 
   useEffect(() => {
     if (pickupLocations.length > 0 && !pickupLocation) {
-      const defaultLocation = pickupLocations.find(loc => loc.id === 593);
+      const defaultLocation = pickupLocations.find((loc) => loc.id === 593);
       if (defaultLocation) {
         setPickupLocation(defaultLocation);
       }
@@ -83,7 +84,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
     },
     {
       isRangePicker: tripType === "return",
-      rangeStart: pickupDateTime ? new Date(pickupDateTime) : null
+      rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
     }
   );
 
@@ -96,7 +97,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
       linkedPicker: pickupPickerRef?.current,
       minDate: pickupDateTime ? new Date(pickupDateTime) : new Date(),
       rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
-      rangeEnd: returnDateTime ? new Date(returnDateTime) : null
+      rangeEnd: returnDateTime ? new Date(returnDateTime) : null,
     }
   );
 
@@ -117,7 +118,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
         passengers,
         tripType,
         pickupDateTime,
-        returnDateTime: tripType === 'return' ? returnDateTime : undefined
+        returnDateTime: tripType === "return" ? returnDateTime : undefined,
       });
     }
   }
@@ -128,7 +129,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
       initial="hidden"
       animate="visible"
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-2xl p-8 shadow-xl max-w-md mx-auto w-full"
+      className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl max-w-md mx-auto w-full mt-4 sm:mt-0"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Trip Type Selection */}
@@ -136,7 +137,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
           <label className="inline-flex items-center cursor-pointer">
             <input
               type="radio"
-              className="form-radio text-content-primary h-4 w-4"
+              className="form-radio text-primary-600 h-4 w-4"
               checked={tripType === "one-way"}
               onChange={() => setTripType("one-way")}
             />
@@ -145,7 +146,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
           <label className="inline-flex items-center cursor-pointer">
             <input
               type="radio"
-              className="form-radio text-content-primary h-4 w-4"
+              className="form-radio text-primary-600 h-4 w-4"
               checked={tripType === "return"}
               onChange={() => setTripType("return")}
             />
@@ -155,14 +156,14 @@ export function BookingForm({ onNext }: BookingFormProps) {
 
         {/* Number of Passengers */}
         <div className="text-center">
-          <label className="block text-sm font-medium text-gray-700 mb-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Number of Passengers
           </label>
           <div className="flex items-center justify-center space-x-4">
             <button
               type="button"
               onClick={() => setPassengers(Math.max(1, passengers - 1))}
-              className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
             >
               -
             </button>
@@ -172,7 +173,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
             <button
               type="button"
               onClick={() => setPassengers(passengers + 1)}
-              className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
             >
               +
             </button>
@@ -204,7 +205,6 @@ export function BookingForm({ onNext }: BookingFormProps) {
             onChange={setDropoffLocation}
             placeholder="Select hotel/resort"
             isLoading={isLoadingDropoff}
-            //disabled={!pickupLocation}
           />
         </div>
 
@@ -217,8 +217,8 @@ export function BookingForm({ onNext }: BookingFormProps) {
             ref={pickupRef}
             type="text"
             placeholder="dd/mm/yyyy | hh:mm"
-            className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
-                     focus:ring-2 focus:ring-content-primary focus:border-transparent transition-all text-center"
+            className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 
+                     focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center"
             readOnly
           />
         </div>
@@ -227,49 +227,24 @@ export function BookingForm({ onNext }: BookingFormProps) {
         <AnimatePresence mode="sync">
           {tripType === "return" && (
             <motion.div
-              initial={{ height: 0, opacity: 0, marginTop: 0 }}
-              animate={{
-                height: "auto",
-                opacity: 1,
-                marginTop: "1.5rem",
-                transition: {
-                  height: {
-                    duration: 0.3,
-                    ease: "easeOut",
-                  },
-                  opacity: {
-                    duration: 0.2,
-                    delay: 0.1,
-                  },
-                },
-              }}
-              exit={{
-                height: 0,
-                opacity: 0,
-                marginTop: 0,
-                transition: {
-                  height: {
-                    duration: 0.3,
-                    ease: "easeIn",
-                  },
-                  opacity: {
-                    duration: 0.2,
-                  },
-                },
-              }}
-              className="text-center overflow-hidden"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
             >
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Return Date & Time
-              </label>
-              <input
-                ref={returnRef}
-                type="text"
-                placeholder="dd/mm/yyyy | hh:mm"
-                className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
-                         focus:ring-2 focus:ring-content-primary focus:border-transparent transition-all text-center"
-                readOnly
-              />
+              <div className="text-center">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Return Date & Time
+                </label>
+                <input
+                  ref={returnRef}
+                  type="text"
+                  placeholder="dd/mm/yyyy | hh:mm"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 
+                         focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center"
+                  readOnly
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -277,8 +252,9 @@ export function BookingForm({ onNext }: BookingFormProps) {
         {/* Next Button */}
         <motion.button
           type="submit"
-          className="w-full bg-content-primary text-white py-3 px-6 rounded-xl hover:bg-primary-600 
-                   transform transition-all hover:-translate-y-0.5 focus:ring-2 focus:ring-primary-200"
+          className="w-full py-3 px-4 rounded-xl bg-primary-600 text-white 
+                   hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-primary-200
+                   disabled:opacity-50 disabled:cursor-not-allowed"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
