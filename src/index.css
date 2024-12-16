@@ -6,3 +6,28 @@
     background-color: black;
     border-bottom: 1px solid var(--color-primary-100);
   }
+
+@layer utilities {
+  /* Custom scrollbar for the entire site */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-500 rounded-full transition-colors;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-700;
+  }
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.primary.500') theme('colors.gray.100');
+}
