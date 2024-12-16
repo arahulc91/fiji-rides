@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Info } from "lucide-react";
 import { PickupDropoffLocation } from "../types/index";
+import TourDetailsModal from "./tourdetails";
 
 interface TransferAddon {
   id: number;
@@ -71,6 +72,42 @@ function AccordionHeader({
   );
 }
 
+interface GroupedTourAddon {
+  baseName: string;
+  adultAddon?: TransferAddon;
+  childAddon?: TransferAddon;
+  photos: string[];
+  additional_details: string;
+}
+
+function groupTourAddons(addons: TransferAddon[]): GroupedTourAddon[] {
+  const tourGroups = new Map<string, GroupedTourAddon>();
+
+  addons.forEach((addon) => {
+    if (!addon.is_tour_addon) return;
+
+    // Remove "-Adult" or "-Child" to get base name
+    const baseName = addon.addon.replace(/-Adult$|-Child$/, '');
+
+    if (!tourGroups.has(baseName)) {
+      tourGroups.set(baseName, {
+        baseName,
+        photos: addon.photos,
+        additional_details: addon.additional_details,
+      });
+    }
+
+    const group = tourGroups.get(baseName)!;
+    if (addon.addon.endsWith('-Adult')) {
+      group.adultAddon = addon;
+    } else if (addon.addon.endsWith('-Child')) {
+      group.childAddon = addon;
+    }
+  });
+
+  return Array.from(tourGroups.values());
+}
+
 export function AddOnSelector({
   onBack,
   onNext,
@@ -83,6 +120,7 @@ export function AddOnSelector({
   const [expandedSection, setExpandedSection] = useState<
     "popular" | "tours" | null
   >("popular");
+  const [selectedTour, setSelectedTour] = useState<GroupedTourAddon | null>(null);
 
   const filteredAddons = addons.filter((addon) => {
     if (bookingData.tripType === "one-way" && addon.return_type === "return") {
@@ -250,7 +288,7 @@ export function AddOnSelector({
               title="Tours & Activities"
               isExpanded={expandedSection === "tours"}
               onClick={() => handleAccordionClick("tours")}
-              count={tourAddons.length}
+              count={groupTourAddons(tourAddons).length}
             />
             <AnimatePresence initial={false}>
               {expandedSection === "tours" && (
@@ -259,10 +297,100 @@ export function AddOnSelector({
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="mt-2 space-y-2 px-2 overflow-hidden"
+                  className="mt-2 space-y-4 overflow-hidden"
                 >
-                  {tourAddons.map((addon) => (
-                    <AddOnItem key={addon.id} addon={addon} />
+                  {groupTourAddons(tourAddons).map((group) => (
+                    <div
+                      key={group.baseName}
+                      className="p-4 rounded-xl bg-gray-50 space-y-3"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-900">
+                          {group.baseName}
+                        </span>
+                        {group.additional_details && (
+                          <button
+                            onClick={() => setSelectedTour(group)}
+                            className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 
+                                     transition-colors text-gray-600"
+                          >
+                            <Info className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {group.adultAddon && (
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-sm font-medium text-gray-700">
+                                Adult
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                ${parseFloat(group.adultAddon.price).toFixed(2)}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => updateQuantity(group.adultAddon!.id, -1)}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg 
+                                         bg-gray-100 text-gray-700 hover:bg-gray-200 
+                                         disabled:opacity-50 disabled:cursor-not-allowed "
+                                disabled={!selectedAddons[group.adultAddon.id]}
+                              >
+                                -
+                              </motion.button>
+                              <span className="w-6 text-center text-sm text-secondary-500 font-medium">
+                                {selectedAddons[group.adultAddon.id] || 0}
+                              </span>
+                              <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => updateQuantity(group.adultAddon!.id, 1)}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg 
+                                         bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              >
+                                +
+                              </motion.button>
+                            </div>
+                          </div>
+                        )}
+                        {group.childAddon && (
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-sm font-medium text-gray-700">
+                                Child
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                ${parseFloat(group.childAddon.price).toFixed(2)}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => updateQuantity(group.childAddon!.id, -1)}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg 
+                                         bg-gray-100 text-gray-700 hover:bg-gray-200 
+                                         disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={!selectedAddons[group.childAddon.id]}
+                              >
+                                -
+                              </motion.button>
+                              <span className="w-6 text-center text-sm text-secondary-500 font-medium">
+                                {selectedAddons[group.childAddon.id] || 0}
+                              </span>
+                              <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => updateQuantity(group.childAddon!.id, 1)}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg 
+                                         bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              >
+                                +
+                              </motion.button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </motion.div>
               )}
@@ -358,6 +486,14 @@ export function AddOnSelector({
           Next
         </motion.button>
       </div>
+
+      <TourDetailsModal
+        isOpen={selectedTour !== null}
+        onClose={() => setSelectedTour(null)}
+        photos={selectedTour?.photos || []}
+        details={selectedTour?.additional_details || ''}
+        title={selectedTour?.baseName || ''}
+      />
     </motion.div>
   );
 }
