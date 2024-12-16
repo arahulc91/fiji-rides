@@ -52,7 +52,7 @@ export function LocationAutocomplete({
         <input
           type="text"
           className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
-                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-center pr-12"
+                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-center text-sm pr-12"
           placeholder={placeholder}
           value={value ? value.description : query}
           onChange={(e) => {

@@ -107,26 +107,26 @@ export function BookingSummary({
           {/* Trip Details */}
           <div className="bg-gray-50 p-4 rounded-xl space-y-3">
             <div>
-              <div className="text-sm font-medium text-gray-500">
+              <div className="text-base font-semibold text-gray-700">
                 Pickup Location
               </div>
-              <div className="text-gray-900">
+              <div className="text-sm text-gray-900">
                 {bookingData.pickupLocation.description}
               </div>
             </div>
             <div>
-              <div className="text-sm font-medium text-gray-500">
+              <div className="text-base font-semibold text-gray-700">
                 Dropoff Location
               </div>
-              <div className="text-gray-900">
+              <div className="text-sm text-gray-900">
                 {bookingData.dropoffLocation.description}
               </div>
             </div>
             <div>
-              <div className="text-sm font-medium text-gray-500">
+              <div className="text-base font-semibold text-gray-700">
                 Return Type
               </div>
-              <div className="text-gray-900 capitalize">
+              <div className="text-sm text-gray-900 capitalize">
                 {bookingData.tripType}
               </div>
             </div>
@@ -134,7 +134,7 @@ export function BookingSummary({
 
           {/* Vehicle Details */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
               This is your ride:
             </h3>
             <div className="bg-gray-50 rounded-xl p-4">
@@ -145,7 +145,7 @@ export function BookingSummary({
                   className="w-full h-32 object-cover rounded-lg mb-2"
                 />
               )}
-              <div className="text-sm text-gray-600">
+              <div className="text-sm font-medium text-gray-900">
                 {transferOption.transfer_option}
               </div>
               <div className="text-sm text-gray-600">
@@ -160,21 +160,21 @@ export function BookingSummary({
           {/* Price Breakdown */}
           <div className="bg-primary-50 p-4 rounded-xl">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-700">Transfer Price</span>
-              <span className="font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-gray-700">Transfer Price</span>
+              <span className="text-sm font-semibold text-gray-900">
                 FJ${transferPrice.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-700">Total Addons</span>
-              <span className="font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-gray-700">Total Addons</span>
+              <span className="text-sm font-semibold text-gray-900">
                 FJ${totalAddons.toFixed(2)}
               </span>
             </div>
             <div className="border-t border-primary-100 mt-2 pt-2">
               <div className="flex justify-between items-center">
-                <span className="font-medium text-gray-700">Grand Total</span>
-                <span className="font-bold text-gray-900">
+                <span className="text-base font-semibold text-gray-700">Grand Total</span>
+                <span className="text-base font-bold text-gray-900">
                   FJ${grandTotal.toFixed(2)}
                 </span>
               </div>
@@ -193,7 +193,8 @@ export function BookingSummary({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, fullName: e.target.value }))
                 }
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-900
+                           focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Enter your full name"
               />
             </div>
@@ -243,7 +244,7 @@ export function BookingSummary({
           whileTap={{ scale: 0.98 }}
           onClick={onBack}
           className="flex-1 py-3 px-4 rounded-xl border border-gray-200 
-                   text-gray-700 hover:bg-gray-50 transition-colors"
+                   text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
         >
           Back
         </motion.button>
@@ -253,8 +254,8 @@ export function BookingSummary({
           onClick={handlePayNow}
           disabled={!acceptedTerms || !formData.fullName || !formData.email}
           className="flex-1 py-3 px-4 rounded-xl bg-primary-600 text-white 
-                   hover:bg-primary-700 transition-colors disabled:opacity-50 
-                   disabled:cursor-not-allowed"
+                   hover:bg-primary-700 transition-colors text-sm font-medium
+                   disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Pay Now
         </motion.button>

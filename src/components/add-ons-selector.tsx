@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Info } from 'lucide-react';
-import { PickupDropoffLocation } from '../types/index';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, Info } from "lucide-react";
+import { PickupDropoffLocation } from "../types/index";
 
 interface TransferAddon {
   id: number;
@@ -40,54 +40,63 @@ interface AccordionHeaderProps {
   count: number;
 }
 
-function AccordionHeader({ title, isExpanded, onClick, count }: AccordionHeaderProps) {
+function AccordionHeader({
+  title,
+  isExpanded,
+  onClick,
+  count,
+}: AccordionHeaderProps) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex justify-between items-center p-4 text-sm font-medium 
-                 rounded-xl transition-colors
-                 ${isExpanded 
-                   ? 'bg-primary-50 text-primary-700' 
-                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
+      className={`w-full flex justify-between items-center p-4 
+                 text-sm font-medium rounded-xl transition-colors
+                 ${
+                   isExpanded
+                     ? "bg-primary-50 text-primary-600"
+                     : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                 }`}
     >
       <div className="flex items-center gap-2">
-        {title}
-        <span className="px-2 py-0.5 text-xs rounded-full bg-white/80 text-gray-600">
+        <span className="font-medium">{title}</span>
+        <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-white/80 text-gray-600">
           {count}
         </span>
       </div>
       <ChevronDown
         className={`w-4 h-4 transition-transform duration-200 
-                   ${isExpanded ? 'rotate-180 text-primary-600' : 'text-gray-400'}`}
+                   ${isExpanded ? "rotate-180 text-primary-600" : "text-gray-400"}`}
       />
     </button>
   );
 }
 
-export function AddOnSelector({ 
-  onBack, 
-  onNext, 
-  bookingData, 
-  addons = [], 
+export function AddOnSelector({
+  onBack,
+  onNext,
+  bookingData,
+  addons = [],
   isLoading,
   selectedAddons,
-  onAddonsChange
+  onAddonsChange,
 }: Readonly<AddOnSelectorProps>) {
-  const [expandedSection, setExpandedSection] = useState<'popular' | 'tours' | null>('popular');
+  const [expandedSection, setExpandedSection] = useState<
+    "popular" | "tours" | null
+  >("popular");
 
-  const filteredAddons = addons.filter(addon => {
-    if (bookingData.tripType === 'one-way' && addon.return_type === 'return') {
+  const filteredAddons = addons.filter((addon) => {
+    if (bookingData.tripType === "one-way" && addon.return_type === "return") {
       return false;
     }
     return true;
   });
 
-  const popularAddons = filteredAddons.filter(addon => !addon.is_tour_addon);
-  const tourAddons = filteredAddons.filter(addon => addon.is_tour_addon);
+  const popularAddons = filteredAddons.filter((addon) => !addon.is_tour_addon);
+  const tourAddons = filteredAddons.filter((addon) => addon.is_tour_addon);
 
   const getAddonPrice = (addon: TransferAddon) => {
     const price = parseFloat(addon.price);
-    if (addon.addon.toLowerCase().includes('per person')) {
+    if (addon.addon.toLowerCase().includes("per person")) {
       return price * bookingData.passengers;
     }
     return price;
@@ -96,7 +105,7 @@ export function AddOnSelector({
   function updateQuantity(id: number, delta: number) {
     const current = selectedAddons[id] || 0;
     const newValue = Math.max(0, current + delta);
-    
+
     if (newValue === 0) {
       const rest = Object.fromEntries(
         Object.entries(selectedAddons).filter(([key]) => key !== id.toString())
@@ -107,25 +116,28 @@ export function AddOnSelector({
     }
   }
 
-  const totalPrice = Object.entries(selectedAddons).reduce((sum, [id, quantity]) => {
-    const addon = addons.find(a => a.id === parseInt(id));
-    return sum + (addon ? getAddonPrice(addon) * quantity : 0);
-  }, 0);
+  const totalPrice = Object.entries(selectedAddons).reduce(
+    (sum, [id, quantity]) => {
+      const addon = addons.find((a) => a.id === parseInt(id));
+      return sum + (addon ? getAddonPrice(addon) * quantity : 0);
+    },
+    0
+  );
 
   const AddOnItem = ({ addon }: { addon: TransferAddon }) => {
-    const isAdult = addon.addon.toLowerCase().includes('adult');
-    const isChild = addon.addon.toLowerCase().includes('child');
+    const isAdult = addon.addon.toLowerCase().includes("adult");
+    const isChild = addon.addon.toLowerCase().includes("child");
     const price = parseFloat(addon.price);
 
     return (
       <div className="flex items-center justify-between py-2">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-gray-900 text-sm">
+            <span className="text-sm font-medium text-gray-700">
               {addon.addon}
               {addon.is_tour_addon && (
-                <span className="text-xs text-gray-500 ml-1">
-                  ({isAdult ? 'Adult' : isChild ? 'Child' : ''})
+                <span className="text-xs font-medium text-gray-500 ml-1">
+                  ({isAdult ? "Adult" : isChild ? "Child" : ""})
                 </span>
               )}
             </span>
@@ -135,9 +147,9 @@ export function AddOnSelector({
               </span>
             )}
             {addon.additional_details && (
-              <Info 
+              <Info
                 className="w-4 h-4 text-gray-400 cursor-help"
-                aria-label={addon.additional_details.replace(/<[^>]*>/g, '')}
+                aria-label={addon.additional_details.replace(/<[^>]*>/g, "")}
               />
             )}
           </div>
@@ -145,7 +157,7 @@ export function AddOnSelector({
             {price > 0 && (
               <span>
                 ${price.toFixed(2)}
-                {addon.return_type === 'return' && ' (Return)'}
+                {addon.return_type === "return" && " (Return)"}
               </span>
             )}
           </div>
@@ -155,20 +167,21 @@ export function AddOnSelector({
             whileTap={{ scale: 0.95 }}
             onClick={() => updateQuantity(addon.id, -1)}
             className="w-7 h-7 flex items-center justify-center rounded-lg 
-                     bg-gray-100 text-gray-600 hover:bg-gray-200 
-                     disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                     bg-gray-100 text-gray-700 hover:bg-gray-200 
+                     disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
             disabled={!selectedAddons[addon.id]}
           >
             -
           </motion.button>
-          <span className="w-6 text-center text-sm text-secondary-500 font-medium">
+          <span className="w-6 text-center text-sm font-medium text-gray-700">
             {selectedAddons[addon.id] || 0}
           </span>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => updateQuantity(addon.id, 1)}
             className="w-7 h-7 flex items-center justify-center rounded-lg 
-                     bg-gray-100 text-gray-600 hover:bg-gray-200 text-sm"
+                     bg-gray-100 text-gray-700 hover:bg-gray-200 
+                     text-sm font-medium"
           >
             +
           </motion.button>
@@ -177,7 +190,7 @@ export function AddOnSelector({
     );
   };
 
-  const handleAccordionClick = (section: 'popular' | 'tours') => {
+  const handleAccordionClick = (section: "popular" | "tours") => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
@@ -200,27 +213,29 @@ export function AddOnSelector({
       exit={{ opacity: 0, y: -20 }}
       className="bg-white rounded-2xl p-6 shadow-xl max-w-md mx-auto w-full"
     >
-      <h2 className="text-xl font-semibold text-center mb-6 text-secondary-500">Select Add-ons</h2>
-      
+      <h2 className="text-2xl font-semibold text-center mb-6 text-secondary-500">
+        Select Add-ons
+      </h2>
+
       <div className="space-y-4 max-h-[600px] overflow-y-auto px-1">
         {popularAddons.length > 0 && (
           <div>
             <AccordionHeader
               title="Popular Add-ons"
-              isExpanded={expandedSection === 'popular'}
-              onClick={() => handleAccordionClick('popular')}
+              isExpanded={expandedSection === "popular"}
+              onClick={() => handleAccordionClick("popular")}
               count={popularAddons.length}
             />
             <AnimatePresence initial={false}>
-              {expandedSection === 'popular' && (
+              {expandedSection === "popular" && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
+                  animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
                   className="mt-2 space-y-2 px-2 overflow-hidden"
                 >
-                  {popularAddons.map(addon => (
+                  {popularAddons.map((addon) => (
                     <AddOnItem key={addon.id} addon={addon} />
                   ))}
                 </motion.div>
@@ -233,20 +248,20 @@ export function AddOnSelector({
           <div>
             <AccordionHeader
               title="Tours & Activities"
-              isExpanded={expandedSection === 'tours'}
-              onClick={() => handleAccordionClick('tours')}
+              isExpanded={expandedSection === "tours"}
+              onClick={() => handleAccordionClick("tours")}
               count={tourAddons.length}
             />
             <AnimatePresence initial={false}>
-              {expandedSection === 'tours' && (
+              {expandedSection === "tours" && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
+                  animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
                   className="mt-2 space-y-2 px-2 overflow-hidden"
                 >
-                  {tourAddons.map(addon => (
+                  {tourAddons.map((addon) => (
                     <AddOnItem key={addon.id} addon={addon} />
                   ))}
                 </motion.div>
@@ -258,60 +273,60 @@ export function AddOnSelector({
 
       <AnimatePresence mode="wait">
         {totalPrice > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ 
-              height: 'auto', 
+            animate={{
+              height: "auto",
               opacity: 1,
               transition: {
                 height: {
                   duration: 0.3,
-                  ease: "easeOut"
+                  ease: "easeOut",
                 },
                 opacity: {
                   duration: 0.2,
-                  delay: 0.1
-                }
-              }
+                  delay: 0.1,
+                },
+              },
             }}
-            exit={{ 
-              height: 0, 
+            exit={{
+              height: 0,
               opacity: 0,
               transition: {
                 height: {
                   duration: 0.3,
-                  ease: "easeIn"
+                  ease: "easeIn",
                 },
                 opacity: {
-                  duration: 0.1
-                }
-              }
+                  duration: 0.1,
+                },
+              },
             }}
             className="overflow-hidden mt-4"
           >
-            <motion.div 
+            <motion.div
               className="p-3 rounded-xl bg-primary-50 border border-primary-100"
               initial={{ y: 10 }}
-              animate={{ 
+              animate={{
                 y: 0,
                 transition: {
                   duration: 0.3,
-                  ease: "easeOut"
-                }
+                  ease: "easeOut",
+                },
               }}
             >
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-700">Total Add-ons</span>
-                <motion.span 
+                <span className="font-medium text-gray-700">Total Add-ons</span>
+                <motion.span
                   key={totalPrice}
                   initial={{ opacity: 0, y: -10 }}
-                  animate={{ 
-                    opacity: 1, 
+                  animate={{
+                    opacity: 1,
                     y: 0,
                     transition: {
                       duration: 0.3,
-                      ease: "easeOut"
-                    }
+                      ease: "easeOut",
+                    },
                   }}
                   className="font-semibold text-gray-900"
                 >
@@ -328,8 +343,8 @@ export function AddOnSelector({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onBack}
-          className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 
-                   text-gray-700 hover:bg-gray-50 transition-colors text-sm"
+          className="flex-1 py-3 px-4 rounded-xl border border-gray-200 
+                   text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
         >
           Back
         </motion.button>
@@ -337,12 +352,12 @@ export function AddOnSelector({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onNext}
-          className="flex-1 py-2.5 px-4 rounded-xl bg-content-primary text-white 
-                   hover:bg-primary-600 transition-colors text-sm"
+          className="flex-1 py-3 px-4 rounded-xl bg-primary-600 text-white 
+                   hover:bg-primary-700 transition-colors text-sm font-medium"
         >
           Next
         </motion.button>
       </div>
     </motion.div>
   );
-} 
+}

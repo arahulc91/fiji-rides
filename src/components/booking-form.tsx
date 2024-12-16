@@ -133,26 +133,53 @@ export function BookingForm({ onNext }: BookingFormProps) {
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Trip Type Selection */}
-        <div className="flex justify-center space-x-8">
-          <label className="inline-flex items-center cursor-pointer">
+        <motion.div 
+          className="flex justify-center space-x-8 text-sm"
+          initial={false}
+        >
+          <motion.label 
+            className="inline-flex items-center cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <input
               type="radio"
               className="form-radio text-primary-600 h-4 w-4"
               checked={tripType === "one-way"}
               onChange={() => setTripType("one-way")}
             />
-            <span className="ml-2 text-gray-700">One-way</span>
-          </label>
-          <label className="inline-flex items-center cursor-pointer">
+            <motion.span 
+              className="ml-2 font-medium"
+              animate={{ 
+                fontWeight: tripType === "one-way" ? 600 : 500,
+                color: tripType === "one-way" ? "#4B5563" : "#6B7280"
+              }}
+            >
+              One-way
+            </motion.span>
+          </motion.label>
+          <motion.label 
+            className="inline-flex items-center cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <input
               type="radio"
               className="form-radio text-primary-600 h-4 w-4"
               checked={tripType === "return"}
               onChange={() => setTripType("return")}
             />
-            <span className="ml-2 text-gray-700">Return</span>
-          </label>
-        </div>
+            <motion.span 
+              className="ml-2 font-medium"
+              animate={{ 
+                fontWeight: tripType === "return" ? 600 : 500,
+                color: tripType === "return" ? "#4B5563" : "#6B7280"
+              }}
+            >
+              Return
+            </motion.span>
+          </motion.label>
+        </motion.div>
 
         {/* Number of Passengers */}
         <div className="text-center">
@@ -163,7 +190,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
             <button
               type="button"
               onClick={() => setPassengers(Math.max(1, passengers - 1))}
-              className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors text-lg font-medium"
             >
               -
             </button>
@@ -173,7 +200,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
             <button
               type="button"
               onClick={() => setPassengers(passengers + 1)}
-              className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors text-lg font-medium"
             >
               +
             </button>
@@ -217,22 +244,40 @@ export function BookingForm({ onNext }: BookingFormProps) {
             ref={pickupRef}
             type="text"
             placeholder="dd/mm/yyyy | hh:mm"
-            className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 
-                     focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center"
+            className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
+                     focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm"
             readOnly
           />
         </div>
 
         {/* Return Date & Time */}
-        <AnimatePresence mode="sync">
+        <AnimatePresence mode="wait">
           {tripType === "return" && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
+              initial={{ height: 0, opacity: 0, y: -10 }}
+              animate={{ 
+                height: "auto", 
+                opacity: 1, 
+                y: 0,
+                transition: {
+                  height: { duration: 0.3, ease: "easeOut" },
+                  opacity: { duration: 0.2, delay: 0.1 },
+                  y: { duration: 0.2, delay: 0.1 }
+                }
+              }}
+              exit={{ 
+                height: 0, 
+                opacity: 0, 
+                y: -10,
+                transition: {
+                  height: { duration: 0.2, ease: "easeIn" },
+                  opacity: { duration: 0.1 },
+                  y: { duration: 0.1 }
+                }
+              }}
               className="overflow-hidden"
             >
-              <div className="text-center">
+              <div className="text-center pt-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Return Date & Time
                 </label>
@@ -240,8 +285,8 @@ export function BookingForm({ onNext }: BookingFormProps) {
                   ref={returnRef}
                   type="text"
                   placeholder="dd/mm/yyyy | hh:mm"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 
-                         focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center"
+                  className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
+                           focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm"
                   readOnly
                 />
               </div>
@@ -252,7 +297,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
         {/* Next Button */}
         <motion.button
           type="submit"
-          className="w-full py-3 px-4 rounded-xl bg-primary-600 text-white 
+          className="w-full py-3 px-4 rounded-xl bg-primary-600 text-white font-medium text-sm
                    hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-primary-200
                    disabled:opacity-50 disabled:cursor-not-allowed"
           whileHover={{ scale: 1.02 }}
