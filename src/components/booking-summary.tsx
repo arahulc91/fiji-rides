@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { PickupDropoffLocation, TransferOption, TransferAddon } from "../types";
+import { apiService } from "../lib/axios";
+import { BookingRequest } from "../types/index";
 
 interface BookingSummaryProps {
   onBack: () => void;
@@ -58,6 +60,35 @@ export function BookingSummary({
 
   const transferPrice = parseFloat(transferOption.price);
   const grandTotal = transferPrice + totalAddons;
+
+  const handlePayNow = async () => {
+    try {
+      const bookingRequest: BookingRequest = {
+        return_type: bookingData.tripType,
+        pax: bookingData.passengers,
+        pickup_location_id: bookingData.pickupLocation.id,
+        dropoff_location_id: bookingData.dropoffLocation.id,
+        pickup_date: bookingData.pickupDateTime,
+        return_date: bookingData.returnDateTime,
+        addons: Object.entries(selectedAddons).map(([id, quantity]) => ({
+          addon_id: id,
+          addon_qty: quantity.toString()
+        })),
+        email: formData.email,
+        full_name: formData.fullName,
+        terms_and_conditions_accepted: acceptedTerms,
+      };
+
+      const response = await apiService.createBooking(bookingRequest);
+      console.log('Booking Response:', response);
+      
+      // You can handle the response here, e.g., redirect to payment_url
+      onNext(); // Only call this after successful booking
+    } catch (error) {
+      console.error('Booking Error:', error);
+      // Handle error appropriately
+    }
+  };
 
   return (
     <motion.div
@@ -219,7 +250,7 @@ export function BookingSummary({
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={onNext}
+          onClick={handlePayNow}
           disabled={!acceptedTerms || !formData.fullName || !formData.email}
           className="flex-1 py-3 px-4 rounded-xl bg-primary-600 text-white 
                    hover:bg-primary-700 transition-colors disabled:opacity-50 

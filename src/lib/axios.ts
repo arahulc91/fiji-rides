@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PickupDropoffLocation, TransferAddon, TransferOption } from '../types';
+import { BookingRequest, BookingResponse, PickupDropoffLocation, TransferAddon, TransferOption } from '../types';
 
 const API_TOKEN = '1fb28c670954dde94383814e211dc74568d6eddd';
 
@@ -57,6 +57,7 @@ export const endpoints = {
   dropoffLocations: '/dropoff-locations',
   addons: '/addons',
   transferOptions: '/rates',
+  bookings: '/bookings/',
 } as const;
 
 
@@ -90,6 +91,10 @@ export const apiService = {
     const response = await api.get<TransferOption[]>(endpoints.transferOptions, {
       params
     });
+    return response.data;
+  },
+  createBooking: async (bookingData: BookingRequest) => {
+    const response = await api.post<BookingResponse>(endpoints.bookings, bookingData);
     return response.data;
   },
   // Add more API functions as needed
