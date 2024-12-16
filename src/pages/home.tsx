@@ -185,9 +185,9 @@ function HomePage() {
     ],
     queryFn: () =>
       apiService.getTransferAddons({
-        pickup_location: bookingData?.pickupLocation?.id || 0,
-        dropoff_location: bookingData?.dropoffLocation?.id || 0,
-        pax: bookingData?.passengers || 1,
+        pickup_location: bookingData?.pickupLocation?.id ?? 0,
+        dropoff_location: bookingData?.dropoffLocation?.id ?? 0,
+        pax: bookingData?.passengers ?? 1,
       }),
     enabled: !!bookingData?.pickupLocation, // Only fetch when pickup location is selected
   });
@@ -213,9 +213,9 @@ function HomePage() {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % vehicleSlides.length);
     }, 5000); // Change slide every 5 seconds
-
+  
     return () => clearInterval(timer);
-  }, []);
+  }, [vehicleSlides.length]); 
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % vehicleSlides.length);

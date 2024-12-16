@@ -27,7 +27,7 @@ export function BookingSummary({
   selectedAddons,
   addons,
   transferOption,
-}: BookingSummaryProps) {
+}: Readonly<BookingSummaryProps>) {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",

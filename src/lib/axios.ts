@@ -22,7 +22,9 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(
+      error instanceof Error ? error : new Error('Request configuration error')
+    );
   }
 );
 
@@ -32,22 +34,31 @@ api.interceptors.response.use(
   (error) => {
     // Handle common errors here
     if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          console.error('Invalid or expired token');
-          break;
-        case 403:
-          console.error('Forbidden access');
-          break;
-        case 404:
-          console.error('Resource not found');
-          break;
-        case 500:
-          console.error('Server error');
-          break;
-      }
+      const errorMessage = (() => {
+        switch (error.response.status) {
+          case 401:
+            return 'Invalid or expired token';
+          case 403:
+            return 'Forbidden access';
+          case 404:
+            return 'Resource not found';
+          case 500:
+            return 'Server error';
+          default:
+            return `HTTP Error ${error.response.status}`;
+        }
+      })();
+
+      console.error(errorMessage);
+      return Promise.reject(new Error(errorMessage));
     }
-    return Promise.reject(error);
+
+    // If error doesn't have a response, wrap it in an Error if it isn't already
+    return Promise.reject(
+      error instanceof Error 
+        ? error 
+        : new Error(error?.message || 'Network error')
+    );
   }
 );
 

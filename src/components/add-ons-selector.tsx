@@ -72,7 +72,7 @@ export function AddOnSelector({
   isLoading,
   selectedAddons,
   onAddonsChange
-}: AddOnSelectorProps) {
+}: Readonly<AddOnSelectorProps>) {
   const [expandedSection, setExpandedSection] = useState<'popular' | 'tours' | null>('popular');
 
   const filteredAddons = addons.filter(addon => {
