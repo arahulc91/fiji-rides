@@ -131,8 +131,8 @@ export default function TourDetailsModal({
             </div>
           </div>
 
-          {/* Scrollable content */}
-          <div className="overflow-y-auto max-h-[calc(90vh-380px)] px-6 pb-6 pr-[26px] mr-[-10px]
+          {/* Scrollable content - Adjusted padding and removed negative margin */}
+          <div className="overflow-y-auto max-h-[calc(90vh-380px)] px-6 pb-6
                         scrollbar-thin scrollbar-track-gray-100 
                         scrollbar-thumb-primary-200 hover:scrollbar-thumb-primary-300 
                         scrollbar-thumb-rounded-full">
