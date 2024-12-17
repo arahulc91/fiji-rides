@@ -265,35 +265,71 @@ function HomePage() {
               </motion.p>
             </motion.div>
 
-            {/* Form Section */}
-            <AnimatePresence mode="wait">
-              {currentStep === "booking" ? (
-                <BookingForm key="booking" onNext={handleBookingNext} />
-              ) : currentStep === "addons" ? (
-                <AddOnSelector
-                  key="addons"
-                  bookingData={bookingData!}
-                  addons={addons}
-                  isLoading={isLoadingAddons}
-                  onBack={() => setCurrentStep("booking")}
-                  onNext={() => setCurrentStep("summary")}
-                  onAddonsChange={setSelectedAddons}
-                  selectedAddons={selectedAddons}
-                />
-              ) : currentStep === "summary" && transferOptions?.[0] ? (
-                <BookingSummary
-                  key="summary"
-                  bookingData={bookingData!}
-                  selectedAddons={selectedAddons}
-                  addons={addons}
-                  transferOption={transferOptions[0]}
-                  onBack={() => setCurrentStep("addons")}
-                  onNext={() => {
-                    console.log("Proceeding to payment");
-                  }}
-                />
-              ) : null}
-            </AnimatePresence>
+            {/* Form Container - Updated with centered positioning */}
+            <div className="relative flex justify-center">
+              <div className={`bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 ${
+                currentStep === 'summary' ? 'w-full max-w-2xl' : 'w-[440px]'
+              }`}>
+                {/* Container with dynamic width and centered content */}
+                <div className={`relative transition-all duration-300 ${
+                  currentStep === 'summary' ? 'w-full' : 'w-[440px]'
+                } mx-auto h-[680px]`}>
+                  <AnimatePresence mode="wait">
+                    {currentStep === "booking" ? (
+                      <motion.div
+                        key="booking"
+                        className="absolute inset-0"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <BookingForm onNext={handleBookingNext} />
+                      </motion.div>
+                    ) : currentStep === "addons" ? (
+                      <motion.div
+                        key="addons"
+                        className="absolute inset-0"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <AddOnSelector
+                          bookingData={bookingData!}
+                          addons={addons}
+                          isLoading={isLoadingAddons}
+                          onBack={() => setCurrentStep("booking")}
+                          onNext={() => setCurrentStep("summary")}
+                          onAddonsChange={setSelectedAddons}
+                          selectedAddons={selectedAddons}
+                        />
+                      </motion.div>
+                    ) : currentStep === "summary" && transferOptions?.[0] ? (
+                      <motion.div
+                        key="summary"
+                        className="absolute inset-0"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <BookingSummary
+                          bookingData={bookingData!}
+                          selectedAddons={selectedAddons}
+                          addons={addons}
+                          transferOption={transferOptions[0]}
+                          onBack={() => setCurrentStep("addons")}
+                          onNext={() => {
+                            console.log("Proceeding to payment");
+                          }}
+                        />
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </HeroBackground>

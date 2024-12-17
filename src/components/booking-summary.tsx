@@ -72,7 +72,7 @@ export function BookingSummary({
         return_date: bookingData.returnDateTime,
         addons: Object.entries(selectedAddons).map(([id, quantity]) => ({
           addon_id: id,
-          addon_qty: quantity.toString()
+          addon_qty: quantity.toString(),
         })),
         email: formData.email,
         full_name: formData.fullName,
@@ -80,186 +80,197 @@ export function BookingSummary({
       };
 
       const response = await apiService.createBooking(bookingRequest);
-      console.log('Booking Response:', response);
-      
+      console.log("Booking Response:", response);
+
       // You can handle the response here, e.g., redirect to payment_url
       onNext(); // Only call this after successful booking
     } catch (error) {
-      console.error('Booking Error:', error);
+      console.error("Booking Error:", error);
       // Handle error appropriately
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-2xl p-6 shadow-xl max-w-4xl mx-auto w-full"
-    >
-      <h2 className="text-2xl font-semibold text-center mb-6 text-secondary-500">
-        Booking Summary
-      </h2>
+    <div className="h-full flex flex-col">
+      {/* Main content */}
+      <div className="flex-1 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-semibold text-center mb-6 text-secondary-500">
+            Booking Summary
+          </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left Column */}
-        <div className="space-y-6">
-          {/* Trip Details */}
-          <div className="bg-gray-50 p-4 rounded-xl space-y-3">
-            <div>
-              <div className="text-base font-semibold text-gray-700">
-                Pickup Location
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Column */}
+            <div className="space-y-6">
+              {/* Trip Details */}
+              <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+                <div>
+                  <div className="text-base font-semibold text-gray-700">
+                    Pickup Location
+                  </div>
+                  <div className="text-sm text-gray-900">
+                    {bookingData.pickupLocation.description}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-base font-semibold text-gray-700">
+                    Dropoff Location
+                  </div>
+                  <div className="text-sm text-gray-900">
+                    {bookingData.dropoffLocation.description}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-base font-semibold text-gray-700">
+                    Return Type
+                  </div>
+                  <div className="text-sm text-gray-900 capitalize">
+                    {bookingData.tripType}
+                  </div>
+                </div>
               </div>
-              <div className="text-sm text-gray-900">
-                {bookingData.pickupLocation.description}
-              </div>
-            </div>
-            <div>
-              <div className="text-base font-semibold text-gray-700">
-                Dropoff Location
-              </div>
-              <div className="text-sm text-gray-900">
-                {bookingData.dropoffLocation.description}
-              </div>
-            </div>
-            <div>
-              <div className="text-base font-semibold text-gray-700">
-                Return Type
-              </div>
-              <div className="text-sm text-gray-900 capitalize">
-                {bookingData.tripType}
-              </div>
-            </div>
-          </div>
 
-          {/* Vehicle Details */}
-          <div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">
-              This is your ride:
-            </h3>
-            <div className="bg-gray-50 rounded-xl p-4">
-              {transferOption.vehicle_image_base64 && (
-                <img
-                  src={`data:image/jpeg;base64,${transferOption.vehicle_image_base64}`}
-                  alt="Vehicle"
-                  className="w-full h-32 object-cover rounded-lg mb-2"
-                />
-              )}
-              <div className="text-sm font-medium text-gray-900">
-                {transferOption.transfer_option}
+              {/* Vehicle Details */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  This is your ride:
+                </h3>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  {transferOption.vehicle_image_base64 && (
+                    <img
+                      src={`data:image/jpeg;base64,${transferOption.vehicle_image_base64}`}
+                      alt="Vehicle"
+                      className="w-full h-32 object-cover rounded-lg mb-2"
+                    />
+                  )}
+                  <div className="text-sm font-medium text-gray-900">
+                    {transferOption.transfer_option}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {transferOption.transfer_company}
+                  </div>
+                </div>
               </div>
-              <div className="text-sm text-gray-600">
-                {transferOption.transfer_company}
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Price Breakdown */}
+              <div className="bg-primary-50 p-4 rounded-xl">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-semibold text-gray-700">
+                    Transfer Price
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    FJ${transferPrice.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-semibold text-gray-700">
+                    Total Addons
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    FJ${totalAddons.toFixed(2)}
+                  </span>
+                </div>
+                <div className="border-t border-primary-100 mt-2 pt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-base font-semibold text-gray-700">
+                      Grand Total
+                    </span>
+                    <span className="text-base font-bold text-gray-900">
+                      FJ${grandTotal.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.fullName}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        fullName: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-900
+                               focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, email: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Enter your email address"
+                  />
+                </div>
+              </div>
+
+              {/* Terms Checkbox */}
+              <div>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span className="text-sm text-gray-700">
+                    I Accept the{" "}
+                    <a
+                      href="/terms"
+                      className="text-primary-600 hover:text-primary-700 underline"
+                    >
+                      terms and conditions
+                    </a>
+                  </span>
+                </label>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Price Breakdown */}
-          <div className="bg-primary-50 p-4 rounded-xl">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-semibold text-gray-700">Transfer Price</span>
-              <span className="text-sm font-semibold text-gray-900">
-                FJ${transferPrice.toFixed(2)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-semibold text-gray-700">Total Addons</span>
-              <span className="text-sm font-semibold text-gray-900">
-                FJ${totalAddons.toFixed(2)}
-              </span>
-            </div>
-            <div className="border-t border-primary-100 mt-2 pt-2">
-              <div className="flex justify-between items-center">
-                <span className="text-base font-semibold text-gray-700">Grand Total</span>
-                <span className="text-base font-bold text-gray-900">
-                  FJ${grandTotal.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Form Fields */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={formData.fullName}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, fullName: e.target.value }))
-                }
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-900
-                           focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter your full name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, email: e.target.value }))
-                }
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter your email address"
-              />
-            </div>
-          </div>
-
-          {/* Terms Checkbox */}
-          <div>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={acceptedTerms}
-                onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <span className="text-sm text-gray-700">
-                I Accept the{" "}
-                <a
-                  href="/terms"
-                  className="text-primary-600 hover:text-primary-700 underline"
-                >
-                  terms and conditions
-                </a>
-              </span>
-            </label>
-          </div>
+      {/* Bottom buttons - pushed down by flex-1 above */}
+      <div className="p-4">
+        <div className="flex gap-3 max-w-4xl mx-auto">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onBack}
+            className="flex-1 py-3 px-4 rounded-xl border border-gray-200 
+                     text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
+          >
+            Back
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handlePayNow}
+            disabled={!acceptedTerms || !formData.fullName || !formData.email}
+            className="flex-1 py-3 px-4 rounded-xl bg-primary-600 text-white 
+                     hover:bg-primary-700 transition-colors text-sm font-medium
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Pay Now
+          </motion.button>
         </div>
       </div>
-
-      {/* Action Buttons */}
-      <div className="flex gap-3 mt-6">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={onBack}
-          className="flex-1 py-3 px-4 rounded-xl border border-gray-200 
-                   text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
-        >
-          Back
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handlePayNow}
-          disabled={!acceptedTerms || !formData.fullName || !formData.email}
-          className="flex-1 py-3 px-4 rounded-xl bg-primary-600 text-white 
-                   hover:bg-primary-700 transition-colors text-sm font-medium
-                   disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Pay Now
-        </motion.button>
-      </div>
-    </motion.div>
+    </div>
   );
 }
