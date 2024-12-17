@@ -1,17 +1,18 @@
-import { useState, useRef, useEffect } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { useState, useRef, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 
 interface Location {
-  id: number
-  description: string
+  id: number;
+  description: string;
 }
 
 interface LocationAutocompleteProps {
-  locations: Location[]
-  value: Location | null
-  onChange: (location: Location | null) => void
-  placeholder: string
-  isLoading?: boolean
+  locations: Location[];
+  value: Location | null;
+  onChange: (location: Location | null) => void;
+  placeholder: string;
+  isLoading?: boolean;
+  id?: string;
 }
 
 export function LocationAutocomplete({
@@ -19,29 +20,56 @@ export function LocationAutocomplete({
   value,
   onChange,
   placeholder,
-  isLoading = false
+  isLoading = false,
+  id,
 }: Readonly<LocationAutocompleteProps>) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const isUserTyping = useRef(false);
 
-  const filteredLocations = query === ''
-    ? locations
-    : locations.filter((location) =>
-        location.description
-          .toLowerCase()
-          .includes(query.toLowerCase())
-      )
+  useEffect(() => {
+    if (!isUserTyping.current) {
+      setQuery("");
+    }
+  }, [value]);
+
+  const filteredLocations =
+    query === ""
+      ? locations
+      : locations.filter((location) =>
+          location.description.toLowerCase().includes(query.toLowerCase())
+        );
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    isUserTyping.current = true;
+    setQuery(newValue);
+    
+    if (newValue === "" || (value && !value.description.toLowerCase().startsWith(newValue.toLowerCase()))) {
+      onChange(null);
+    }
+    
+    setIsOpen(true);
+    setTimeout(() => {
+      isUserTyping.current = false;
+    }, 100);
+  };
+
+  const inputValue = query || (value?.description ?? "");
 
   const renderDropdownContent = () => {
     if (isLoading) {
@@ -64,14 +92,15 @@ export function LocationAutocomplete({
       <button
         key={location.id}
         className={`px-4 py-2.5 text-sm cursor-pointer w-full  transition-colors duration-150
-          ${value?.id === location.id 
-            ? 'bg-emerald-500 text-white font-medium' 
-            : 'text-gray-900 hover:bg-emerald-50'
+          ${
+            value?.id === location.id
+              ? "bg-emerald-500 text-white font-medium"
+              : "text-gray-900 hover:bg-emerald-50"
           }`}
         onClick={() => {
-          onChange(location)
-          setIsOpen(false)
-          setQuery('')
+          onChange(location);
+          setIsOpen(false);
+          setQuery("");
         }}
       >
         {location.description}
@@ -80,27 +109,26 @@ export function LocationAutocomplete({
   };
 
   return (
-    <div ref={wrapperRef} className="relative w-full">
-      <button 
+    <div id={id} ref={wrapperRef} className="relative w-full">
+      <button
         type="button"
         className="relative w-full cursor-pointer"
         onClick={() => setIsOpen(true)}
       >
         <input
           type="text"
-          className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
+          className="w-full cursor-pointer px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
                    focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-center text-sm pr-12"
           placeholder={placeholder}
-          value={value ? value.description : query}
-          onChange={(e) => {
-            setQuery(e.target.value)
-            setIsOpen(true)
-          }}
+          value={inputValue}
+          onChange={handleInputChange}
           onClick={() => setIsOpen(true)}
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-          <ChevronDown 
-            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          <ChevronDown
+            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
+              isOpen ? "rotate-180" : ""
+            }`}
           />
         </div>
       </button>
@@ -111,5 +139,5 @@ export function LocationAutocomplete({
         </div>
       )}
     </div>
-  )
+  );
 }

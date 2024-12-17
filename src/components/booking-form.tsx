@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { apiService } from "../lib/axios";
@@ -21,7 +21,7 @@ interface BookingFormProps {
   onNext: (bookingData: BookingData) => void;
 }
 
-export function BookingForm({ onNext }: BookingFormProps) {
+export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
   const [tripType, setTripType] = useState<TripType>("return");
   const [passengers, setPassengers] = useState(1);
   const [pickupLocation, setPickupLocation] =
@@ -44,7 +44,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
   const { data: unsortedDropoffLocations = [], isLoading: isLoadingDropoff } =
     useQuery({
       queryKey: ["dropoffLocations", pickupLocation?.id],
-      queryFn: () => apiService.getDropoffLocations(pickupLocation?.id || 0),
+      queryFn: () => apiService.getDropoffLocations(pickupLocation?.id ?? 0),
       enabled: !!pickupLocation?.id,
     });
 
@@ -52,11 +52,18 @@ export function BookingForm({ onNext }: BookingFormProps) {
     (a?.description ?? "").localeCompare(b?.description ?? "")
   );
 
+  const pickupLocationWasSet = useRef(false);
+
   useEffect(() => {
-    if (pickupLocations.length > 0 && !pickupLocation) {
+    if (
+      pickupLocations.length > 0 &&
+      !pickupLocation &&
+      !pickupLocationWasSet.current
+    ) {
       const defaultLocation = pickupLocations.find((loc) => loc.id === 593);
       if (defaultLocation) {
         setPickupLocation(defaultLocation);
+        pickupLocationWasSet.current = true;
       }
     }
   }, [pickupLocations, pickupLocation]);
@@ -168,12 +175,16 @@ export function BookingForm({ onNext }: BookingFormProps) {
 
           {/* Number of Passengers */}
           <div className="text-center">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="decrement-passengers"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Number of Passengers
             </label>
             <div className="flex items-center justify-center space-x-4">
               <button
                 type="button"
+                id="decrement-passengers"
                 onClick={() => setPassengers(Math.max(1, passengers - 1))}
                 className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors text-lg font-medium"
               >
@@ -194,7 +205,10 @@ export function BookingForm({ onNext }: BookingFormProps) {
 
           {/* Pickup Location */}
           <div className="text-center">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="pickup-location"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Pickup Location
             </label>
             <LocationAutocomplete
@@ -203,12 +217,16 @@ export function BookingForm({ onNext }: BookingFormProps) {
               onChange={setPickupLocation}
               placeholder="Nadi International Airport"
               isLoading={isLoadingPickup}
+              id="pickup-location"
             />
           </div>
 
           {/* Dropoff Location */}
           <div className="text-center">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="dropoff-location"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Dropoff Location
             </label>
             <LocationAutocomplete
@@ -217,6 +235,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
               onChange={setDropoffLocation}
               placeholder="Select hotel/resort"
               isLoading={isLoadingDropoff}
+              id="dropoff-location"
             />
           </div>
 
@@ -263,7 +282,10 @@ export function BookingForm({ onNext }: BookingFormProps) {
                 className="overflow-hidden"
               >
                 <div className="text-center pt-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="return-date-time"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Return Date & Time
                   </label>
                   <input
@@ -273,6 +295,7 @@ export function BookingForm({ onNext }: BookingFormProps) {
                     className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
                              focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm"
                     readOnly
+                    id="return-date-time"
                   />
                 </div>
               </motion.div>
