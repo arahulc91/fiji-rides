@@ -2,7 +2,8 @@ declare global {
   interface Window {
     DateTimePicker: {
       new (options: DateTimePickerOptions): DateTimePicker;
-    };
+      (options: DateTimePickerOptions): DateTimePicker;
+    }
   }
 }
 

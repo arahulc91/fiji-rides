@@ -240,47 +240,53 @@ function HomePage() {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Hero Text / Map Container */}
             <AnimatePresence mode="wait">
-              {currentStep === "booking" ? (
-                <motion.div
-                  key="hero-text"
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit={{ opacity: 0, x: -20 }}
-                  className="text-center lg:text-left"
-                >
-                  <motion.h1
-                    className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight text-white"
-                    variants={itemVariants}
+              {(() => {
+                if (currentStep === "booking") {
+                  return (
+                    <motion.div
+                      key="hero-text"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit={{ opacity: 0, x: -20 }}
+                      className="text-center lg:text-left"
+                    >
+                      <motion.h1
+                        className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight text-white"
+                        variants={itemVariants}
+                      >
+                        <div>Fiji's Exclusive</div>
+                        <div className="text-primary-300 mt-1 lg:mt-2">24-Hour Private</div>
+                        <div className="text-white mt-1 lg:mt-2">Transfer Experience</div>
+                      </motion.h1>
+                      <motion.p
+                        className="mt-4 lg:mt-6 text-base lg:text-lg leading-7 lg:leading-8 text-white/90"
+                        variants={itemVariants}
+                      >
+                        Seamless, comfortable, and personalized transfers at your
+                        convenience throughout the beautiful islands of Fiji.
+                      </motion.p>
+                    </motion.div>
+                  );
+                }
+                
+                return (
+                  <motion.div
+                    key="route-map"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="bg-white rounded-2xl shadow-xl overflow-hidden h-[680px]"
                   >
-                    <div>Fiji's Exclusive</div>
-                    <div className="text-primary-300 mt-1 lg:mt-2">24-Hour Private</div>
-                    <div className="text-white mt-1 lg:mt-2">Transfer Experience</div>
-                  </motion.h1>
-                  <motion.p
-                    className="mt-4 lg:mt-6 text-base lg:text-lg leading-7 lg:leading-8 text-white/90"
-                    variants={itemVariants}
-                  >
-                    Seamless, comfortable, and personalized transfers at your
-                    convenience throughout the beautiful islands of Fiji.
-                  </motion.p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="route-map"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="bg-white rounded-2xl shadow-xl overflow-hidden h-[680px]"
-                >
-                  {bookingData && (
-                    <RouteMap
-                      pickupLocation={bookingData.pickupLocation}
-                      dropoffLocation={bookingData.dropoffLocation}
-                    />
-                  )}
-                </motion.div>
-              )}
+                    {bookingData && (
+                      <RouteMap
+                        pickupLocation={bookingData.pickupLocation}
+                        dropoffLocation={bookingData.dropoffLocation}
+                      />
+                    )}
+                  </motion.div>
+                );
+              })()}
             </AnimatePresence>
 
             {/* Form Container */}
@@ -296,57 +302,71 @@ function HomePage() {
                   } mx-auto h-[680px]`}
                 >
                   <AnimatePresence mode="wait">
-                    {currentStep === "booking" ? (
-                      <motion.div
-                        key="booking"
-                        className="absolute inset-0"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <BookingForm onNext={handleBookingNext} />
-                      </motion.div>
-                    ) : currentStep === "addons" ? (
-                      <motion.div
-                        key="addons"
-                        className="absolute inset-0"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <AddOnSelector
-                          bookingData={bookingData!}
-                          addons={addons}
-                          isLoading={isLoadingAddons}
-                          onBack={() => setCurrentStep("booking")}
-                          onNext={() => setCurrentStep("summary")}
-                          onAddonsChange={setSelectedAddons}
-                          selectedAddons={selectedAddons}
-                        />
-                      </motion.div>
-                    ) : currentStep === "summary" && transferOptions?.[0] ? (
-                      <motion.div
-                        key="summary"
-                        className="absolute inset-0"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <BookingSummary
-                          bookingData={bookingData!}
-                          selectedAddons={selectedAddons}
-                          addons={addons}
-                          transferOption={transferOptions[0]}
-                          onBack={() => setCurrentStep("addons")}
-                          onNext={() => {
-                            console.log("Proceeding to payment");
-                          }}
-                        />
-                      </motion.div>
-                    ) : null}
+                    {(() => {
+                      if (currentStep === "booking") {
+                        return (
+                          <motion.div
+                            key="booking"
+                            className="absolute inset-0"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <BookingForm onNext={handleBookingNext} />
+                          </motion.div>
+                        );
+                      }
+                      
+                      if (currentStep === "addons") {
+                        return (
+                          <motion.div
+                            key="addons"
+                            className="absolute inset-0"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <AddOnSelector
+                              bookingData={bookingData!}
+                              addons={addons}
+                              isLoading={isLoadingAddons}
+                              onBack={() => setCurrentStep("booking")}
+                              onNext={() => setCurrentStep("summary")}
+                              onAddonsChange={setSelectedAddons}
+                              selectedAddons={selectedAddons}
+                            />
+                          </motion.div>
+                        );
+                      }
+                      
+                      if (currentStep === "summary" && transferOptions?.[0]) {
+                        return (
+                          <motion.div
+                            key="summary"
+                            className="absolute inset-0"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <BookingSummary
+                              bookingData={bookingData!}
+                              selectedAddons={selectedAddons}
+                              addons={addons}
+                              transferOption={transferOptions[0]}
+                              onBack={() => setCurrentStep("addons")}
+                              onNext={() => {
+                                console.log("Proceeding to payment");
+                              }}
+                            />
+                          </motion.div>
+                        );
+                      }
+                      
+                      return null;
+                    })()}
                   </AnimatePresence>
                 </div>
               </div>
@@ -572,7 +592,7 @@ function HomePage() {
               <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex space-x-2">
                 {vehicleSlides.map((_, index) => (
                   <button
-                    key={index}
+                    key={index + "vehicle"}
                     onClick={() => setCurrentSlide(index)}
                     className={`w-2 h-2 rounded-full transition-all duration-300 ${
                       currentSlide === index

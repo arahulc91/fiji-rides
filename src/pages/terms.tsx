@@ -168,7 +168,7 @@ function TermsPage() {
                   <ul className="space-y-3">
                     {section.content.map((item, index) => (
                       <li
-                        key={index}
+                        key={item + index}
                         className="text-secondary-700 leading-relaxed flex items-start gap-2 text-sm"
                       >
                         <span className="h-1.5 w-1.5 bg-primary-500 rounded-full mt-2 flex-shrink-0" />

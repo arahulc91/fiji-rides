@@ -37,19 +37,19 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
+                  className="text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1.5"
                 >
-                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
-                  Home
+                 
+                  <span>Home</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/about"
-                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
+                  className="text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1.5"
                 >
-                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
-                  About Us
+                
+                  <span>About Us</span>
                 </Link>
               </li>
               <li>
@@ -57,8 +57,7 @@ export function Footer() {
                   to="/contact"
                   className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
-                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
-                  Contact
+                  <span>Contact</span>
                 </Link>
               </li>
             </ul>
@@ -72,8 +71,7 @@ export function Footer() {
                   to="/faqs"
                   className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
-                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
-                  FAQs
+                  <span>FAQs</span>
                 </Link>
               </li>
               <li>
@@ -81,8 +79,7 @@ export function Footer() {
                   to="/terms"
                   className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
-                  <span className="h-1 w-1 bg-primary-400 rounded-full" />
-                  Terms of Service
+                  <span>Terms of Service</span>
                 </Link>
               </li>
             </ul>

@@ -42,7 +42,7 @@ const FIJI_LOCATIONS: Record<string, [number, number]> = {
   "First Landing Beach Resort & Villas": [177.3833, -17.6667],
 };
 
-export function RouteMap({ pickupLocation, dropoffLocation }: RouteMapProps) {
+export function RouteMap({ pickupLocation, dropoffLocation }: Readonly<RouteMapProps>) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 

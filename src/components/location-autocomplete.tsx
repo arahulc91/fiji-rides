@@ -20,7 +20,7 @@ export function LocationAutocomplete({
   onChange,
   placeholder,
   isLoading = false
-}: LocationAutocompleteProps) {
+}: Readonly<LocationAutocompleteProps>) {
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState('')
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -43,9 +43,46 @@ export function LocationAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const renderDropdownContent = () => {
+    if (isLoading) {
+      return (
+        <div className="py-3 px-4 text-sm text-gray-500 text-center">
+          Finding locations...
+        </div>
+      );
+    }
+
+    if (filteredLocations.length === 0) {
+      return (
+        <div className="py-3 px-4 text-sm text-gray-500 text-center">
+          No locations found
+        </div>
+      );
+    }
+
+    return filteredLocations.map((location) => (
+      <button
+        key={location.id}
+        className={`px-4 py-2.5 text-sm cursor-pointer w-full  transition-colors duration-150
+          ${value?.id === location.id 
+            ? 'bg-emerald-500 text-white font-medium' 
+            : 'text-gray-900 hover:bg-emerald-50'
+          }`}
+        onClick={() => {
+          onChange(location)
+          setIsOpen(false)
+          setQuery('')
+        }}
+      >
+        {location.description}
+      </button>
+    ));
+  };
+
   return (
     <div ref={wrapperRef} className="relative w-full">
-      <div 
+      <button 
+        type="button"
         className="relative w-full cursor-pointer"
         onClick={() => setIsOpen(true)}
       >
@@ -66,37 +103,11 @@ export function LocationAutocomplete({
             className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
           />
         </div>
-      </div>
+      </button>
 
       {isOpen && (
         <div className="absolute z-50 w-full mt-2 rounded-xl bg-white py-1.5 shadow-xl ring-1 ring-black ring-opacity-5 max-h-60 overflow-auto">
-          {isLoading ? (
-            <div className="py-3 px-4 text-sm text-gray-500 text-center">
-              Finding locations...
-            </div>
-          ) : filteredLocations.length === 0 ? (
-            <div className="py-3 px-4 text-sm text-gray-500 text-center">
-              No locations found
-            </div>
-          ) : (
-            filteredLocations.map((location) => (
-              <div
-                key={location.id}
-                className={`px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150
-                  ${value?.id === location.id 
-                    ? 'bg-emerald-500 text-white font-medium' 
-                    : 'text-gray-900 hover:bg-emerald-50'
-                  }`}
-                onClick={() => {
-                  onChange(location)
-                  setIsOpen(false)
-                  setQuery('')
-                }}
-              >
-                {location.description}
-              </div>
-            ))
-          )}
+          {renderDropdownContent()}
         </div>
       )}
     </div>
