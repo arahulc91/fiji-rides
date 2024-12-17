@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiService } from "../lib/axios";
 import { BookingSummary } from "../components/booking-summary";
 import { PickupDropoffLocation } from "../types/index";
+import { RouteMap } from "../components/route-map";
 
 interface VehicleSlide {
   image: string;
@@ -202,9 +203,9 @@ function HomePage() {
     ],
     queryFn: () =>
       apiService.getTransferOptions({
-        pickup_location: bookingData?.pickupLocation?.id || 0,
-        dropoff_location: bookingData?.dropoffLocation?.id || 0,
-        pax: bookingData?.passengers || 1,
+        pickup_location: bookingData?.pickupLocation?.id ?? 0,
+        dropoff_location: bookingData?.dropoffLocation?.id ?? 0,
+        pax: bookingData?.passengers ?? 1,
       }),
     enabled: !!bookingData?.pickupLocation?.id,
   });
@@ -213,9 +214,9 @@ function HomePage() {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % vehicleSlides.length);
     }, 5000); // Change slide every 5 seconds
-  
+
     return () => clearInterval(timer);
-  }, [vehicleSlides.length]); 
+  }, [vehicleSlides.length]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % vehicleSlides.length);
@@ -237,43 +238,63 @@ function HomePage() {
       <HeroBackground className="min-h-screen pt-36 lg:pt-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            {/* Hero Text */}
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="text-center lg:text-left"
-            >
-              <motion.h1
-                className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight text-white"
-                variants={itemVariants}
-              >
-                Fiji's Exclusive
-                <span className="block text-primary-300 mt-1 lg:mt-2">
-                  24-Hour Private
-                </span>
-                <span className="block text-white mt-1 lg:mt-2">
-                  Transfer Experience
-                </span>
-              </motion.h1>
-              <motion.p
-                className="mt-4 lg:mt-6 text-base lg:text-lg leading-7 lg:leading-8 text-white/90"
-                variants={itemVariants}
-              >
-                Seamless, comfortable, and personalized transfers at your
-                convenience throughout the beautiful islands of Fiji.
-              </motion.p>
-            </motion.div>
+            {/* Hero Text / Map Container */}
+            <AnimatePresence mode="wait">
+              {currentStep === "booking" ? (
+                <motion.div
+                  key="hero-text"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0, x: -20 }}
+                  className="text-center lg:text-left"
+                >
+                  <motion.h1
+                    className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight text-white"
+                    variants={itemVariants}
+                  >
+                    <div>Fiji's Exclusive</div>
+                    <div className="text-primary-300 mt-1 lg:mt-2">24-Hour Private</div>
+                    <div className="text-white mt-1 lg:mt-2">Transfer Experience</div>
+                  </motion.h1>
+                  <motion.p
+                    className="mt-4 lg:mt-6 text-base lg:text-lg leading-7 lg:leading-8 text-white/90"
+                    variants={itemVariants}
+                  >
+                    Seamless, comfortable, and personalized transfers at your
+                    convenience throughout the beautiful islands of Fiji.
+                  </motion.p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="route-map"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white rounded-2xl shadow-xl overflow-hidden h-[680px]"
+                >
+                  {bookingData && (
+                    <RouteMap
+                      pickupLocation={bookingData.pickupLocation}
+                      dropoffLocation={bookingData.dropoffLocation}
+                    />
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Form Container - Updated with centered positioning */}
+            {/* Form Container */}
             <div className="relative flex justify-center">
-              <div className={`bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 ${
-                currentStep === 'summary' ? 'w-full max-w-2xl' : 'w-[440px]'
-              }`}>
-                {/* Container with dynamic width and centered content */}
-                <div className={`relative transition-all duration-300 ${
-                  currentStep === 'summary' ? 'w-full' : 'w-[440px]'
-                } mx-auto h-[680px]`}>
+              <div
+                className={`bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 ${
+                  currentStep === "summary" ? "w-full max-w-2xl" : "w-[440px]"
+                }`}
+              >
+                <div
+                  className={`relative transition-all duration-300 ${
+                    currentStep === "summary" ? "w-full" : "w-[440px]"
+                  } mx-auto h-[680px]`}
+                >
                   <AnimatePresence mode="wait">
                     {currentStep === "booking" ? (
                       <motion.div
