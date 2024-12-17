@@ -46,7 +46,9 @@ export default {
     },
   },
   plugins: [
-    require('tailwind-scrollbar')({ nocompatible: true }),
+    import('tailwind-scrollbar').then(({ default: scrollbar }) => 
+      scrollbar({ nocompatible: true })
+    ),
     function({ addBase }) {
       addBase({
         ':root': {
