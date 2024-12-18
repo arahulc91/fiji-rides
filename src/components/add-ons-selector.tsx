@@ -140,7 +140,7 @@ export function AddOnSelector({
 
   function updateQuantity(id: number, delta: number) {
     const current = selectedAddons[id] || 0;
-    const newValue = Math.max(0, current + delta);
+    const newValue = Math.max(0, Math.min(22, current + delta));
 
     if (newValue === 0) {
       const rest = Object.fromEntries(
