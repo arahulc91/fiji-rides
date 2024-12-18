@@ -46,7 +46,7 @@ function AccordionHeader({
   isExpanded,
   onClick,
   count,
-}: AccordionHeaderProps) {
+}: Readonly<AccordionHeaderProps>) {
   return (
     <button
       onClick={onClick}
@@ -122,21 +122,18 @@ export function AddOnSelector({
   >("popular");
   const [selectedTour, setSelectedTour] = useState<GroupedTourAddon | null>(null);
 
-  const filteredAddons = addons.filter((addon) => {
-    if (bookingData.tripType === "one-way" && addon.return_type === "return") {
-      return false;
-    }
-    return true;
-  });
 
-  const popularAddons = filteredAddons.filter((addon) => !addon.is_tour_addon);
-  const tourAddons = filteredAddons.filter((addon) => addon.is_tour_addon);
+  const popularAddons = addons.filter((addon) => !addon.is_tour_addon);
+  const tourAddons = addons.filter((addon) => addon.is_tour_addon);
 
   const getAddonPrice = (addon: TransferAddon) => {
-    const price = parseFloat(addon.price);
-    if (addon.addon.toLowerCase().includes("per person")) {
-      return price * bookingData.passengers;
+    let price = parseFloat(addon.price);
+    
+    // Only multiply by 2 if both booking and addon are return type
+    if (bookingData.tripType === "return" && addon.return_type === "return") {
+      price *= 2;
     }
+
     return price;
   };
 
@@ -163,7 +160,7 @@ export function AddOnSelector({
   );
 
   const AddOnItem = ({ addon }: { addon: TransferAddon }) => {
-    const price = parseFloat(addon.price);
+    const price = getAddonPrice(addon);
 
     return (
       <div className="flex items-center justify-between py-2">
@@ -176,7 +173,7 @@ export function AddOnSelector({
               {price > 0 && (
                 <span className="text-sm text-gray-500">
                   (${price.toFixed(2)}
-                  {addon.return_type === "return" && " Return"})
+                  {addon.return_type === "return" && bookingData.tripType === "return" && " Return"})
                 </span>
               )}
               {price === 0 && (

@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 interface Location {
   id: number;
   description: string;
+  region_tags?: string[];
 }
 
 interface LocationAutocompleteProps {
@@ -39,9 +40,19 @@ export function LocationAutocomplete({
   const filteredLocations =
     query === ""
       ? locations
-      : locations.filter((location) =>
-          location.description.toLowerCase().includes(query.toLowerCase())
-        );
+      : locations.filter((location) => {
+          const searchQuery = query.toLowerCase();
+          
+          const descriptionMatch = location.description
+            .toLowerCase()
+            .includes(searchQuery);
+
+          const tagMatch = location.region_tags?.some(tag =>
+            tag.toLowerCase().includes(searchQuery)
+          );
+
+          return descriptionMatch || tagMatch;
+        });
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -93,7 +104,7 @@ export function LocationAutocomplete({
     return filteredLocations.map((location) => (
       <button
         key={location.id}
-        className={`px-4 py-2.5 text-sm cursor-pointer w-full  transition-colors duration-150
+        className={`px-4 py-2.5 text-sm cursor-pointer w-full transition-colors duration-150
           ${
             value?.id === location.id
               ? "bg-emerald-500 text-white font-medium"
@@ -105,7 +116,14 @@ export function LocationAutocomplete({
           setQuery("");
         }}
       >
-        {location.description}
+        <div className="text-left">
+          <div>{location.description}</div>
+          {location.region_tags && location.region_tags.length > 0 && (
+            <div className="text-xs mt-0.5 text-gray-500">
+              {location.region_tags.join(" · ")}
+            </div>
+          )}
+        </div>
       </button>
     ));
   };

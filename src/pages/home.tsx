@@ -185,11 +185,7 @@ function HomePage() {
       bookingData?.passengers,
     ],
     queryFn: () =>
-      apiService.getTransferAddons({
-        pickup_location: bookingData?.pickupLocation?.id ?? 0,
-        dropoff_location: bookingData?.dropoffLocation?.id ?? 0,
-        pax: bookingData?.passengers ?? 1,
-      }),
+      apiService.getTransferAddons(),
     enabled: !!bookingData?.pickupLocation, // Only fetch when pickup location is selected
   });
 

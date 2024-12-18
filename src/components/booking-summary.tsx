@@ -50,10 +50,21 @@ export function BookingSummary({
     );
   }
 
+  const getAddonPrice = (addon: TransferAddon) => {
+    let price = parseFloat(addon.price);
+    
+    // Only multiply by 2 if both booking and addon are return type
+    if (bookingData.tripType === "return" && addon.return_type === "return") {
+      price *= 2;
+    }
+
+    return price;
+  };
+
   const totalAddons = Object.entries(selectedAddons).reduce(
     (sum, [id, quantity]) => {
       const addon = addons.find((a) => a.id === parseInt(id));
-      return sum + (addon ? parseFloat(addon.price) * quantity : 0);
+      return sum + (addon ? getAddonPrice(addon) * quantity : 0);
     },
     0
   );

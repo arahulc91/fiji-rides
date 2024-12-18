@@ -84,13 +84,9 @@ export const apiService = {
     );
     return response.data;
   },
-  getTransferAddons: async (params: {
-    pickup_location: number;
-    dropoff_location: number;
-    pax: number;
-  }) => {
+  getTransferAddons: async () => {
     const response = await api.get<TransferAddon[]>(endpoints.addons, {
-      params
+      
     });
     return response.data;
   },
