@@ -9,6 +9,9 @@ export interface ApiResponse<T> {
   export interface PickupDropoffLocation {
     id: number;
     description: string;
+    latitude: number;
+    longitude: number;
+    
   }
   
   export interface TransferAddon {

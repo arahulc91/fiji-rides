@@ -5,6 +5,7 @@ import { apiService } from "../lib/axios";
 import { LocationAutocomplete } from "./location-autocomplete";
 import { PickupDropoffLocation } from "../types";
 import { useDateTimePicker } from "../hooks/useDateTimePicker";
+import { z } from "zod";
 
 type TripType = "one-way" | "return";
 
@@ -21,6 +22,38 @@ interface BookingFormProps {
   onNext: (bookingData: BookingData) => void;
 }
 
+// Add validation schema
+const bookingFormSchema = z.object({
+  pickupLocation: z.object({
+    id: z.number(),
+    description: z.string(),
+  }).nullable(),
+  dropoffLocation: z.object({
+    id: z.number(),
+    description: z.string(),
+  }).nullable(),
+  passengers: z.number().min(1).max(50),
+  tripType: z.enum(["one-way", "return"]),
+  pickupDateTime: z.string().min(1, "Pickup date & time is required"),
+  returnDateTime: z.string().optional().refine(
+    (date) => {
+      if (!date) return true;
+      return new Date(date) > new Date();
+    },
+    "Return date must be in the future"
+  ),
+});
+
+type BookingFormData = z.infer<typeof bookingFormSchema>;
+
+interface FormErrors {
+  pickupLocation?: string;
+  dropoffLocation?: string;
+  passengers?: string;
+  pickupDateTime?: string;
+  returnDateTime?: string;
+}
+
 export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
   const [tripType, setTripType] = useState<TripType>("return");
   const [passengers, setPassengers] = useState(1);
@@ -30,6 +63,7 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
     useState<PickupDropoffLocation | null>(null);
   const [pickupDateTime, setPickupDateTime] = useState("");
   const [returnDateTime, setReturnDateTime] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const { data: unsortedPickupLocations = [], isLoading: isLoadingPickup } =
     useQuery({
@@ -107,22 +141,58 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (pickupLocation && dropoffLocation) {
-      onNext({
-        pickupLocation,
-        dropoffLocation,
-        passengers,
-        tripType,
-        pickupDateTime,
-        returnDateTime: tripType === "return" ? returnDateTime : undefined,
-      });
+    const formData: BookingFormData = {
+      pickupLocation,
+      dropoffLocation,
+      passengers,
+      tripType,
+      pickupDateTime,
+      returnDateTime: tripType === "return" ? returnDateTime : undefined,
+    };
+
+    // Collect all validation errors at once
+    const newErrors: FormErrors = {};
+    
+    // Remove the try-catch block and combine all validations
+    if (!formData.pickupLocation) {
+      newErrors.pickupLocation = "Pickup location is required";
     }
+    if (!formData.dropoffLocation) {
+      newErrors.dropoffLocation = "Dropoff location is required";
+    }
+    if (!formData.pickupDateTime) {
+      newErrors.pickupDateTime = "Pickup date & time is required";
+    }
+    if (tripType === "return" && !formData.returnDateTime) {
+      newErrors.returnDateTime = "Return date & time is required";
+    }
+
+    // Additional Zod validation if needed
+    try {
+      bookingFormSchema.parse(formData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          const path = err.path[0] as keyof FormErrors;
+          if (!newErrors[path]) { // Only add if not already present
+            newErrors[path] = err.message;
+          }
+        });
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    onNext(formData as BookingData);
   }
 
   return (
     <div className="h-full flex flex-col">
       {/* Main content */}
-      <div className="flex-1 p-4 sm:p-6 lg:p-8">
+      <div className="flex-1 px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
         <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
           {/* Trip Type Selection */}
           <motion.div
@@ -203,7 +273,7 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
             </div>
           </div>
 
-          {/* Pickup Location */}
+          {/* Pickup Location - Remove error message */}
           <div className="text-center">
             <label
               htmlFor="pickup-location"
@@ -218,10 +288,11 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
               placeholder="Nadi International Airport"
               isLoading={isLoadingPickup}
               id="pickup-location"
+              className={errors.pickupLocation ? 'border-red-500' : ''}
             />
           </div>
 
-          {/* Dropoff Location */}
+          {/* Dropoff Location - Remove error message */}
           <div className="text-center">
             <label
               htmlFor="dropoff-location"
@@ -236,6 +307,7 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
               placeholder="Select hotel/resort"
               isLoading={isLoadingDropoff}
               id="dropoff-location"
+              className={errors.dropoffLocation ? 'border-red-500' : ''}
             />
           </div>
 
@@ -248,10 +320,12 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
               ref={pickupRef}
               type="text"
               placeholder="dd/mm/yyyy | hh:mm"
-              className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
-                       focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm"
+              className={`w-full px-4 py-3 rounded-xl bg-white border ${
+                errors.pickupDateTime ? 'border-red-500' : 'border-gray-200'
+              } text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm`}
               readOnly
             />
+           
           </div>
 
           {/* Return Date & Time */}
@@ -292,11 +366,13 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
                     ref={returnRef}
                     type="text"
                     placeholder="dd/mm/yyyy | hh:mm"
-                    className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
-                             focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm"
+                    className={`w-full px-4 py-3 rounded-xl bg-white border ${
+                      errors.returnDateTime ? 'border-red-500' : 'border-gray-200'
+                    } text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm`}
                     readOnly
                     id="return-date-time"
                   />
+                
                 </div>
               </motion.div>
             )}
@@ -304,9 +380,20 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
         </form>
       </div>
 
-      {/* Bottom button - pushed down by flex-1 above */}
+      {/* Bottom section with errors and button */}
       <div className="p-4">
         <div className="max-w-md mx-auto">
+          {/* Error Messages - only show if there are any errors */}
+          {Object.keys(errors).length > 0 && (
+            <div
+              className="mb-3 bg-red-50 border-l-4 border-red-400 p-2 text-sm text-red-700 rounded"
+              role="alert"
+            >
+              Please fill in all required fields
+            </div>
+          )}
+
+          {/* Next button */}
           <motion.button
             type="submit"
             onClick={handleSubmit}

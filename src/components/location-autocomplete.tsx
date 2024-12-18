@@ -13,6 +13,7 @@ interface LocationAutocompleteProps {
   placeholder: string;
   isLoading?: boolean;
   id?: string;
+  className?: string;
 }
 
 export function LocationAutocomplete({
@@ -22,6 +23,7 @@ export function LocationAutocomplete({
   placeholder,
   isLoading = false,
   id,
+  className,
 }: Readonly<LocationAutocompleteProps>) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -109,7 +111,7 @@ export function LocationAutocomplete({
   };
 
   return (
-    <div id={id} ref={wrapperRef} className="relative w-full">
+    <div id={id} ref={wrapperRef} className={`relative w-full `}>
       <button
         type="button"
         className="relative w-full cursor-pointer"
@@ -117,8 +119,8 @@ export function LocationAutocomplete({
       >
         <input
           type="text"
-          className="w-full cursor-pointer px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
-                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-center text-sm pr-12"
+          className={`w-full cursor-pointer px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
+                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-center text-sm pr-12 ${className}`}
           placeholder={placeholder}
           value={inputValue}
           onChange={handleInputChange}
