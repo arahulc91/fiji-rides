@@ -184,8 +184,7 @@ function HomePage() {
       bookingData?.dropoffLocation,
       bookingData?.passengers,
     ],
-    queryFn: () =>
-      apiService.getTransferAddons(),
+    queryFn: () => apiService.getTransferAddons(),
     enabled: !!bookingData?.pickupLocation, // Only fetch when pickup location is selected
   });
 
@@ -231,9 +230,13 @@ function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <HeroBackground className="min-h-screen pt-36 lg:pt-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      <HeroBackground className="min-h-screen">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-24">
+          <div
+            className={`flex items-center gap-8 ${
+              currentStep !== "booking" ? "bg-white rounded-2xl" : ""
+            }`}
+          >
             {/* Hero Text / Map Container */}
             <AnimatePresence mode="wait">
               {(() => {
@@ -245,34 +248,39 @@ function HomePage() {
                       initial="hidden"
                       animate="visible"
                       exit={{ opacity: 0, x: -20 }}
-                      className="text-center lg:text-left"
+                      className="flex-auto text-center lg:text-left self-center"
                     >
                       <motion.h1
                         className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight text-white"
                         variants={itemVariants}
                       >
                         <div>Fiji's Exclusive</div>
-                        <div className="text-primary-300 mt-1 lg:mt-2">24-Hour Private</div>
-                        <div className="text-white mt-1 lg:mt-2">Transfer Experience</div>
+                        <div className="text-primary-300 mt-1 lg:mt-2">
+                          24-Hour Private
+                        </div>
+                        <div className="text-white mt-1 lg:mt-2">
+                          Transfer Experience
+                        </div>
                       </motion.h1>
                       <motion.p
                         className="mt-4 lg:mt-6 text-base lg:text-lg leading-7 lg:leading-8 text-white/90"
                         variants={itemVariants}
                       >
-                        Seamless, comfortable, and personalized transfers at your
-                        convenience throughout the beautiful islands of Fiji.
+                        Seamless, comfortable, and personalized transfers at
+                        your convenience throughout the beautiful islands of
+                        Fiji.
                       </motion.p>
                     </motion.div>
                   );
                 }
-                
+
                 return (
                   <motion.div
                     key="route-map"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="bg-white rounded-2xl shadow-xl overflow-hidden h-[680px]"
+                    className="w-[calc(100%-440px-2rem)] h-[680px]"
                   >
                     {bookingData && (
                       <RouteMap
@@ -286,16 +294,20 @@ function HomePage() {
             </AnimatePresence>
 
             {/* Form Container */}
-            <div className="relative flex justify-center">
+            <div className="w-[440px]">
               <div
-                className={`bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 ${
+                className={`${
                   currentStep === "summary" ? "w-full max-w-2xl" : "w-[440px]"
+                } ${
+                  currentStep === "booking"
+                    ? "bg-white rounded-2xl shadow-xl"
+                    : ""
                 }`}
               >
                 <div
                   className={`relative transition-all duration-300 ${
                     currentStep === "summary" ? "w-full" : "w-[440px]"
-                  } mx-auto h-[680px]`}
+                  } mx-auto h-[680px] pb-6`}
                 >
                   <AnimatePresence mode="wait">
                     {(() => {
@@ -313,7 +325,7 @@ function HomePage() {
                           </motion.div>
                         );
                       }
-                      
+
                       if (currentStep === "addons") {
                         return (
                           <motion.div
@@ -336,7 +348,7 @@ function HomePage() {
                           </motion.div>
                         );
                       }
-                      
+
                       if (currentStep === "summary" && transferOptions?.[0]) {
                         return (
                           <motion.div
@@ -360,7 +372,7 @@ function HomePage() {
                           </motion.div>
                         );
                       }
-                      
+
                       return null;
                     })()}
                   </AnimatePresence>
