@@ -385,12 +385,169 @@ class DateTimePicker {
                 .datetime-picker-wrapper option {
                     color: #000;
                 }
+
+                .datetime-picker-wrapper .time-input-container {
+                    position: relative;
+                    width: 100%;
+                }
+
+                .datetime-picker-wrapper .time-input {
+                    width: 100%;
+                    padding: 0.5rem;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.375rem;
+                    font-size: 0.875rem;
+                    text-align: center;
+                    cursor: pointer;
+                    background-color: white;
+                }
+
+                .datetime-picker-wrapper .time-input:hover {
+                    border-color: #d1d5db;
+                }
+
+                .time-dropdown-portal {
+                    position: fixed;
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+                    display: none;
+                    z-index: 10000;
+                    padding: 0.5rem;
+                }
+
+                .time-dropdown-portal.show {
+                    display: block;
+                }
+
+                .time-dropdown-portal .time-columns {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    height: 200px;
+                    gap: 0.5rem;
+                    margin-bottom: 0.5rem;
+                }
+
+                .time-dropdown-portal .time-column {
+                    border: 1px solid #f3f4f6;
+                    border-radius: 0.375rem;
+                    height: 100%;
+                    overflow-y: auto;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                    background-color: #f9fafb;
+                }
+
+                .time-dropdown-portal .time-column::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .time-dropdown-portal .time-option {
+                    padding: 0.5rem;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    color: #6b7280;
+                    font-size: 0.875rem;
+                }
+
+                .time-dropdown-portal .time-option:hover {
+                    background-color: #f3f4f6;
+                    color: #111827;
+                }
+
+                .time-dropdown-portal .time-option.selected {
+                    background-color: #10b981;
+                    color: white;
+                }
+
+                .time-dropdown-portal .time-column-header {
+                    text-align: center;
+                    padding: 0.25rem;
+                    font-size: 0.75rem;
+                    color: #6b7280;
+                    font-weight: 500;
+                    border-bottom: 1px solid #f3f4f6;
+                    background-color: white;
+                    position: sticky;
+                    top: 0;
+                    z-index: 1;
+                }
+
+                .time-dropdown-portal .time-actions {
+                    padding: 0.5rem 0 0;
+                    border-top: 1px solid #e5e7eb;
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 0.5rem;
+                }
+
+                .time-dropdown-portal .time-confirm-btn,
+                .time-dropdown-portal .time-cancel-btn {
+                    padding: 0.375rem 0.75rem;
+                    border-radius: 0.375rem;
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .time-dropdown-portal .time-confirm-btn {
+                    background-color: #10b981;
+                    color: white;
+                    border: none;
+                }
+
+                .time-dropdown-portal .time-confirm-btn:hover {
+                    background-color: #059669;
+                }
+
+                .time-dropdown-portal .time-cancel-btn {
+                    border: 1px solid #e5e7eb;
+                    background-color: white;
+                }
+
+                .time-dropdown-portal .time-cancel-btn:hover {
+                    background-color: #f9fafb;
+                }
             `;
       document.head.appendChild(styleSheet);
     }
   }
 
   createPickerElement() {
+    // Create time dropdown portal
+    if (!document.querySelector('.time-dropdown-portal')) {
+        const portal = document.createElement('div');
+        portal.className = 'time-dropdown-portal';
+        portal.innerHTML = `
+            <div class="time-columns">
+                <div class="time-column hours-column">
+                    <div class="time-column-header">Hour</div>
+                    ${Array.from({ length: 12 }, (_, i) => 
+                        `<div class="time-option hour-option" data-hour="${i + 1}">${String(i + 1).padStart(2, '0')}</div>`
+                    ).join('')}
+                </div>
+                <div class="time-column minutes-column">
+                    <div class="time-column-header">Minute</div>
+                    ${Array.from({ length: 60 }, (_, i) => 
+                        `<div class="time-option minute-option" data-minute="${i}">${String(i).padStart(2, '0')}</div>`
+                    ).join('')}
+                </div>
+                <div class="time-column period-column">
+                    <div class="time-column-header">Period</div>
+                    <div class="time-option period-option" data-period="AM">AM</div>
+                    <div class="time-option period-option" data-period="PM">PM</div>
+                </div>
+            </div>
+            <div class="time-actions">
+                <button class="time-cancel-btn">Cancel</button>
+                <button class="time-confirm-btn">OK</button>
+            </div>
+        `;
+        document.body.appendChild(portal);
+    }
+
     this.element = document.createElement("div");
     this.element.className = "datetime-picker-wrapper hidden";
     this.element.innerHTML = `
@@ -403,7 +560,7 @@ class DateTimePicker {
             </div>
             <div class="month-selector hidden">
                 <div class="year-navigation">
-                    <button class="prev-year">←</button>
+                    <button class="prev-year">��</button>
                     <span class="current-year"></span>
                     <button class="next-year">→</button>
                 </div>
@@ -426,38 +583,11 @@ class DateTimePicker {
                 <div class="day-header">Sa</div>
             </div>
             <div class="flex gap-4 justify-center mb-4 time-selector">
-                <div class="time-input-group">
-                    <select class="hours" required>
-                        <option value="" disabled selected>HH</option>
-                        ${Array.from(
-                          { length: 12 },
-                          (_, i) =>
-                            `<option value="${i + 1}">${(i + 1)
-                              .toString()
-                              .padStart(2, "0")}</option>`
-                        ).join("")}
-                    </select>
-                </div>
-                <span class="self-center">:</span>
-                <div class="time-input-group">
-                    <select class="minutes" required>
-                        <option value="" disabled selected>MM</option>
-                        ${Array.from(
-                          { length: 60 },
-                          (_, i) =>
-                            `<option value="${i
-                              .toString()
-                              .padStart(2, "0")}">${i
-                              .toString()
-                              .padStart(2, "0")}</option>`
-                        ).join("")}
-                    </select>
-                </div>
-                <div class="time-input-group">
-                    <select class="ampm">
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                    </select>
+                <div class="time-input-container">
+                    <input type="text" 
+                           class="time-input" 
+                           placeholder="Select time"
+                           readonly>
                 </div>
             </div>
             <div class="flex justify-end gap-2">
@@ -483,26 +613,6 @@ class DateTimePicker {
     this.element
       .querySelector(".cancel-btn")
       .addEventListener("click", () => this.hide());
-
-    this.element.querySelector(".hours").addEventListener("change", (e) => {
-      let hours = parseInt(e.target.value);
-      const ampm = this.element.querySelector(".ampm").value;
-      if (ampm === "PM" && hours !== 12) hours += 12;
-      if (ampm === "AM" && hours === 12) hours = 0;
-      this.selectedDate.setHours(hours);
-    });
-
-    this.element.querySelector(".ampm").addEventListener("change", (e) => {
-      let hours = parseInt(this.element.querySelector(".hours").value);
-      const ampm = e.target.value;
-      if (ampm === "PM" && hours !== 12) hours += 12;
-      if (ampm === "AM" && hours === 12) hours = 0;
-      this.selectedDate.setHours(hours);
-    });
-
-    this.element.querySelector(".minutes").addEventListener("change", (e) => {
-      this.selectedDate.setMinutes(parseInt(e.target.value));
-    });
 
     // Close picker when clicking outside
     document.addEventListener("click", (e) => {
@@ -577,6 +687,105 @@ class DateTimePicker {
       input.addEventListener("change", () => {
         input.style.borderColor = "#e5e7eb";
       });
+    });
+
+    const timeInput = this.element.querySelector('.time-input');
+    const timeDropdown = document.querySelector('.time-dropdown-portal');
+    let tempTimeSelection = null;
+    
+    timeInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        // Store current time as temporary selection
+        tempTimeSelection = {
+            hour: timeDropdown.querySelector('.hour-option.selected')?.dataset.hour,
+            minute: timeDropdown.querySelector('.minute-option.selected')?.dataset.minute,
+            period: timeDropdown.querySelector('.period-option.selected')?.dataset.period
+        };
+        
+        // Position the dropdown below the input
+        const inputRect = timeInput.getBoundingClientRect();
+        const dropdownHeight = timeDropdown.offsetHeight || 200;
+        
+        // Check if there's room below the input
+        const spaceBelow = window.innerHeight - inputRect.bottom;
+        
+        if (spaceBelow >= dropdownHeight) {
+            timeDropdown.style.top = `${inputRect.bottom + 5}px`;
+        } else {
+            timeDropdown.style.top = `${inputRect.top - dropdownHeight - 5}px`;
+        }
+        
+        timeDropdown.style.left = `${inputRect.left}px`;
+        timeDropdown.style.width = `${inputRect.width}px`;
+        
+        timeDropdown.classList.add('show');
+        
+        // Scroll selected options into view
+        const selectedHour = timeDropdown.querySelector('.hour-option.selected');
+        const selectedMinute = timeDropdown.querySelector('.minute-option.selected');
+        const selectedPeriod = timeDropdown.querySelector('.period-option.selected');
+        
+        selectedHour?.scrollIntoView({ block: 'center' });
+        selectedMinute?.scrollIntoView({ block: 'center' });
+        selectedPeriod?.scrollIntoView({ block: 'center' });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!timeDropdown.contains(e.target) && e.target !== timeInput) {
+            timeDropdown.classList.remove('show');
+            // Restore previous selection if cancelled
+            if (tempTimeSelection) {
+                const { hour, minute, period } = tempTimeSelection;
+                if (hour) timeDropdown.querySelector(`.hour-option[data-hour="${hour}"]`)?.classList.add('selected');
+                if (minute) timeDropdown.querySelector(`.minute-option[data-minute="${minute}"]`)?.classList.add('selected');
+                if (period) timeDropdown.querySelector(`.period-option[data-period="${period}"]`)?.classList.add('selected');
+                this.updateSelectedTime();
+                tempTimeSelection = null;
+            }
+        }
+    });
+
+    // Handle time option selections
+    timeDropdown.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event from bubbling up
+        
+        const option = e.target.closest('.time-option');
+        if (!option) return;
+
+        // Remove selected class from siblings
+        const column = option.parentElement;
+        column.querySelectorAll('.time-option').forEach(opt => 
+            opt.classList.remove('selected')
+        );
+        
+        option.classList.add('selected');
+        
+        this.updateSelectedTime(false); // Don't close dropdown after selection
+    });
+
+    // Add confirm button handler
+    timeDropdown.querySelector('.time-confirm-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.updateSelectedTime(true); // Close dropdown after confirming
+        timeDropdown.classList.remove('show');
+        tempTimeSelection = null;
+    });
+
+    // Add cancel button handler
+    timeDropdown.querySelector('.time-cancel-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Restore previous selection
+        if (tempTimeSelection) {
+            const { hour, minute, period } = tempTimeSelection;
+            if (hour) timeDropdown.querySelector(`.hour-option[data-hour="${hour}"]`)?.classList.add('selected');
+            if (minute) timeDropdown.querySelector(`.minute-option[data-minute="${minute}"]`)?.classList.add('selected');
+            if (period) timeDropdown.querySelector(`.period-option[data-period="${period}"]`)?.classList.add('selected');
+            this.updateSelectedTime();
+        }
+        timeDropdown.classList.remove('show');
+        tempTimeSelection = null;
     });
   }
 
@@ -775,40 +984,28 @@ class DateTimePicker {
   }
 
   updateTime() {
-    const hoursSelect = this.element.querySelector(".hours");
-    const minutesSelect = this.element.querySelector(".minutes");
-    const ampmSelect = this.element.querySelector(".ampm");
-
-    // Set placeholders
-    hoursSelect.setAttribute("placeholder", "HH");
-    minutesSelect.setAttribute("placeholder", "MM");
-
-    // Only set values if the input has a value (a date was previously selected)
-    if (this.input.value) {
-      const [datePart, timePart, ampm] = this.input.value.split(" ");
-      const [hours, minutes] = timePart.split(":");
-
-      // Convert to 24-hour format
-      let hour = parseInt(hours);
-      if (ampm === "PM" && hour !== 12) hour += 12;
-      if (ampm === "AM" && hour === 12) hour = 0;
-
-      // Update selectedDate with correct time
-      this.selectedDate.setHours(hour);
-      this.selectedDate.setMinutes(parseInt(minutes));
-
-      // Set the values in the selects
-      let displayHours = hour % 12;
-      displayHours = displayHours === 0 ? 12 : displayHours;
-
-      hoursSelect.value = displayHours;
-      minutesSelect.value = minutes.toString().padStart(2, "0");
-      ampmSelect.value = ampm;
+    const timeDropdown = document.querySelector('.time-dropdown-portal');
+    const timeInput = this.element.querySelector('.time-input');
+    
+    // Clear all previous selections
+    timeDropdown.querySelectorAll('.time-option').forEach(opt => 
+        opt.classList.remove('selected')
+    );
+    
+    if (this.selectedDate && this.input.value) {
+        const hours = this.selectedDate.getHours();
+        const minutes = this.selectedDate.getMinutes();
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        
+        // Update selected options
+        timeDropdown.querySelector(`.hour-option[data-hour="${displayHours}"]`)?.classList.add('selected');
+        timeDropdown.querySelector(`.minute-option[data-minute="${minutes}"]`)?.classList.add('selected');
+        timeDropdown.querySelector(`.period-option[data-period="${period}"]`)?.classList.add('selected');
+        
+        timeInput.value = `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
     } else {
-      // Show empty values with placeholders for new selection
-      hoursSelect.value = "";
-      minutesSelect.value = "";
-      ampmSelect.value = "AM";
+        timeInput.value = '';
     }
   }
 
@@ -837,29 +1034,27 @@ class DateTimePicker {
   }
 
   confirm() {
-    const hoursSelect = this.element.querySelector(".hours");
-    const minutesSelect = this.element.querySelector(".minutes");
-    const ampmSelect = this.element.querySelector(".ampm");
-
-    // Validate time selections
-    if (!hoursSelect.value || !minutesSelect.value) {
-      if (!hoursSelect.value) {
-        hoursSelect.style.borderColor = "#ef4444";
-      }
-      if (!minutesSelect.value) {
-        minutesSelect.style.borderColor = "#ef4444";
-      }
-      return;
+    const timeInput = this.element.querySelector('.time-input');
+    const timeRegex = /^(0?[1-9]|1[0-2]):([0-5][0-9])?\s*(AM|PM)?$/i;
+    
+    if (!timeInput.value || !timeRegex.test(timeInput.value)) {
+        timeInput.classList.add('error');
+        return;
     }
 
-    let hours = parseInt(hoursSelect.value);
-    const minutes = parseInt(minutesSelect.value);
-    const ampm = ampmSelect.value;
-
-    if (ampm === "PM" && hours !== 12) hours += 12;
-    if (ampm === "AM" && hours === 12) hours = 0;
-
-    this.selectedDate.setHours(hours, minutes);
+    const [time, period] = timeInput.value.split(' ');
+    const [hours, minutes] = time.split(':');
+    
+    let parsedHours = parseInt(hours);
+    const parsedMinutes = parseInt(minutes) || 0;
+    
+    if (period?.toUpperCase() === 'PM' && parsedHours !== 12) {
+        parsedHours += 12;
+    } else if (period?.toUpperCase() === 'AM' && parsedHours === 12) {
+        parsedHours = 0;
+    }
+    
+    this.selectedDate.setHours(parsedHours, parsedMinutes);
     this.input.value = this.formatDate(this.selectedDate);
 
     const event = new Event("change", { bubbles: true });
@@ -944,6 +1139,28 @@ class DateTimePicker {
 
     if (this.visible) {
       this.updateUI();
+    }
+  }
+
+  updateSelectedTime(shouldClose = false) {
+    const timeDropdown = document.querySelector('.time-dropdown-portal');
+    const timeInput = this.element.querySelector('.time-input');
+    
+    const selectedHour = timeDropdown.querySelector('.hour-option.selected')?.dataset.hour || '12';
+    const selectedMinute = timeDropdown.querySelector('.minute-option.selected')?.dataset.minute || '00';
+    const selectedPeriod = timeDropdown.querySelector('.period-option.selected')?.dataset.period || 'AM';
+    
+    timeInput.value = `${selectedHour}:${String(selectedMinute).padStart(2, '0')} ${selectedPeriod}`;
+    
+    // Update selectedDate
+    let hours = parseInt(selectedHour);
+    if (selectedPeriod === 'PM' && hours !== 12) hours += 12;
+    if (selectedPeriod === 'AM' && hours === 12) hours = 0;
+    
+    this.selectedDate.setHours(hours, parseInt(selectedMinute));
+    
+    if (shouldClose) {
+        timeDropdown.classList.remove('show');
     }
   }
 }
