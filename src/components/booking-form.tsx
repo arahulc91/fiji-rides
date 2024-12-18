@@ -32,7 +32,7 @@ const bookingFormSchema = z.object({
     id: z.number(),
     description: z.string(),
   }).nullable(),
-  passengers: z.number().min(1).max(50),
+  passengers: z.number().min(1).max(22),
   tripType: z.enum(["one-way", "return"]),
   pickupDateTime: z.string().min(1, "Pickup date & time is required"),
   returnDateTime: z.string().optional().refine(
@@ -265,7 +265,7 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
               </span>
               <button
                 type="button"
-                onClick={() => setPassengers(passengers + 1)}
+                onClick={() => setPassengers(Math.min(22, passengers + 1))}
                 className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors text-lg font-medium"
               >
                 +
@@ -284,7 +284,7 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
             <LocationAutocomplete
               locations={pickupLocations}
               value={pickupLocation}
-              onChange={setPickupLocation}
+              onChange={(location) => setPickupLocation(location as PickupDropoffLocation)}
               placeholder="Nadi International Airport"
               isLoading={isLoadingPickup}
               id="pickup-location"
@@ -303,7 +303,7 @@ export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
             <LocationAutocomplete
               locations={dropoffLocations}
               value={dropoffLocation}
-              onChange={setDropoffLocation}
+              onChange={(location) => setDropoffLocation(location as PickupDropoffLocation)}
               placeholder="Select hotel/resort"
               isLoading={isLoadingDropoff}
               id="dropoff-location"
