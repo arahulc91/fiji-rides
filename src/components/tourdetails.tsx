@@ -21,6 +21,33 @@ export default function TourDetailsModal({
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
+  // Reset currentPhotoIndex when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentPhotoIndex(0);
+    }
+  }, [isOpen]);
+
+  // Add debug logging
+  console.log('TourDetailsModal Render:', {
+    isOpen,
+    photos,
+    title,
+    photosLength: photos.length,
+    currentPhotoIndex,
+    currentPhoto: photos[currentPhotoIndex],
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log('Modal Opened with data:', {
+        photos,
+        title,
+        details: details.substring(0, 100) + '...',  // Log first 100 chars of details
+      });
+    }
+  }, [isOpen, photos, title, details]);
+
   const goToNextSlide = useCallback(() => {
     setCurrentPhotoIndex((current) => (current + 1) % photos.length);
   }, [photos.length]);
@@ -71,24 +98,21 @@ export default function TourDetailsModal({
 
             {/* Photo carousel */}
             <div className="p-4">
-              <button
+              <div
                 className="relative h-[320px] w-full bg-gray-100 rounded-xl overflow-hidden"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-                {photos.map((photo, index) => (
-                  <motion.img
-                    key={photo + index + index}
-                    src={photo}
-                    alt={`${title} photo ${index + 1}`}
-                    className="absolute inset-0 w-full h-full object-contain"
-                    initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: currentPhotoIndex === index ? 1 : 0,
-                      transition: { duration: 0.3 },
-                    }}
-                  />
-                ))}
+                {/* Render current photo only */}
+                <motion.img
+                  key={`photo-${currentPhotoIndex}`}
+                  src={photos[currentPhotoIndex]}
+                  alt={`${title} photo ${currentPhotoIndex + 1}`}
+                  className="absolute inset-0 w-full h-full object-contain"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
 
                 {/* Navigation arrows */}
                 {photos.length > 1 && (
@@ -125,7 +149,7 @@ export default function TourDetailsModal({
                   <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
                     {photos.map((_, index) => (
                       <button
-                        key={index + "photo"}
+                        key={`dot-${index}`}
                         onClick={() => setCurrentPhotoIndex(index)}
                         className={`w-2.5 h-2.5 rounded-full transition-all transform
                                   ${
@@ -138,7 +162,7 @@ export default function TourDetailsModal({
                     ))}
                   </div>
                 )}
-              </button>
+              </div>
             </div>
           </div>
 

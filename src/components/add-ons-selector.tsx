@@ -117,11 +117,12 @@ export function AddOnSelector({
   selectedAddons,
   onAddonsChange,
 }: Readonly<AddOnSelectorProps>) {
-  const [expandedSection, setExpandedSection] = useState<
-    "popular" | "tours" | null
-  >("popular");
-  const [selectedTour, setSelectedTour] = useState<GroupedTourAddon | null>(null);
-
+  const [expandedSection, setExpandedSection] = useState<"popular" | "tours" | null>("popular");
+  const [modalData, setModalData] = useState<{
+    photos: string[];
+    details: string;
+    title: string;
+  } | null>(null);
 
   const popularAddons = addons.filter((addon) => !addon.is_tour_addon);
   const tourAddons = addons.filter((addon) => addon.is_tour_addon);
@@ -183,10 +184,17 @@ export function AddOnSelector({
               )}
             </div>
             {addon.additional_details && (
-              <Info
-                className="w-4 h-4 text-gray-400 cursor-help"
-                aria-label={addon.additional_details.replace(/<[^>]*>/g, "")}
-              />
+              <button
+                onClick={() => setModalData({
+                  photos: addon.photos,
+                  details: addon.additional_details,
+                  title: addon.addon
+                })}
+                className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 
+                         transition-colors text-gray-600"
+              >
+                <Info className="w-4 h-4" />
+              </button>
             )}
           </div>
         </div>
@@ -220,6 +228,14 @@ export function AddOnSelector({
 
   const handleAccordionClick = (section: "popular" | "tours") => {
     setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const handleTourInfoClick = (group: GroupedTourAddon) => {
+    setModalData({
+      photos: group.photos,
+      details: group.additional_details,
+      title: group.baseName
+    });
   };
 
   if (isLoading) {
@@ -297,7 +313,7 @@ export function AddOnSelector({
                             </span>
                             {group.additional_details && (
                               <button
-                                onClick={() => setSelectedTour(group)}
+                                onClick={() => handleTourInfoClick(group)}
                                 className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 
                                          transition-colors text-gray-600"
                               >
@@ -479,11 +495,11 @@ export function AddOnSelector({
       </div>
 
       <TourDetailsModal
-        isOpen={selectedTour !== null}
-        onClose={() => setSelectedTour(null)}
-        photos={selectedTour?.photos || []}
-        details={selectedTour?.additional_details || ''}
-        title={selectedTour?.baseName || ''}
+        isOpen={modalData !== null}
+        onClose={() => setModalData(null)}
+        photos={modalData?.photos ?? []}
+        details={modalData?.details ?? ''}
+        title={modalData?.title ?? ''}
       />
     </div>
   );
