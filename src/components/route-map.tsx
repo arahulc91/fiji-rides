@@ -62,32 +62,49 @@ export function RouteMap({
   }, []);
 
   const animateMarker = useCallback((route: { geometry: RouteGeometry }) => {
-    console.log('Starting animation with route:', route);
     let start = performance.now();
-    const duration = 10000; // 10 seconds
+    const duration = 20000; // Increased duration for smoother movement
+    let lastPoint: Position | null = null;
+    let lastBearing = 0;
 
     const animate = (timestamp: number) => {
       const progress = (timestamp - start) / duration;
-      console.log('Animation progress:', progress);
 
       if (progress > 1) {
         start = performance.now();
       }
 
       const currentPoint = getPointAlongRoute(route, progress % 1);
-      console.log('Current point:', currentPoint);
       
       if (carMarker.current && map.current) {
-        console.log('Updating marker position');
         carMarker.current.setLngLat(currentPoint as [number, number]);
         
         try {
-          const upcoming = getPointAlongRoute(route, (progress + 0.01) % 1);
+          // Get next point for bearing calculation
+          const upcoming = getPointAlongRoute(route, (progress + 0.001) % 1); // Reduced look-ahead distance
           const bearing = turf.bearing(
             turf.point(currentPoint),
             turf.point(upcoming)
           );
-          carMarker.current.setRotation(bearing);
+
+          // Smooth rotation using interpolation
+          if (lastPoint && Math.abs(bearing - lastBearing) > 180) {
+            // Handle 360-degree wrap around
+            if (bearing < lastBearing) {
+              lastBearing -= 360;
+            } else {
+              lastBearing += 360;
+            }
+          }
+
+          const smoothBearing = lastPoint 
+            ? lastBearing + (bearing - lastBearing) * 0.1 // Interpolation factor
+            : bearing;
+
+          carMarker.current.setRotation(smoothBearing);
+          
+          lastPoint = currentPoint;
+          lastBearing = smoothBearing;
         } catch (error) {
           console.error('Error calculating bearing:', error);
         }
