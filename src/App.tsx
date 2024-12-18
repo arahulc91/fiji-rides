@@ -14,6 +14,7 @@ import { Header } from './components/header'
 import { Footer } from './components/footer'
 import TermsPage from './pages/terms';
 import { NotFoundPage } from './pages/404'
+import { PaymentStatusPage } from './pages/payment-status'
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -77,6 +78,19 @@ const termsRoute = createRoute({
   component: TermsPage,
 })
 
+// Create payment status route with search params validation
+const paymentStatusRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/payment-status',
+  validateSearch: (search: Record<string, unknown>) => {
+  
+    return {
+      order_id : search.order_id as string,
+    } as const;
+  },
+  component: PaymentStatusPage,
+})
+
 // Create a catch-all route for 404
 const notFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -92,6 +106,7 @@ const routeTree = rootRoute.addChildren([
   faqsRoute,
   privacyRoute,
   termsRoute,
+  paymentStatusRoute, // Add payment status route
   notFoundRoute, // Add the catch-all route last
 ])
 

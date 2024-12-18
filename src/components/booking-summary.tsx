@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState} from "react";
 import { PickupDropoffLocation, TransferOption, TransferAddon } from "../types";
 import { apiService } from "../lib/axios";
 import { BookingRequest } from "../types/index";
@@ -22,18 +22,47 @@ interface BookingSummaryProps {
 
 export function BookingSummary({
   onBack,
-  onNext,
   bookingData,
   selectedAddons,
   addons,
   transferOption,
 }: Readonly<BookingSummaryProps>) {
+  // Simplified state - removed WebSocket related state
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    tourDate: "",
   });
 
+  const handlePayNow = async () => {
+    try {
+      const bookingRequest: BookingRequest = {
+        return_type: bookingData.tripType,
+        pax: bookingData.passengers,
+        pickup_location_id: bookingData.pickupLocation.id,
+        dropoff_location_id: bookingData.dropoffLocation.id,
+        pickup_date: bookingData.pickupDateTime,
+        return_date: bookingData.returnDateTime,
+        addons: Object.entries(selectedAddons).map(([id, quantity]) => ({
+          addon_id: id,
+          addon_qty: quantity.toString(), 
+        })),
+        email: formData.email,
+        full_name: formData.fullName,
+        terms_and_conditions_accepted: acceptedTerms,
+        tour_date: addons.some(addon => addon.is_tour_addon && selectedAddons[addon.id] > 0) ? formData.tourDate : undefined,
+      };
+
+      const response = await apiService.createBooking(bookingRequest);
+      // Redirect to payment URL in same tab
+      window.location.href = response.payment_url;
+    } catch (error) {
+      console.error("Booking Error:", error);
+    }
+  };
+
+  // Early return after all hooks
   if (!transferOption) {
     return (
       <motion.div
@@ -52,12 +81,9 @@ export function BookingSummary({
 
   const getAddonPrice = (addon: TransferAddon) => {
     let price = parseFloat(addon.price);
-    
-    // Only multiply by 2 if both booking and addon are return type
     if (bookingData.tripType === "return" && addon.return_type === "return") {
       price *= 2;
     }
-
     return price;
   };
 
@@ -69,40 +95,24 @@ export function BookingSummary({
     0
   );
 
-  const transferPrice = parseFloat(transferOption.price);
+  const transferPrice = bookingData.tripType === "return" 
+    ? parseFloat(transferOption.price) * 2 
+    : parseFloat(transferOption.price);
+
   const grandTotal = transferPrice + totalAddons;
 
-  const handlePayNow = async () => {
-    try {
-      const bookingRequest: BookingRequest = {
-        return_type: bookingData.tripType,
-        pax: bookingData.passengers,
-        pickup_location_id: bookingData.pickupLocation.id,
-        dropoff_location_id: bookingData.dropoffLocation.id,
-        pickup_date: bookingData.pickupDateTime,
-        return_date: bookingData.returnDateTime,
-        addons: Object.entries(selectedAddons).map(([id, quantity]) => ({
-          addon_id: id,
-          addon_qty: quantity.toString(),
-        })),
-        email: formData.email,
-        full_name: formData.fullName,
-        terms_and_conditions_accepted: acceptedTerms,
-      };
+  const hasTourAddon = addons.some(
+    addon => addon.is_tour_addon && selectedAddons[addon.id] > 0
+  );
 
-      const response = await apiService.createBooking(bookingRequest);
-      console.log("Booking Response:", response);
-
-      // You can handle the response here, e.g., redirect to payment_url
-      onNext(); // Only call this after successful booking
-    } catch (error) {
-      console.error("Booking Error:", error);
-      // Handle error appropriately
-    }
+  // Function to render modal content based on payment status
+  const renderModalContent = () => {
+    // This component doesn't handle payment status anymore, so this function is empty
+    return null;
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col relative">
       {/* Main content */}
       <div className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl mx-auto">
@@ -199,10 +209,14 @@ export function BookingSummary({
               {/* Form Fields */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label 
+                    htmlFor="fullName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Full Name
                   </label>
                   <input
+                    id="fullName"
                     type="text"
                     value={formData.fullName}
                     onChange={(e) =>
@@ -212,24 +226,63 @@ export function BookingSummary({
                       }))
                     }
                     className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-900
-                               focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                               focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                               placeholder:text-gray-400"
                     placeholder="Enter your full name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label 
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Email Address
                   </label>
                   <input
+                    id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, email: e.target.value }))
                     }
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-900
+                               focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                               placeholder:text-gray-400"
                     placeholder="Enter your email address"
                   />
                 </div>
+                
+                {hasTourAddon && (
+                  <div>
+                    <label 
+                      htmlFor="tourDate"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Tour Date
+                    </label>
+                    <input
+                      id="tourDate"
+                      type="date"
+                      value={formData.tourDate}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, tourDate: e.target.value }))
+                      }
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-900
+                                 focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                                 placeholder:text-gray-400"
+                      min={new Date(bookingData.pickupDateTime).toISOString().split('T')[0]}
+                      max={bookingData.tripType === "return" ? 
+                        new Date(bookingData.returnDateTime ?? '').toISOString().split('T')[0] : 
+                        undefined
+                      }
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      {bookingData.tripType === "return" 
+                        ? "Please select a date between your pickup and return dates" 
+                        : "Please select a date after your pickup date"}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Terms Checkbox */}
@@ -239,7 +292,8 @@ export function BookingSummary({
                     type="checkbox"
                     checked={acceptedTerms}
                     onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-gray-300 text-primary-600 
+                               focus:ring-primary-500 focus:ring-2"
                   />
                   <span className="text-sm text-gray-700">
                     I Accept the{" "}
@@ -273,7 +327,8 @@ export function BookingSummary({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handlePayNow}
-            disabled={!acceptedTerms || !formData.fullName || !formData.email}
+            disabled={!acceptedTerms || !formData.fullName || !formData.email || 
+                      (hasTourAddon && !formData.tourDate)}
             className="flex-1 py-3 px-4 rounded-xl bg-primary-600 text-white 
                      hover:bg-primary-700 transition-colors text-sm font-medium
                      disabled:opacity-50 disabled:cursor-not-allowed"
@@ -282,6 +337,9 @@ export function BookingSummary({
           </motion.button>
         </div>
       </div>
+
+      {/* Payment Status Modal */}
+      {renderModalContent()}
     </div>
   );
 }

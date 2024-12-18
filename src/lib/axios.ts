@@ -69,6 +69,8 @@ export const endpoints = {
   addons: '/addons',
   transferOptions: '/rates',
   bookings: '/bookings/',
+  paymentStatus: '/update-payment-status/',
+  checkPaymentStatus: '/check-payment-status/',
 } as const;
 
 
@@ -102,6 +104,21 @@ export const apiService = {
   },
   createBooking: async (bookingData: BookingRequest) => {
     const response = await api.post<BookingResponse>(endpoints.bookings, bookingData);
+    return response.data;
+  },
+  updatePaymentStatus: async (data: {
+    order_id: string;
+    payment_status: 'approved' | 'declined';
+  }) => {
+    const response = await api.post(endpoints.paymentStatus, data);
+    return response.data;
+  },
+  checkPaymentStatus: async (data: {
+    order_id: string;
+  }) => {
+    const response = await api.get(endpoints.checkPaymentStatus, {
+      params: data
+    });
     return response.data;
   },
   // Add more API functions as needed
