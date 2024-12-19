@@ -4,6 +4,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { PickupDropoffLocation } from "../types";
 import * as turf from "@turf/turf";
 import type { Feature, LineString, Position } from 'geojson';
+import fijiRidesSvg from '../assets/FijiRides.svg';
 
 // Replace with your Mapbox access token
 mapboxgl.accessToken =
@@ -255,7 +256,7 @@ export function RouteMap({
         if (!carMarker.current) {
           const el = document.createElement("div");
           el.className = "car-marker";
-          el.innerHTML = `<img src="/src/assets/FijiRides.svg" class="w-12 h-12" style="transform: rotate(270deg);" alt="Fiji Rides Vehicle" />`;
+          el.innerHTML = `<img src="${fijiRidesSvg}" class="w-12 h-12" style="transform: rotate(270deg);" alt="Fiji Rides Vehicle" />`;
 
           carMarker.current = new mapboxgl.Marker({
             element: el,
