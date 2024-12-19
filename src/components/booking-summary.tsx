@@ -114,7 +114,7 @@ export function BookingSummary({
   return (
     <div className="h-full flex flex-col relative">
       {/* Main content */}
-      <div className="flex-1 p-4 sm:p-6 lg:p-8">
+      <div className="flex-1 px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-semibold text-center mb-6 text-secondary-500">
             Booking Summary
@@ -123,35 +123,7 @@ export function BookingSummary({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-6">
-              {/* Trip Details */}
-              <div className="bg-gray-50 p-4 rounded-xl space-y-3">
-                <div>
-                  <div className="text-base font-semibold text-gray-700">
-                    Pickup Location
-                  </div>
-                  <div className="text-sm text-gray-900">
-                    {bookingData.pickupLocation.description}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-base font-semibold text-gray-700">
-                    Dropoff Location
-                  </div>
-                  <div className="text-sm text-gray-900">
-                    {bookingData.dropoffLocation.description}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-base font-semibold text-gray-700">
-                    Return Type
-                  </div>
-                  <div className="text-sm text-gray-900 capitalize">
-                    {bookingData.tripType}
-                  </div>
-                </div>
-              </div>
-
-              {/* Vehicle Details */}
+              {/* Vehicle Details - Moved Up */}
               <div>
                 <h3 className="text-lg font-medium text-gray-700 mb-2">
                   This is your ride:
@@ -169,6 +141,42 @@ export function BookingSummary({
                   </div>
                   <div className="text-sm text-gray-600">
                     {transferOption.transfer_company}
+                  </div>
+                </div>
+              </div>
+
+              {/* Trip Details - Moved Down with Updated Font Sizes */}
+              <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+                <div>
+                  <div className="text-sm font-medium text-gray-700">
+                    Pickup Location
+                  </div>
+                  <div className="text-sm text-gray-900 font-semibold">
+                    {bookingData.pickupLocation.description}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-700">
+                    Dropoff Location
+                  </div>
+                  <div className="text-sm text-gray-900 font-semibold">
+                    {bookingData.dropoffLocation.description}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-700">
+                    Return Type
+                  </div>
+                  <div className="text-sm text-gray-900 font-semibold capitalize">
+                    {bookingData.tripType}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-700">
+                    Passengers
+                  </div>
+                  <div className="text-sm text-gray-900 font-semibold">
+                    {bookingData.passengers} {bookingData.passengers === 1 ? 'passenger' : 'passengers'}
                   </div>
                 </div>
               </div>
