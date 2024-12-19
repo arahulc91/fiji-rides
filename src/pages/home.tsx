@@ -437,7 +437,11 @@ function HomePage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="w-[calc(100%-440px-2rem)] h-[680px]"
+                    className={`transition-[width] duration-300 ease-in-out ${
+                      currentStep === "summary"
+                        ? "w-[calc(100%-540px-2rem)]"
+                        : "w-[calc(100%-440px-2rem)]"
+                    } h-[680px]`}
                   >
                     {bookingData && (
                       <RouteMap
@@ -451,9 +455,13 @@ function HomePage() {
             </AnimatePresence>
 
             {/* Form Container */}
-            <div className="w-[440px]">
+            <div
+              className={`transition-[width] duration-300 ease-in-out ${
+                currentStep === "summary" ? "w-[540px]" : "w-[440px]"
+              }`}
+            >
               <div
-                className={`${
+                className={`transition-[width] duration-300 ease-in-out ${
                   currentStep === "summary" ? "w-full max-w-2xl" : "w-[440px]"
                 } ${
                   currentStep === "booking"
@@ -462,8 +470,8 @@ function HomePage() {
                 }`}
               >
                 <div
-                  className={`relative transition-all duration-300 ${
-                    currentStep === "summary" ? "w-full" : "w-[440px]"
+                  className={`relative transition-all duration-300 ease-in-out ${
+                    currentStep === "summary" ? "w-[540px]" : "w-[440px]"
                   } mx-auto h-[680px] pb-6`}
                 >
                   <AnimatePresence mode="wait">
@@ -510,14 +518,19 @@ function HomePage() {
                                   search: {
                                     step: "addons",
                                     bookingData: search.bookingData,
-                                    addons: encodeURIComponent(JSON.stringify(newAddons)),
+                                    addons: encodeURIComponent(
+                                      JSON.stringify(newAddons)
+                                    ),
                                   },
                                   replace: true,
                                 });
                               }}
-                              transferPrice={transferOptions[0] 
-                                ? Number(transferOptions[0].price) * (bookingData?.tripType === "return" ? 2 : 1) 
-                                : 0}
+                              transferPrice={
+                                transferOptions[0]
+                                  ? Number(transferOptions[0].price) *
+                                    (bookingData?.tripType === "return" ? 2 : 1)
+                                  : 0
+                              }
                             />
                           </motion.div>
                         );
@@ -540,7 +553,7 @@ function HomePage() {
                               transferOption={transferOptions[0]}
                               onBack={handleBack}
                               onNext={() => {
-                                console.log("Proceeding to payment");
+                                console.log("Proceeding to payment"); 
                               }}
                             />
                           </motion.div>

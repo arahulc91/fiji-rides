@@ -32,11 +32,3 @@
   scrollbar-color: theme('colors.primary.500') theme('colors.gray.100');
 }
 
-.car-marker {
-  transform: scale(1.2);
-}
-
-.car-marker svg {
-  transform: translate(-50%, -50%) rotate(270deg);
-  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.1));
-}
