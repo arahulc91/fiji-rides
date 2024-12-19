@@ -52,21 +52,27 @@ function AccordionHeader({
     <button
       onClick={onClick}
       className={`w-full flex justify-between items-center p-4 
-                 text-sm font-medium rounded-xl transition-colors
+                 text-base font-semibold rounded-xl transition-all duration-200
+                 shadow-sm border
                  ${
                    isExpanded
-                     ? "bg-primary-50 text-primary-600"
-                     : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                     ? "bg-primary-50 text-primary-600 border-primary-100 shadow-primary-100/50"
+                     : "bg-white text-gray-700 hover:bg-gray-50 border-gray-100"
                  }`}
     >
       <div className="flex items-center gap-2">
-        <span className="font-medium">{title}</span>
-        <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-white/80 text-gray-600">
+        <span>{title}</span>
+        <span 
+          className={`px-2.5 py-0.5 text-xs font-medium rounded-full 
+                     ${isExpanded 
+                       ? "bg-primary-100 text-primary-700" 
+                       : "bg-gray-100 text-gray-600"}`}
+        >
           {count}
         </span>
       </div>
       <ChevronDown
-        className={`w-4 h-4 transition-transform duration-200 
+        className={`w-5 h-5 transition-transform duration-200 
                    ${isExpanded ? "rotate-180 text-primary-600" : "text-gray-400"}`}
       />
     </button>
@@ -119,15 +125,17 @@ export function AddOnSelector({
   onAddonsChange,
   transferPrice,
 }: Readonly<AddOnSelectorProps>) {
-  const [expandedSection, setExpandedSection] = useState<"popular" | "tours" | null>("popular");
+  const popularAddons = addons.filter((addon) => !addon.is_tour_addon);
+  const tourAddons = addons.filter((addon) => addon.is_tour_addon);
+
+  const [expandedSection, setExpandedSection] = useState<"popular" | "tours">(
+    popularAddons.length > 0 ? "popular" : "tours"
+  );
   const [modalData, setModalData] = useState<{
     photos: string[];
     details: string;
     title: string;
   } | null>(null);
-
-  const popularAddons = addons.filter((addon) => !addon.is_tour_addon);
-  const tourAddons = addons.filter((addon) => addon.is_tour_addon);
 
   const getAddonPrice = (addon: TransferAddon) => {
     let price = parseFloat(addon.price);
@@ -231,7 +239,14 @@ export function AddOnSelector({
   };
 
   const handleAccordionClick = (section: "popular" | "tours") => {
-    setExpandedSection(expandedSection === section ? null : section);
+    if (section !== expandedSection) {
+      setExpandedSection(section);
+    } else if (
+      (section === "popular" && tourAddons.length > 0) ||
+      (section === "tours" && popularAddons.length > 0)
+    ) {
+      setExpandedSection(section === "popular" ? "tours" : "popular");
+    }
   };
 
   const handleTourInfoClick = (group: GroupedTourAddon) => {
@@ -436,7 +451,7 @@ export function AddOnSelector({
                   },
                 },
               }}
-              className="overflow-hidden mt-4"
+              className="overflow-hidden mt-4 px-1"
             >
               <motion.div
                 className="p-3 rounded-xl bg-primary-50 border border-primary-100"

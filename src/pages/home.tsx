@@ -515,7 +515,9 @@ function HomePage() {
                                   replace: true,
                                 });
                               }}
-                              transferPrice={transferOptions[0] ? Number(transferOptions[0].price) : 0}
+                              transferPrice={transferOptions[0] 
+                                ? Number(transferOptions[0].price) * (bookingData?.tripType === "return" ? 2 : 1) 
+                                : 0}
                             />
                           </motion.div>
                         );
