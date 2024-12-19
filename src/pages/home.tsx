@@ -11,12 +11,13 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiService } from "../lib/axios";
 import { BookingSummary } from "../components/booking-summary";
 import { PickupDropoffLocation } from "../types/index";
 import { RouteMap } from "../components/route-map";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 
 interface VehicleSlide {
   image: string;
@@ -34,6 +35,9 @@ interface BookingData {
 }
 
 function HomePage() {
+  const navigate = useNavigate();
+  const search = useSearch({ from: "/" });
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -170,25 +174,40 @@ function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentStep, setCurrentStep] = useState<
     "booking" | "addons" | "summary"
-  >("booking");
-  const [bookingData, setBookingData] = useState<BookingData | null>(null);
+  >(() => {
+    return search.step ?? "booking";
+  });
+  const [bookingData, setBookingData] = useState<BookingData | null>(() => {
+    if (search.bookingData) {
+      try {
+        return JSON.parse(decodeURIComponent(search.bookingData));
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
   const [selectedAddons, setSelectedAddons] = useState<Record<number, number>>(
-    {}
+    () => {
+      if (search.addons) {
+        try {
+          return JSON.parse(decodeURIComponent(search.addons));
+        } catch {
+          return {};
+        }
+      }
+      return {};
+    }
   );
 
-  // Prefetch add-ons when pickup location changes
+  // Prefetch add-ons immediately when component loads
   const { data: addons = [], isLoading: isLoadingAddons } = useQuery({
-    queryKey: [
-      "addons",
-      bookingData?.pickupLocation,
-      bookingData?.dropoffLocation,
-      bookingData?.passengers,
-    ],
+    queryKey: ["addons"],
     queryFn: () => apiService.getTransferAddons(),
-    enabled: !!bookingData?.pickupLocation, // Only fetch when pickup location is selected
+    // No enabled condition - will fetch immediately
   });
 
-  // Add transfer options query
+  // Keep transfer options query as is since it depends on locations
   const { data: transferOptions = [] } = useQuery({
     queryKey: [
       "transferOptions",
@@ -225,8 +244,146 @@ function HomePage() {
 
   const handleBookingNext = (data: BookingData) => {
     setBookingData(data);
+    navigate({
+      to: "/",
+      search: {
+        step: "addons",
+        bookingData: encodeURIComponent(JSON.stringify(data)),
+      },
+      replace: true,
+    });
     setCurrentStep("addons");
   };
+
+  const handleAddonsNext = () => {
+    navigate({
+      to: "/",
+      search: {
+        step: "summary",
+        bookingData: search.bookingData,
+        addons: search.addons,
+      },
+      replace: true,
+    });
+    setCurrentStep("summary");
+  };
+
+  const handleBack = useCallback(() => {
+    if (currentStep === "addons") {
+      setCurrentStep("booking");
+      navigate({
+        to: "/",
+        search: {
+          step: "booking",
+        },
+        replace: true,
+      });
+    } else if (currentStep === "summary") {
+      setCurrentStep("addons");
+      navigate({
+        to: "/",
+        search: {
+          step: "addons",
+          ...(bookingData && {
+            bookingData: encodeURIComponent(JSON.stringify(bookingData)),
+          }),
+          ...(Object.keys(selectedAddons).length > 0 && {
+            addons: encodeURIComponent(JSON.stringify(selectedAddons)),
+          }),
+        },
+        replace: true,
+      });
+    }
+  }, [currentStep, bookingData, selectedAddons, navigate]);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      e.preventDefault();
+
+      if (currentStep !== "booking") {
+        const previousStep = currentStep === "summary" ? "addons" : "booking";
+
+        navigate({
+          to: "/",
+          search: {
+            step: previousStep,
+            ...(bookingData &&
+              previousStep !== "booking" && {
+                bookingData: encodeURIComponent(JSON.stringify(bookingData)),
+              }),
+            ...(Object.keys(selectedAddons).length > 0 &&
+              previousStep === "addons" && {
+                addons: encodeURIComponent(JSON.stringify(selectedAddons)),
+              }),
+          },
+          replace: true,
+        });
+
+        setCurrentStep(previousStep);
+      }
+    };
+
+    // Add extra history entry to handle back button
+    if (currentStep !== "booking") {
+      window.history.pushState({ step: currentStep }, "");
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [currentStep, bookingData, selectedAddons, navigate]);
+
+  // Block browser back when not on first step
+  useEffect(() => {
+    const blockBrowserBack = (event: BeforeUnloadEvent) => {
+      if (currentStep !== "booking") {
+        event.preventDefault();
+        // Modern browsers don't require returnValue
+        return "Are you sure you want to leave? Your booking progress will be lost.";
+      }
+    };
+
+    if (currentStep !== "booking") {
+      window.history.pushState(null, "", window.location.href);
+      window.addEventListener("beforeunload", blockBrowserBack);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", blockBrowserBack);
+    };
+  }, [currentStep]);
+
+  // Update URL when state changes
+  useEffect(() => {
+    navigate({
+      to: "/",
+      search: {
+        ...(currentStep && { step: currentStep }),
+        ...(currentStep !== "booking" &&
+          bookingData && {
+            bookingData: encodeURIComponent(JSON.stringify(bookingData)),
+          }),
+        ...(currentStep === "summary" &&
+          Object.keys(selectedAddons).length > 0 && {
+            addons: encodeURIComponent(JSON.stringify(selectedAddons)),
+          }),
+      },
+      replace: true,
+    });
+  }, [currentStep, bookingData, selectedAddons, navigate]);
+
+  // Handle back navigation
+  // const handlePopState = useCallback(() => {
+  //   navigate({
+  //     to: '/',
+  //     search: {
+  //       step: currentStep === "summary" ? "addons" : "booking"
+  //     },
+  //     replace: true
+  //   });
+  // }, [currentStep, navigate]);
 
   return (
     <div className="flex flex-col">
@@ -321,7 +478,10 @@ function HomePage() {
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <BookingForm onNext={handleBookingNext} />
+                            <BookingForm
+                              onNext={handleBookingNext}
+                              initialData={bookingData}
+                            />
                           </motion.div>
                         );
                       }
@@ -337,13 +497,25 @@ function HomePage() {
                             transition={{ duration: 0.3 }}
                           >
                             <AddOnSelector
+                              onBack={handleBack}
+                              onNext={handleAddonsNext}
                               bookingData={bookingData!}
                               addons={addons}
                               isLoading={isLoadingAddons}
-                              onBack={() => setCurrentStep("booking")}
-                              onNext={() => setCurrentStep("summary")}
-                              onAddonsChange={setSelectedAddons}
                               selectedAddons={selectedAddons}
+                              onAddonsChange={(newAddons) => {
+                                setSelectedAddons(newAddons);
+                                navigate({
+                                  to: "/",
+                                  search: {
+                                    step: "addons",
+                                    bookingData: search.bookingData,
+                                    addons: encodeURIComponent(JSON.stringify(newAddons)),
+                                  },
+                                  replace: true,
+                                });
+                              }}
+                              transferPrice={transferOptions[0] ? Number(transferOptions[0].price) : 0}
                             />
                           </motion.div>
                         );
@@ -364,7 +536,7 @@ function HomePage() {
                               selectedAddons={selectedAddons}
                               addons={addons}
                               transferOption={transferOptions[0]}
-                              onBack={() => setCurrentStep("addons")}
+                              onBack={handleBack}
                               onNext={() => {
                                 console.log("Proceeding to payment");
                               }}

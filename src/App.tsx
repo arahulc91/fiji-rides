@@ -41,10 +41,24 @@ const rootRoute = createRootRoute({
   ),
 })
 
-// Create routes
+// Update the HomeSearchParams interface
+export interface HomeSearchParams {
+  step?: 'booking' | 'addons' | 'summary';
+  bookingData?: string;
+  addons?: string;
+}
+
+// Update home route with search params validation
 const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  validateSearch: (search: Record<string, unknown>): HomeSearchParams => {
+    const validated: HomeSearchParams = {};
+    if (search.step) validated.step = search.step as HomeSearchParams['step'];
+    if (search.bookingData) validated.bookingData = String(search.bookingData);
+    if (search.addons) validated.addons = String(search.addons);
+    return validated;
+  },
   component: HomePage,
 })
 

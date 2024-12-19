@@ -32,6 +32,7 @@ interface AddOnSelectorProps {
   isLoading: boolean;
   selectedAddons: Record<number, number>;
   onAddonsChange: (addons: Record<number, number>) => void;
+  transferPrice: number;
 }
 
 interface AccordionHeaderProps {
@@ -116,6 +117,7 @@ export function AddOnSelector({
   isLoading,
   selectedAddons,
   onAddonsChange,
+  transferPrice,
 }: Readonly<AddOnSelectorProps>) {
   const [expandedSection, setExpandedSection] = useState<"popular" | "tours" | null>("popular");
   const [modalData, setModalData] = useState<{
@@ -152,13 +154,15 @@ export function AddOnSelector({
     }
   }
 
-  const totalPrice = Object.entries(selectedAddons).reduce(
+  const addonsTotal = Object.entries(selectedAddons).reduce(
     (sum, [id, quantity]) => {
       const addon = addons.find((a) => a.id === parseInt(id));
       return sum + (addon ? getAddonPrice(addon) * quantity : 0);
     },
     0
   );
+
+  const totalPrice = transferPrice + addonsTotal;
 
   const AddOnItem = ({ addon }: { addon: TransferAddon }) => {
     const price = getAddonPrice(addon);
@@ -403,70 +407,82 @@ export function AddOnSelector({
           </div>
 
           <AnimatePresence mode="wait">
-            {totalPrice > 0 && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{
+                height: "auto",
+                opacity: 1,
+                transition: {
+                  height: {
+                    duration: 0.3,
+                    ease: "easeOut",
+                  },
+                  opacity: {
+                    duration: 0.2,
+                    delay: 0.1,
+                  },
+                },
+              }}
+              exit={{
+                height: 0,
+                opacity: 0,
+                transition: {
+                  height: {
+                    duration: 0.3,
+                    ease: "easeIn",
+                  },
+                  opacity: {
+                    duration: 0.1,
+                  },
+                },
+              }}
+              className="overflow-hidden mt-4"
+            >
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
+                className="p-3 rounded-xl bg-primary-50 border border-primary-100"
+                initial={{ y: 10 }}
                 animate={{
-                  height: "auto",
-                  opacity: 1,
+                  y: 0,
                   transition: {
-                    height: {
-                      duration: 0.3,
-                      ease: "easeOut",
-                    },
-                    opacity: {
-                      duration: 0.2,
-                      delay: 0.1,
-                    },
+                    duration: 0.3,
+                    ease: "easeOut",
                   },
                 }}
-                exit={{
-                  height: 0,
-                  opacity: 0,
-                  transition: {
-                    height: {
-                      duration: 0.3,
-                      ease: "easeIn",
-                    },
-                    opacity: {
-                      duration: 0.1,
-                    },
-                  },
-                }}
-                className="overflow-hidden mt-4"
               >
-                <motion.div
-                  className="p-3 rounded-xl bg-primary-50 border border-primary-100"
-                  initial={{ y: 10 }}
-                  animate={{
-                    y: 0,
-                    transition: {
-                      duration: 0.3,
-                      ease: "easeOut",
-                    },
-                  }}
-                >
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="font-medium text-gray-700">Total Add-ons</span>
-                    <motion.span
-                      key={totalPrice}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                        transition: {
-                          duration: 0.3,
-                          ease: "easeOut",
-                        },
-                      }}
-                      className="font-semibold text-gray-900"
-                    >
-                      ${totalPrice.toFixed(2)}
-                    </motion.span>
-                  </div>
-                </motion.div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-medium text-gray-700 flex items-center gap-1">
+                    Total Price{" "}
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={addonsTotal > 0 ? "with-addons" : "transfer-only"}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-gray-500"
+                      >
+                        ({addonsTotal > 0 ? "Transfer + Add-ons" : "Transfer"})
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
+                  <motion.span
+                    key={totalPrice}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.3,
+                        ease: "easeOut",
+                      },
+                    }}
+                    className="font-semibold text-gray-900"
+                  >
+                    ${totalPrice.toFixed(2)}
+                  </motion.span>
+                </div>
               </motion.div>
-            )}
+            </motion.div>
           </AnimatePresence>
         </div>
       </div>

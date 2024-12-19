@@ -20,6 +20,7 @@ interface BookingData {
 
 interface BookingFormProps {
   onNext: (bookingData: BookingData) => void;
+  initialData?: BookingData | null;
 }
 
 // Add validation schema
@@ -54,15 +55,31 @@ interface FormErrors {
   returnDateTime?: string;
 }
 
-export function BookingForm({ onNext }: Readonly<BookingFormProps>) {
-  const [tripType, setTripType] = useState<TripType>("return");
-  const [passengers, setPassengers] = useState(1);
-  const [pickupLocation, setPickupLocation] =
-    useState<PickupDropoffLocation | null>(null);
-  const [dropoffLocation, setDropoffLocation] =
-    useState<PickupDropoffLocation | null>(null);
-  const [pickupDateTime, setPickupDateTime] = useState("");
-  const [returnDateTime, setReturnDateTime] = useState("");
+export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>) {
+  const [tripType, setTripType] = useState<TripType>(() => 
+    initialData?.tripType ?? "return"
+  );
+  
+  const [passengers, setPassengers] = useState(() => 
+    initialData?.passengers ?? 1
+  );
+  
+  const [pickupLocation, setPickupLocation] = useState<PickupDropoffLocation | null>(() => 
+    initialData?.pickupLocation ?? null
+  );
+  
+  const [dropoffLocation, setDropoffLocation] = useState<PickupDropoffLocation | null>(() => 
+    initialData?.dropoffLocation ?? null
+  );
+  
+  const [pickupDateTime, setPickupDateTime] = useState(() => 
+    initialData?.pickupDateTime ?? ""
+  );
+  
+  const [returnDateTime, setReturnDateTime] = useState(() => 
+    initialData?.returnDateTime ?? ""
+  );
+
   const [errors, setErrors] = useState<FormErrors>({});
 
   const { data: unsortedPickupLocations = [], isLoading: isLoadingPickup } =

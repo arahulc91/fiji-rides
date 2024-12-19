@@ -42,12 +42,12 @@ export function LocationAutocomplete({
       ? locations
       : locations.filter((location) => {
           const searchQuery = query.toLowerCase();
-          
+
           const descriptionMatch = location.description
             .toLowerCase()
             .includes(searchQuery);
 
-          const tagMatch = location.region_tags?.some(tag =>
+          const tagMatch = location.region_tags?.some((tag) =>
             tag.toLowerCase().includes(searchQuery)
           );
 
@@ -71,11 +71,15 @@ export function LocationAutocomplete({
     const newValue = e.target.value;
     isUserTyping.current = true;
     setQuery(newValue);
-    
-    if (newValue === "" || (value && !value.description.toLowerCase().startsWith(newValue.toLowerCase()))) {
+
+    if (
+      newValue === "" ||
+      (value &&
+        !value.description.toLowerCase().startsWith(newValue.toLowerCase()))
+    ) {
       onChange(null);
     }
-    
+
     setIsOpen(true);
     setTimeout(() => {
       isUserTyping.current = false;

@@ -64,10 +64,10 @@ api.interceptors.response.use(
 
 // API endpoints
 export const endpoints = {
-  pickupLocations: '/pickup-locations',
+  pickupLocations: '/pickup-locations/',
   dropoffLocations: '/dropoff-locations',
-  addons: '/addons',
-  transferOptions: '/rates',
+  addons: '/addons/',
+  transferOptions: '/rates/',
   bookings: '/bookings/',
   paymentStatus: '/update-payment-status/',
   checkPaymentStatus: '/check-payment-status/',
