@@ -385,6 +385,12 @@ function HomePage() {
   //   });
   // }, [currentStep, navigate]);
 
+  // Add to state
+  const [tourDates, setTourDates] = useState<Array<{
+    tour_addon_id: number;
+    tour_date: string;
+  }>>([]);
+
   return (
     <div className="flex flex-col">
       <HeroBackground className="min-h-screen">
@@ -531,6 +537,8 @@ function HomePage() {
                                     (bookingData?.tripType === "return" ? 2 : 1)
                                   : 0
                               }
+                              tourDates={tourDates}
+                              onTourDatesChange={setTourDates}
                             />
                           </motion.div>
                         );
@@ -555,6 +563,7 @@ function HomePage() {
                               onNext={() => {
                                 console.log("Proceeding to payment"); 
                               }}
+                              tourDates={tourDates}
                             />
                           </motion.div>
                         );

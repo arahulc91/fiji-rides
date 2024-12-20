@@ -18,6 +18,10 @@ interface BookingSummaryProps {
   selectedAddons: Record<number, number>;
   addons: TransferAddon[];
   transferOption: TransferOption;
+  tourDates: Array<{
+    tour_addon_id: number;
+    tour_date: string;
+  }>;
 }
 
 export function BookingSummary({
@@ -26,6 +30,7 @@ export function BookingSummary({
   selectedAddons,
   addons,
   transferOption,
+  tourDates,
 }: Readonly<BookingSummaryProps>) {
   // Simplified state - removed WebSocket related state
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -45,13 +50,13 @@ export function BookingSummary({
         pickup_date: bookingData.pickupDateTime,
         return_date: bookingData.returnDateTime,
         addons: Object.entries(selectedAddons).map(([id, quantity]) => ({
-          addon_id: id,
-          addon_qty: quantity.toString(), 
+          addon_id: parseInt(id),
+          addon_qty: quantity,
         })),
         email: formData.email,
         full_name: formData.fullName,
         terms_and_conditions_accepted: acceptedTerms,
-        tour_date: addons.some(addon => addon.is_tour_addon && selectedAddons[addon.id] > 0) ? formData.tourDate : undefined,
+        tour_dates: tourDates,
       };
 
       const response = await apiService.createBooking(bookingRequest);

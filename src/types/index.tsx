@@ -40,11 +40,17 @@ export interface ApiResponse<T> {
     dropoff_location_id: number;
     pickup_date: string;
     return_date?: string;
-    addons: Record<string, string>[];
+    addons: Array<{
+      addon_id: number;
+      addon_qty: number;
+    }>;
     email: string;
     full_name: string;
     terms_and_conditions_accepted: boolean;
-    tour_date?: string;
+    tour_dates: Array<{
+      tour_addon_id: number;
+      tour_date: string;
+    }>;
   }
   
   export interface BookingResponse {

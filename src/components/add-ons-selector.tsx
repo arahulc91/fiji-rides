@@ -33,6 +33,8 @@ interface AddOnSelectorProps {
   selectedAddons: Record<number, number>;
   onAddonsChange: (addons: Record<number, number>) => void;
   transferPrice: number;
+  tourDates: Array<TourDate>;
+  onTourDatesChange: (dates: Array<TourDate> | ((prev: Array<TourDate>) => Array<TourDate>)) => void;
 }
 
 interface AccordionHeaderProps {
@@ -62,18 +64,24 @@ function AccordionHeader({
     >
       <div className="flex items-center gap-2">
         <span>{title}</span>
-        <span 
+        <span
           className={`px-2.5 py-0.5 text-xs font-medium rounded-full 
-                     ${isExpanded 
-                       ? "bg-primary-100 text-primary-700" 
-                       : "bg-gray-100 text-gray-600"}`}
+                     ${
+                       isExpanded
+                         ? "bg-primary-100 text-primary-700"
+                         : "bg-gray-100 text-gray-600"
+                     }`}
         >
           {count}
         </span>
       </div>
       <ChevronDown
         className={`w-5 h-5 transition-transform duration-200 
-                   ${isExpanded ? "rotate-180 text-primary-600" : "text-gray-400"}`}
+                   ${
+                     isExpanded
+                       ? "rotate-180 text-primary-600"
+                       : "text-gray-400"
+                   }`}
       />
     </button>
   );
@@ -94,7 +102,7 @@ function groupTourAddons(addons: TransferAddon[]): GroupedTourAddon[] {
     if (!addon.is_tour_addon) return;
 
     // Remove "-Adult" or "-Child" to get base name
-    const baseName = addon.addon.replace(/-Adult$|-Child$/, '');
+    const baseName = addon.addon.replace(/-Adult$|-Child$/, "");
 
     if (!tourGroups.has(baseName)) {
       tourGroups.set(baseName, {
@@ -105,14 +113,19 @@ function groupTourAddons(addons: TransferAddon[]): GroupedTourAddon[] {
     }
 
     const group = tourGroups.get(baseName)!;
-    if (addon.addon.endsWith('-Adult')) {
+    if (addon.addon.endsWith("-Adult")) {
       group.adultAddon = addon;
-    } else if (addon.addon.endsWith('-Child')) {
+    } else if (addon.addon.endsWith("-Child")) {
       group.childAddon = addon;
     }
   });
 
   return Array.from(tourGroups.values());
+}
+
+interface TourDate {
+  tour_addon_id: number;
+  tour_date: string;
 }
 
 export function AddOnSelector({
@@ -124,6 +137,8 @@ export function AddOnSelector({
   selectedAddons,
   onAddonsChange,
   transferPrice,
+  tourDates,
+  onTourDatesChange,
 }: Readonly<AddOnSelectorProps>) {
   const popularAddons = addons.filter((addon) => !addon.is_tour_addon);
   const tourAddons = addons.filter((addon) => addon.is_tour_addon);
@@ -139,7 +154,7 @@ export function AddOnSelector({
 
   const getAddonPrice = (addon: TransferAddon) => {
     let price = parseFloat(addon.price);
-    
+
     // Only multiply by 2 if both booking and addon are return type
     if (bookingData.tripType === "return" && addon.return_type === "return") {
       price *= 2;
@@ -176,63 +191,70 @@ export function AddOnSelector({
     const price = getAddonPrice(addon);
 
     return (
-      <div className="flex items-center justify-between py-2">
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col py-1">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
             <div className="flex items-center gap-1">
-              <span className="text-sm font-medium text-gray-700">
-                {addon.addon}
-              </span>
-              {price > 0 && (
-                <span className="text-sm text-gray-500">
-                  (${price.toFixed(2)}
-                  {addon.return_type === "return" && bookingData.tripType === "return" && " Return"})
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-medium text-gray-700">
+                  {addon.addon}
                 </span>
-              )}
-              {price === 0 && (
-                <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-600">
-                  FREE
-                </span>
+                {price > 0 && (
+                  <span className="text-sm text-gray-500">
+                    (${price.toFixed(2)}
+                    {addon.return_type === "return" &&
+                      bookingData.tripType === "return" &&
+                      " Return"}
+                    )
+                  </span>
+                )}
+                {price === 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-600">
+                    FREE
+                  </span>
+                )}
+              </div>
+              {addon.additional_details && (
+                <button
+                  onClick={() =>
+                    setModalData({
+                      photos: addon.photos,
+                      details: addon.additional_details,
+                      title: addon.addon,
+                    })
+                  }
+                  className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 
+                           transition-colors text-gray-600"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
               )}
             </div>
-            {addon.additional_details && (
-              <button
-                onClick={() => setModalData({
-                  photos: addon.photos,
-                  details: addon.additional_details,
-                  title: addon.addon
-                })}
-                className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 
-                         transition-colors text-gray-600"
-              >
-                <Info className="w-4 h-4" />
-              </button>
-            )}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => updateQuantity(addon.id, -1)}
-            className="w-7 h-7 flex items-center justify-center rounded-lg 
-                     bg-gray-100 text-gray-700 hover:bg-gray-200 
-                     disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-            disabled={!selectedAddons[addon.id]}
-          >
-            -
-          </motion.button>
-          <span className="w-6 text-center text-sm font-medium text-gray-700">
-            {selectedAddons[addon.id] || 0}
-          </span>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => updateQuantity(addon.id, 1)}
-            className="w-7 h-7 flex items-center justify-center rounded-lg 
-                     bg-gray-100 text-gray-700 hover:bg-gray-200 
-                     text-sm font-medium"
-          >
-            +
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => updateQuantity(addon.id, -1)}
+              className="w-7 h-7 flex items-center justify-center rounded-lg 
+                       bg-gray-100 text-gray-700 hover:bg-gray-200 
+                       disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+              disabled={!selectedAddons[addon.id]}
+            >
+              -
+            </motion.button>
+            <span className="w-6 text-center text-sm font-medium text-gray-700">
+              {selectedAddons[addon.id] || 0}
+            </span>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => updateQuantity(addon.id, 1)}
+              className="w-7 h-7 flex items-center justify-center rounded-lg 
+                       bg-gray-100 text-gray-700 hover:bg-gray-200 
+                       text-sm font-medium"
+            >
+              +
+            </motion.button>
+          </div>
         </div>
       </div>
     );
@@ -253,8 +275,29 @@ export function AddOnSelector({
     setModalData({
       photos: group.photos,
       details: group.additional_details,
-      title: group.baseName
+      title: group.baseName,
     });
+  };
+
+  const handleNext = () => {
+    // Validate that all tour addons have dates
+    const hasTourAddonsWithoutDates = Object.entries(selectedAddons).some(
+      ([id, quantity]) => {
+        const addon = addons.find((a) => a.id === parseInt(id));
+        return (
+          addon?.is_tour_addon &&
+          quantity > 0 &&
+          !tourDates.find((td) => td.tour_addon_id === parseInt(id))
+        );
+      }
+    );
+
+    if (hasTourAddonsWithoutDates) {
+      // Show error or prevent proceeding
+      return;
+    }
+
+    onNext();
   };
 
   if (isLoading) {
@@ -271,13 +314,13 @@ export function AddOnSelector({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
+      <div className="flex-1 px-4 pt-2 sm:px-6 sm:pt-3 lg:px-8 lg:pt-4">
         <div className="max-w-md mx-auto">
-          <h2 className="text-2xl font-semibold text-center mb-6 text-secondary-500">
+          <h2 className="text-2xl font-semibold text-center mb-3 text-secondary-500">
             Select Add-ons
           </h2>
 
-          <div className="space-y-4 max-h-[600px] overflow-y-auto px-1">
+          <div className="space-y-2 max-h-[600px] overflow-y-auto px-1">
             {popularAddons.length > 0 && (
               <div>
                 <AccordionHeader
@@ -293,7 +336,7 @@ export function AddOnSelector({
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="mt-2 space-y-2 px-2 overflow-hidden"
+                      className="mt-2 space-y-1 px-2 overflow-hidden"
                     >
                       {popularAddons.map((addon) => (
                         <AddOnItem key={addon.id} addon={addon} />
@@ -324,7 +367,7 @@ export function AddOnSelector({
                       {groupTourAddons(tourAddons).map((group) => (
                         <div
                           key={group.baseName}
-                          className="p-4 rounded-xl bg-gray-50 space-y-3"
+                          className="p-3 rounded-xl bg-gray-50 space-y-2"
                         >
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-gray-900">
@@ -340,7 +383,8 @@ export function AddOnSelector({
                               </button>
                             )}
                           </div>
-                          <div className="space-y-2">
+
+                          <div className="space-y-1.5">
                             {group.adultAddon && (
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -354,11 +398,15 @@ export function AddOnSelector({
                                 <div className="flex items-center gap-2">
                                   <motion.button
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={() => updateQuantity(group.adultAddon!.id, -1)}
+                                    onClick={() =>
+                                      updateQuantity(group.adultAddon!.id, -1)
+                                    }
                                     className="w-7 h-7 flex items-center justify-center rounded-lg 
                                              bg-gray-100 text-gray-700 hover:bg-gray-200 
                                              disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled={!selectedAddons[group.adultAddon.id]}
+                                    disabled={
+                                      !selectedAddons[group.adultAddon.id]
+                                    }
                                   >
                                     -
                                   </motion.button>
@@ -367,7 +415,9 @@ export function AddOnSelector({
                                   </span>
                                   <motion.button
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={() => updateQuantity(group.adultAddon!.id, 1)}
+                                    onClick={() =>
+                                      updateQuantity(group.adultAddon!.id, 1)
+                                    }
                                     className="w-7 h-7 flex items-center justify-center rounded-lg 
                                              bg-gray-100 text-gray-700 hover:bg-gray-200"
                                   >
@@ -389,11 +439,15 @@ export function AddOnSelector({
                                 <div className="flex items-center gap-2">
                                   <motion.button
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={() => updateQuantity(group.childAddon!.id, -1)}
+                                    onClick={() =>
+                                      updateQuantity(group.childAddon!.id, -1)
+                                    }
                                     className="w-7 h-7 flex items-center justify-center rounded-lg 
                                              bg-gray-100 text-gray-700 hover:bg-gray-200 
                                              disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled={!selectedAddons[group.childAddon.id]}
+                                    disabled={
+                                      !selectedAddons[group.childAddon.id]
+                                    }
                                   >
                                     -
                                   </motion.button>
@@ -402,13 +456,85 @@ export function AddOnSelector({
                                   </span>
                                   <motion.button
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={() => updateQuantity(group.childAddon!.id, 1)}
+                                    onClick={() =>
+                                      updateQuantity(group.childAddon!.id, 1)
+                                    }
                                     className="w-7 h-7 flex items-center justify-center rounded-lg 
                                              bg-gray-100 text-gray-700 hover:bg-gray-200"
                                   >
                                     +
                                   </motion.button>
                                 </div>
+                              </div>
+                            )}
+
+                            {((group.adultAddon && selectedAddons[group.adultAddon.id] > 0) ||
+                              (group.childAddon && selectedAddons[group.childAddon.id] > 0)) && (
+                              <div className="flex items-center gap-2 mt-2">
+                                <div className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                  Tour Date:
+                                </div>
+                                <input
+                                  type="date"
+                                  value={
+                                    tourDates.find(
+                                      (td) =>
+                                        (group.adultAddon &&
+                                          td.tour_addon_id === group.adultAddon.id) ||
+                                        (group.childAddon &&
+                                          td.tour_addon_id === group.childAddon.id)
+                                    )?.tour_date || ""
+                                  }
+                                  onChange={(e) => {
+                                    const newDate = e.target.value;
+                                    onTourDatesChange((prev: TourDate[]) => {
+                                      const filtered = prev.filter(
+                                        (td: TourDate) =>
+                                          (group.adultAddon &&
+                                            td.tour_addon_id !== group.adultAddon.id) &&
+                                          (group.childAddon &&
+                                            td.tour_addon_id !== group.childAddon.id)
+                                      );
+
+                                      if (newDate) {
+                                        const newDates: TourDate[] = [];
+                                        if (
+                                          group.adultAddon &&
+                                          selectedAddons[group.adultAddon.id] > 0
+                                        ) {
+                                          newDates.push({
+                                            tour_addon_id: group.adultAddon.id,
+                                            tour_date: newDate,
+                                          });
+                                        }
+                                        if (
+                                          group.childAddon &&
+                                          selectedAddons[group.childAddon.id] > 0
+                                        ) {
+                                          newDates.push({
+                                            tour_addon_id: group.childAddon.id,
+                                            tour_date: newDate,
+                                          });
+                                        }
+                                        return [...filtered, ...newDates];
+                                      }
+                                      return filtered;
+                                    });
+                                  }}
+                                  min={new Date(bookingData.pickupDateTime)
+                                    .toISOString()
+                                    .split("T")[0]}
+                                  max={
+                                    bookingData.tripType === "return"
+                                      ? new Date(
+                                          bookingData.returnDateTime ?? ""
+                                        ).toISOString()
+                                        .split("T")[0]
+                                      : undefined
+                                  }
+                                  className="flex-1 px-2 py-1 text-sm rounded-lg border border-gray-200
+                                           focus:ring-1 focus:ring-primary-500 focus:border-transparent"
+                                />
                               </div>
                             )}
                           </div>
@@ -516,7 +642,7 @@ export function AddOnSelector({
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={onNext}
+            onClick={handleNext}
             className="flex-1 py-3 px-4 rounded-xl bg-primary-600 text-white 
                      hover:bg-primary-700 transition-colors text-sm font-medium"
           >
@@ -529,8 +655,8 @@ export function AddOnSelector({
         isOpen={modalData !== null}
         onClose={() => setModalData(null)}
         photos={modalData?.photos ?? []}
-        details={modalData?.details ?? ''}
-        title={modalData?.title ?? ''}
+        details={modalData?.details ?? ""}
+        title={modalData?.title ?? ""}
       />
     </div>
   );
