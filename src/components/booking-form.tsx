@@ -119,12 +119,6 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
     }
   }, [pickupLocations, pickupLocation]);
 
-  useEffect(() => {
-    if (dropoffLocations.length > 0 && pickupLocation) {
-      setDropoffLocation(dropoffLocations[0]);
-    }
-  }, [pickupLocation, dropoffLocations.length]);
-
   const [pickupRef, pickupPickerRef] = useDateTimePicker(
     (date) => {
       setPickupDateTime(date.toISOString());
@@ -155,6 +149,11 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
       returnPickerRef.current.options.minDate = new Date(pickupDateTime);
     }
   }, [pickupDateTime]);
+
+  // Add this useEffect to reset dropoff location when pickup location changes
+  useEffect(() => {
+    setDropoffLocation(null);
+  }, [pickupLocation]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
