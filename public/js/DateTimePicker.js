@@ -511,16 +511,36 @@ class DateTimePicker {
                 .time-dropdown-portal .time-cancel-btn:hover {
                     background-color: #f9fafb;
                 }
+
+                .datetime-picker-wrapper .time-input-highlight {
+                  border-color: #10b981 !important;
+                  border-width: 2px !important;
+                  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+                  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                }
+
+                @keyframes pulse {
+                  0%, 100% {
+                    opacity: 1;
+                  }
+                  50% {
+                    opacity: 0.7;
+                  }
+                }
             `;
       document.head.appendChild(styleSheet);
     }
   }
 
   createPickerElement() {
-    // Create time dropdown portal only if not dateOnly
-    if (!this.options.dateOnly && !document.querySelector('.time-dropdown-portal')) {
+    // Create unique time dropdown portal for each instance
+    if (!this.options.dateOnly) {
+        // Create unique ID for this instance
+        this.portalId = 'time-dropdown-' + Math.random().toString(36).substr(2, 9);
+        
         const portal = document.createElement('div');
         portal.className = 'time-dropdown-portal';
+        portal.id = this.portalId;
         portal.innerHTML = `
             <div class="time-columns">
                 <div class="time-column hours-column">
@@ -685,20 +705,20 @@ class DateTimePicker {
 
     // Only add time-related listeners if not dateOnly
     if (!this.options.dateOnly) {
-        const timeInputs = this.element.querySelectorAll(".time-input-group select");
-        timeInputs.forEach((input) => {
-            input.addEventListener("change", () => {
-                input.style.borderColor = "#e5e7eb";
-            });
-        });
-
         const timeInput = this.element.querySelector('.time-input');
-        const timeDropdown = document.querySelector('.time-dropdown-portal');
+        const timeDropdown = document.getElementById(this.portalId);
         let tempTimeSelection = null;
         
         if (timeInput && timeDropdown) {
             timeInput.addEventListener('click', (e) => {
                 e.stopPropagation();
+                
+                // Hide all other time dropdowns first
+                document.querySelectorAll('.time-dropdown-portal').forEach(portal => {
+                    if (portal.id !== this.portalId) {
+                        portal.classList.remove('show');
+                    }
+                });
                 
                 tempTimeSelection = {
                     hour: timeDropdown.querySelector('.hour-option.selected')?.dataset.hour,
@@ -841,6 +861,12 @@ class DateTimePicker {
       this.element.style.bottom = `${windowHeight - inputRect.top + 5}px`;
       this.element.style.top = "auto";
     }
+
+    // Reset time input highlight
+    if (!this.options.dateOnly) {
+      const timeInput = this.element.querySelector('.time-input');
+      timeInput.classList.remove('time-input-highlight');
+    }
   }
 
   hide() {
@@ -966,6 +992,14 @@ class DateTimePicker {
           newDate.setDate(day);
           this.selectedDate = newDate;
 
+          // Add highlight to time input after date selection
+          if (!this.options.dateOnly) {
+            const timeInput = this.element.querySelector('.time-input');
+            timeInput.classList.add('time-input-highlight');
+            // Automatically open time picker
+            timeInput.click();
+          }
+
           // Update range if this is a range picker
           if (this.options.isRangePicker) {
             this.options.rangeStart = this.selectedDate;
@@ -984,7 +1018,7 @@ class DateTimePicker {
   }
 
   updateTime() {
-    const timeDropdown = document.querySelector('.time-dropdown-portal');
+    const timeDropdown = document.getElementById(this.portalId);
     const timeInput = this.element.querySelector('.time-input');
     
     // Clear all previous selections
@@ -1152,7 +1186,7 @@ class DateTimePicker {
   }
 
   updateSelectedTime(shouldClose = false) {
-    const timeDropdown = document.querySelector('.time-dropdown-portal');
+    const timeDropdown = document.getElementById(this.portalId);
     const timeInput = this.element.querySelector('.time-input');
     
     const selectedHour = timeDropdown.querySelector('.hour-option.selected')?.dataset.hour || '12';
@@ -1161,7 +1195,6 @@ class DateTimePicker {
     
     timeInput.value = `${selectedHour}:${String(selectedMinute).padStart(2, '0')} ${selectedPeriod}`;
     
-    // Update selectedDate
     let hours = parseInt(selectedHour);
     if (selectedPeriod === 'PM' && hours !== 12) hours += 12;
     if (selectedPeriod === 'AM' && hours === 12) hours = 0;
@@ -1170,7 +1203,19 @@ class DateTimePicker {
     
     if (shouldClose) {
         timeDropdown.classList.remove('show');
+        this.confirm();
     }
+  }
+
+  // Add cleanup method
+  destroy() {
+    if (this.portalId) {
+        const portal = document.getElementById(this.portalId);
+        if (portal) {
+            portal.remove();
+        }
+    }
+    this.element.remove();
   }
 }
 
