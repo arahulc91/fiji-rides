@@ -37,6 +37,7 @@ class DateTimePicker {
       rangeStart: null,
       rangeEnd: null,
       linkedPicker: null,
+      dateOnly: false,
       ...options,
     };
 
@@ -516,8 +517,8 @@ class DateTimePicker {
   }
 
   createPickerElement() {
-    // Create time dropdown portal
-    if (!document.querySelector('.time-dropdown-portal')) {
+    // Create time dropdown portal only if not dateOnly
+    if (!this.options.dateOnly && !document.querySelector('.time-dropdown-portal')) {
         const portal = document.createElement('div');
         portal.className = 'time-dropdown-portal';
         portal.innerHTML = `
@@ -582,6 +583,7 @@ class DateTimePicker {
                 <div class="day-header">Fr</div>
                 <div class="day-header">Sa</div>
             </div>
+            ${!this.options.dateOnly ? `
             <div class="flex gap-4 justify-center mb-4 time-selector">
                 <div class="time-input-container">
                     <input type="text" 
@@ -590,6 +592,7 @@ class DateTimePicker {
                            readonly>
                 </div>
             </div>
+            ` : ''}
             <div class="flex justify-end gap-2">
                 <button class="cancel-btn">Cancel</button>
                 <button class="ok-btn">OK</button>
@@ -680,113 +683,108 @@ class DateTimePicker {
       }
     });
 
-    const timeInputs = this.element.querySelectorAll(
-      ".time-input-group select"
-    );
-    timeInputs.forEach((input) => {
-      input.addEventListener("change", () => {
-        input.style.borderColor = "#e5e7eb";
-      });
-    });
+    // Only add time-related listeners if not dateOnly
+    if (!this.options.dateOnly) {
+        const timeInputs = this.element.querySelectorAll(".time-input-group select");
+        timeInputs.forEach((input) => {
+            input.addEventListener("change", () => {
+                input.style.borderColor = "#e5e7eb";
+            });
+        });
 
-    const timeInput = this.element.querySelector('.time-input');
-    const timeDropdown = document.querySelector('.time-dropdown-portal');
-    let tempTimeSelection = null;
-    
-    timeInput.addEventListener('click', (e) => {
-        e.stopPropagation();
+        const timeInput = this.element.querySelector('.time-input');
+        const timeDropdown = document.querySelector('.time-dropdown-portal');
+        let tempTimeSelection = null;
         
-        // Store current time as temporary selection
-        tempTimeSelection = {
-            hour: timeDropdown.querySelector('.hour-option.selected')?.dataset.hour,
-            minute: timeDropdown.querySelector('.minute-option.selected')?.dataset.minute,
-            period: timeDropdown.querySelector('.period-option.selected')?.dataset.period
-        };
-        
-        // Position the dropdown below the input
-        const inputRect = timeInput.getBoundingClientRect();
-        const dropdownHeight = timeDropdown.offsetHeight || 200;
-        
-        // Check if there's room below the input
-        const spaceBelow = window.innerHeight - inputRect.bottom;
-        
-        if (spaceBelow >= dropdownHeight) {
-            timeDropdown.style.top = `${inputRect.bottom + 5}px`;
-        } else {
-            timeDropdown.style.top = `${inputRect.top - dropdownHeight - 5}px`;
-        }
-        
-        timeDropdown.style.left = `${inputRect.left}px`;
-        timeDropdown.style.width = `${inputRect.width}px`;
-        
-        timeDropdown.classList.add('show');
-        
-        // Scroll selected options into view
-        const selectedHour = timeDropdown.querySelector('.hour-option.selected');
-        const selectedMinute = timeDropdown.querySelector('.minute-option.selected');
-        const selectedPeriod = timeDropdown.querySelector('.period-option.selected');
-        
-        selectedHour?.scrollIntoView({ block: 'center' });
-        selectedMinute?.scrollIntoView({ block: 'center' });
-        selectedPeriod?.scrollIntoView({ block: 'center' });
-    });
+        if (timeInput && timeDropdown) {
+            timeInput.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                tempTimeSelection = {
+                    hour: timeDropdown.querySelector('.hour-option.selected')?.dataset.hour,
+                    minute: timeDropdown.querySelector('.minute-option.selected')?.dataset.minute,
+                    period: timeDropdown.querySelector('.period-option.selected')?.dataset.period
+                };
+                
+                const inputRect = timeInput.getBoundingClientRect();
+                const dropdownHeight = timeDropdown.offsetHeight || 200;
+                const spaceBelow = window.innerHeight - inputRect.bottom;
+                
+                if (spaceBelow >= dropdownHeight) {
+                    timeDropdown.style.top = `${inputRect.bottom + 5}px`;
+                } else {
+                    timeDropdown.style.top = `${inputRect.top - dropdownHeight - 5}px`;
+                }
+                
+                timeDropdown.style.left = `${inputRect.left}px`;
+                timeDropdown.style.width = `${inputRect.width}px`;
+                
+                timeDropdown.classList.add('show');
+                
+                const selectedHour = timeDropdown.querySelector('.hour-option.selected');
+                const selectedMinute = timeDropdown.querySelector('.minute-option.selected');
+                const selectedPeriod = timeDropdown.querySelector('.period-option.selected');
+                
+                selectedHour?.scrollIntoView({ block: 'center' });
+                selectedMinute?.scrollIntoView({ block: 'center' });
+                selectedPeriod?.scrollIntoView({ block: 'center' });
+            });
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!timeDropdown.contains(e.target) && e.target !== timeInput) {
-            timeDropdown.classList.remove('show');
-            // Restore previous selection if cancelled
-            if (tempTimeSelection) {
-                const { hour, minute, period } = tempTimeSelection;
-                if (hour) timeDropdown.querySelector(`.hour-option[data-hour="${hour}"]`)?.classList.add('selected');
-                if (minute) timeDropdown.querySelector(`.minute-option[data-minute="${minute}"]`)?.classList.add('selected');
-                if (period) timeDropdown.querySelector(`.period-option[data-period="${period}"]`)?.classList.add('selected');
-                this.updateSelectedTime();
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!timeDropdown.contains(e.target) && e.target !== timeInput) {
+                    timeDropdown.classList.remove('show');
+                    if (tempTimeSelection) {
+                        const { hour, minute, period } = tempTimeSelection;
+                        if (hour) timeDropdown.querySelector(`.hour-option[data-hour="${hour}"]`)?.classList.add('selected');
+                        if (minute) timeDropdown.querySelector(`.minute-option[data-minute="${minute}"]`)?.classList.add('selected');
+                        if (period) timeDropdown.querySelector(`.period-option[data-period="${period}"]`)?.classList.add('selected');
+                        this.updateSelectedTime();
+                        tempTimeSelection = null;
+                    }
+                }
+            });
+
+            // Handle time option selections
+            timeDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                const option = e.target.closest('.time-option');
+                if (!option) return;
+
+                const column = option.parentElement;
+                column.querySelectorAll('.time-option').forEach(opt => 
+                    opt.classList.remove('selected')
+                );
+                
+                option.classList.add('selected');
+                
+                this.updateSelectedTime(false);
+            });
+
+            // Add confirm button handler
+            timeDropdown.querySelector('.time-confirm-btn')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.updateSelectedTime(true);
+                timeDropdown.classList.remove('show');
                 tempTimeSelection = null;
-            }
+            });
+
+            // Add cancel button handler
+            timeDropdown.querySelector('.time-cancel-btn')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (tempTimeSelection) {
+                    const { hour, minute, period } = tempTimeSelection;
+                    if (hour) timeDropdown.querySelector(`.hour-option[data-hour="${hour}"]`)?.classList.add('selected');
+                    if (minute) timeDropdown.querySelector(`.minute-option[data-minute="${minute}"]`)?.classList.add('selected');
+                    if (period) timeDropdown.querySelector(`.period-option[data-period="${period}"]`)?.classList.add('selected');
+                    this.updateSelectedTime();
+                }
+                timeDropdown.classList.remove('show');
+                tempTimeSelection = null;
+            });
         }
-    });
-
-    // Handle time option selections
-    timeDropdown.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent event from bubbling up
-        
-        const option = e.target.closest('.time-option');
-        if (!option) return;
-
-        // Remove selected class from siblings
-        const column = option.parentElement;
-        column.querySelectorAll('.time-option').forEach(opt => 
-            opt.classList.remove('selected')
-        );
-        
-        option.classList.add('selected');
-        
-        this.updateSelectedTime(false); // Don't close dropdown after selection
-    });
-
-    // Add confirm button handler
-    timeDropdown.querySelector('.time-confirm-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.updateSelectedTime(true); // Close dropdown after confirming
-        timeDropdown.classList.remove('show');
-        tempTimeSelection = null;
-    });
-
-    // Add cancel button handler
-    timeDropdown.querySelector('.time-cancel-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        // Restore previous selection
-        if (tempTimeSelection) {
-            const { hour, minute, period } = tempTimeSelection;
-            if (hour) timeDropdown.querySelector(`.hour-option[data-hour="${hour}"]`)?.classList.add('selected');
-            if (minute) timeDropdown.querySelector(`.minute-option[data-minute="${minute}"]`)?.classList.add('selected');
-            if (period) timeDropdown.querySelector(`.period-option[data-period="${period}"]`)?.classList.add('selected');
-            this.updateSelectedTime();
-        }
-        timeDropdown.classList.remove('show');
-        tempTimeSelection = null;
-    });
+    }
   }
 
   attach(input) {
@@ -853,7 +851,9 @@ class DateTimePicker {
   updateUI() {
     this.updateMonthYear();
     this.updateCalendarGrid();
-    this.updateTime();
+    if (!this.options.dateOnly) {
+        this.updateTime();
+    }
   }
 
   updateMonthYear() {
@@ -1034,29 +1034,34 @@ class DateTimePicker {
   }
 
   confirm() {
-    const timeInput = this.element.querySelector('.time-input');
-    const timeRegex = /^(0?[1-9]|1[0-2]):([0-5][0-9])?\s*(AM|PM)?$/i;
-    
-    if (!timeInput.value || !timeRegex.test(timeInput.value)) {
-        timeInput.classList.add('error');
-        return;
-    }
+    if (!this.options.dateOnly) {
+        const timeInput = this.element.querySelector('.time-input');
+        const timeRegex = /^(0?[1-9]|1[0-2]):([0-5][0-9])?\s*(AM|PM)?$/i;
+        
+        if (!timeInput.value || !timeRegex.test(timeInput.value)) {
+            timeInput.classList.add('error');
+            return;
+        }
 
-    const [time, period] = timeInput.value.split(' ');
-    const [hours, minutes] = time.split(':');
-    
-    let parsedHours = parseInt(hours);
-    const parsedMinutes = parseInt(minutes) || 0;
-    
-    if (period?.toUpperCase() === 'PM' && parsedHours !== 12) {
-        parsedHours += 12;
-    } else if (period?.toUpperCase() === 'AM' && parsedHours === 12) {
-        parsedHours = 0;
+        const [time, period] = timeInput.value.split(' ');
+        const [hours, minutes] = time.split(':');
+        
+        let parsedHours = parseInt(hours);
+        const parsedMinutes = parseInt(minutes) || 0;
+        
+        if (period?.toUpperCase() === 'PM' && parsedHours !== 12) {
+            parsedHours += 12;
+        } else if (period?.toUpperCase() === 'AM' && parsedHours === 12) {
+            parsedHours = 0;
+        }
+        
+        this.selectedDate.setHours(parsedHours, parsedMinutes);
+    } else {
+        // For dateOnly, set time to start of day
+        this.selectedDate.setHours(0, 0, 0, 0);
     }
     
-    this.selectedDate.setHours(parsedHours, parsedMinutes);
     this.input.value = this.formatDate(this.selectedDate);
-
     const event = new Event("change", { bubbles: true });
     this.input.dispatchEvent(event);
 
@@ -1068,16 +1073,20 @@ class DateTimePicker {
   }
 
   formatDate(date) {
+    if (this.options.dateOnly) {
+        return `${date.getDate().toString().padStart(2, "0")}/${(
+            date.getMonth() + 1
+        ).toString().padStart(2, "0")}/${date.getFullYear()}`;
+    }
+
     let hours = date.getHours();
     const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
-    hours = hours ? hours : 12; // Convert 0 to 12
+    hours = hours ? hours : 12;
 
     return `${date.getDate().toString().padStart(2, "0")}/${(
       date.getMonth() + 1
-    )
-      .toString()
-      .padStart(2, "0")}/${date.getFullYear()} ${hours
+    ).toString().padStart(2, "0")}/${date.getFullYear()} ${hours
       .toString()
       .padStart(2, "0")}:${date
       .getMinutes()

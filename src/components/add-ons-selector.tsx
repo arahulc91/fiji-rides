@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Info } from "lucide-react";
 import { PickupDropoffLocation } from "../types/index";
 import TourDetailsModal from "./tourdetails";
+import { useDateTimePicker } from "../hooks/useDateTimePicker";
 
 interface TransferAddon {
   id: number;
@@ -34,7 +35,9 @@ interface AddOnSelectorProps {
   onAddonsChange: (addons: Record<number, number>) => void;
   transferPrice: number;
   tourDates: Array<TourDate>;
-  onTourDatesChange: (dates: Array<TourDate> | ((prev: Array<TourDate>) => Array<TourDate>)) => void;
+  onTourDatesChange: (
+    dates: Array<TourDate> | ((prev: Array<TourDate>) => Array<TourDate>)
+  ) => void;
 }
 
 interface AccordionHeaderProps {
@@ -126,6 +129,89 @@ function groupTourAddons(addons: TransferAddon[]): GroupedTourAddon[] {
 interface TourDate {
   tour_addon_id: number;
   tour_date: string;
+}
+
+interface TourDatePickerProps {
+  group: GroupedTourAddon;
+  selectedAddons: Record<number, number>;
+  tourDates: TourDate[];
+  onTourDatesChange: (
+    dates: Array<TourDate> | ((prev: Array<TourDate>) => Array<TourDate>)
+  ) => void;
+  bookingData: BookingData;
+}
+
+function TourDatePicker({
+  group,
+  selectedAddons,
+  tourDates,
+  onTourDatesChange,
+  bookingData,
+}: Readonly<TourDatePickerProps>) {
+  const [datePickerRef] = useDateTimePicker(
+    (date) => {
+      const newDate = date.toISOString().split("T")[0];
+      onTourDatesChange((prev: TourDate[]) => {
+        const filtered = prev.filter(
+          (td: TourDate) =>
+            group.adultAddon &&
+            td.tour_addon_id !== group.adultAddon.id &&
+            group.childAddon &&
+            td.tour_addon_id !== group.childAddon.id
+        );
+
+        if (newDate) {
+          const newDates: TourDate[] = [];
+          if (group.adultAddon && selectedAddons[group.adultAddon.id] > 0) {
+            newDates.push({
+              tour_addon_id: group.adultAddon.id,
+              tour_date: newDate,
+            });
+          }
+          if (group.childAddon && selectedAddons[group.childAddon.id] > 0) {
+            newDates.push({
+              tour_addon_id: group.childAddon.id,
+              tour_date: newDate,
+            });
+          }
+          return [...filtered, ...newDates];
+        }
+        return filtered;
+      });
+    },
+    {
+      minDate: new Date(bookingData.pickupDateTime),
+      maxDate:
+        bookingData.tripType === "return" && bookingData.returnDateTime
+          ? new Date(bookingData.returnDateTime)
+          : undefined,
+      dateOnly: true,
+    }
+  );
+
+  const currentDate =
+    tourDates.find(
+      (td) =>
+        (group.adultAddon && td.tour_addon_id === group.adultAddon.id) ||
+        (group.childAddon && td.tour_addon_id === group.childAddon.id)
+    )?.tour_date ?? "";
+
+  return (
+    <div className="flex items-center gap-2 mt-2">
+      <div className="text-sm font-medium text-gray-700 whitespace-nowrap">
+        Tour Date:
+      </div>
+      <input
+        ref={datePickerRef}
+        type="text"
+        value={currentDate ? new Date(currentDate).toLocaleDateString() : ""}
+        placeholder="Select date"
+        className="flex-1 px-2 py-1 text-sm text-secondary-500 rounded-lg border border-gray-200
+                 focus:ring-1 focus:ring-primary-500 focus:border-transparent"
+        readOnly
+      />
+    </div>
+  );
 }
 
 export function AddOnSelector({
@@ -392,7 +478,11 @@ export function AddOnSelector({
                                     Adult
                                   </div>
                                   <div className="text-sm text-gray-500">
-                                    (${parseFloat(group.adultAddon.price).toFixed(2)})
+                                    ($
+                                    {parseFloat(group.adultAddon.price).toFixed(
+                                      2
+                                    )}
+                                    )
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -433,7 +523,11 @@ export function AddOnSelector({
                                     Child
                                   </div>
                                   <div className="text-sm text-gray-500">
-                                    (${parseFloat(group.childAddon.price).toFixed(2)})
+                                    ($
+                                    {parseFloat(group.childAddon.price).toFixed(
+                                      2
+                                    )}
+                                    )
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -468,74 +562,17 @@ export function AddOnSelector({
                               </div>
                             )}
 
-                            {((group.adultAddon && selectedAddons[group.adultAddon.id] > 0) ||
-                              (group.childAddon && selectedAddons[group.childAddon.id] > 0)) && (
-                              <div className="flex items-center gap-2 mt-2">
-                                <div className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                                  Tour Date:
-                                </div>
-                                <input
-                                  type="date"
-                                  value={
-                                    tourDates.find(
-                                      (td) =>
-                                        (group.adultAddon &&
-                                          td.tour_addon_id === group.adultAddon.id) ||
-                                        (group.childAddon &&
-                                          td.tour_addon_id === group.childAddon.id)
-                                    )?.tour_date || ""
-                                  }
-                                  onChange={(e) => {
-                                    const newDate = e.target.value;
-                                    onTourDatesChange((prev: TourDate[]) => {
-                                      const filtered = prev.filter(
-                                        (td: TourDate) =>
-                                          (group.adultAddon &&
-                                            td.tour_addon_id !== group.adultAddon.id) &&
-                                          (group.childAddon &&
-                                            td.tour_addon_id !== group.childAddon.id)
-                                      );
-
-                                      if (newDate) {
-                                        const newDates: TourDate[] = [];
-                                        if (
-                                          group.adultAddon &&
-                                          selectedAddons[group.adultAddon.id] > 0
-                                        ) {
-                                          newDates.push({
-                                            tour_addon_id: group.adultAddon.id,
-                                            tour_date: newDate,
-                                          });
-                                        }
-                                        if (
-                                          group.childAddon &&
-                                          selectedAddons[group.childAddon.id] > 0
-                                        ) {
-                                          newDates.push({
-                                            tour_addon_id: group.childAddon.id,
-                                            tour_date: newDate,
-                                          });
-                                        }
-                                        return [...filtered, ...newDates];
-                                      }
-                                      return filtered;
-                                    });
-                                  }}
-                                  min={new Date(bookingData.pickupDateTime)
-                                    .toISOString()
-                                    .split("T")[0]}
-                                  max={
-                                    bookingData.tripType === "return"
-                                      ? new Date(
-                                          bookingData.returnDateTime ?? ""
-                                        ).toISOString()
-                                        .split("T")[0]
-                                      : undefined
-                                  }
-                                  className="flex-1 px-2 py-1 text-sm rounded-lg border border-gray-200
-                                           focus:ring-1 focus:ring-primary-500 focus:border-transparent"
-                                />
-                              </div>
+                            {((group.adultAddon &&
+                              selectedAddons[group.adultAddon.id] > 0) ||
+                              (group.childAddon &&
+                                selectedAddons[group.childAddon.id] > 0)) && (
+                              <TourDatePicker
+                                group={group}
+                                selectedAddons={selectedAddons}
+                                tourDates={tourDates}
+                                onTourDatesChange={onTourDatesChange}
+                                bookingData={bookingData}
+                              />
                             )}
                           </div>
                         </div>

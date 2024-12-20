@@ -37,7 +37,6 @@ export function BookingSummary({
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    tourDate: "",
   });
 
   const handlePayNow = async () => {
@@ -105,10 +104,6 @@ export function BookingSummary({
     : parseFloat(transferOption.price);
 
   const grandTotal = transferPrice + totalAddons;
-
-  const hasTourAddon = addons.some(
-    addon => addon.is_tour_addon && selectedAddons[addon.id] > 0
-  );
 
   // Function to render modal content based on payment status
   const renderModalContent = () => {
@@ -264,38 +259,6 @@ export function BookingSummary({
                     placeholder="Enter your email address"
                   />
                 </div>
-                
-                {hasTourAddon && (
-                  <div>
-                    <label 
-                      htmlFor="tourDate"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Tour Date
-                    </label>
-                    <input
-                      id="tourDate"
-                      type="date"
-                      value={formData.tourDate}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, tourDate: e.target.value }))
-                      }
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-900
-                                 focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                                 placeholder:text-gray-400"
-                      min={new Date(bookingData.pickupDateTime).toISOString().split('T')[0]}
-                      max={bookingData.tripType === "return" ? 
-                        new Date(bookingData.returnDateTime ?? '').toISOString().split('T')[0] : 
-                        undefined
-                      }
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      {bookingData.tripType === "return" 
-                        ? "Please select a date between your pickup and return dates" 
-                        : "Please select a date after your pickup date"}
-                    </p>
-                  </div>
-                )}
               </div>
 
               {/* Terms Checkbox */}
@@ -340,8 +303,7 @@ export function BookingSummary({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handlePayNow}
-            disabled={!acceptedTerms || !formData.fullName || !formData.email || 
-                      (hasTourAddon && !formData.tourDate)}
+            disabled={!acceptedTerms || !formData.fullName || !formData.email}
             className="flex-1 py-3 px-4 rounded-xl bg-primary-600 text-white 
                      hover:bg-primary-700 transition-colors text-sm font-medium
                      disabled:opacity-50 disabled:cursor-not-allowed"

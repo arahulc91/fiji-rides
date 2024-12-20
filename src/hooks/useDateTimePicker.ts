@@ -17,6 +17,7 @@ interface DateTimePickerOptions {
   rangeStart?: Date | null;
   rangeEnd?: Date | null;
   linkedPicker?: DateTimePicker | null;
+  dateOnly?: boolean;
 }
 
 interface DateTimePicker {
