@@ -942,39 +942,19 @@ class DateTimePicker {
 
       const minDate = new Date(this.options.minDate);
       minDate.setHours(0, 0, 0, 0);
+      
+      // For today's date, we should also check the current time
+      const now = new Date();
+      const isToday = currentDate.getDate() === now.getDate() &&
+                     currentDate.getMonth() === now.getMonth() &&
+                     currentDate.getFullYear() === now.getFullYear();
 
       // Add maxDate validation
       const maxDate = this.options.maxDate ? new Date(this.options.maxDate) : null;
       if (maxDate) maxDate.setHours(0, 0, 0, 0);
 
-      // Add range styling
-      if (this.options.isRangePicker && this.options.linkedPicker) {
-        const rangeStart = this.options.linkedPicker.selectedDate;
-        const rangeEnd = this.selectedDate;
-
-        if (rangeStart && rangeEnd) {
-          rangeStart.setHours(0, 0, 0, 0);
-          rangeEnd.setHours(0, 0, 0, 0);
-          currentDate.setHours(0, 0, 0, 0);
-
-          // Style range start
-          if (currentDate.getTime() === rangeStart.getTime()) {
-            dayElement.classList.add("range-start");
-          }
-
-          // Style range end
-          if (currentDate.getTime() === rangeEnd.getTime()) {
-            dayElement.classList.add("range-end");
-          }
-
-          // Style days in between
-          if (currentDate > rangeStart && currentDate < rangeEnd) {
-            dayElement.classList.add("in-range");
-          }
-        }
-      }
-
-      if (currentDate < minDate || (maxDate && currentDate > maxDate)) {
+      // Disable if date is before minDate or is today but time has passed
+      if (currentDate < minDate || (isToday && now.getHours() >= 22)) {
         dayElement.classList.add("disabled");
       } else {
         if (day === this.selectedDate.getDate()) {
@@ -998,14 +978,6 @@ class DateTimePicker {
             timeInput.classList.add('time-input-highlight');
             // Automatically open time picker
             timeInput.click();
-          }
-
-          // Update range if this is a range picker
-          if (this.options.isRangePicker) {
-            this.options.rangeStart = this.selectedDate;
-            if (this.options.linkedPicker) {
-              this.options.linkedPicker.updateUI();
-            }
           }
 
           this.updateUI();
@@ -1046,9 +1018,11 @@ class DateTimePicker {
   previousMonth() {
     const newDate = new Date(this.selectedDate);
     newDate.setMonth(newDate.getMonth() - 1);
+    newDate.setDate(1); // Set to first of month for comparison
 
     const minDate = new Date(this.options.minDate);
-    minDate.setDate(1); // Compare with start of month
+    minDate.setDate(1); // Set to first of month for comparison
+    minDate.setHours(0, 0, 0, 0);
 
     if (newDate >= minDate) {
       this.selectedDate = newDate;

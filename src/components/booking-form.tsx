@@ -119,13 +119,13 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
     }
   }, [pickupLocations, pickupLocation]);
 
-  const [pickupRef, pickupPickerRef] = useDateTimePicker(
+  const [pickupRef] = useDateTimePicker(
     (date) => {
       setPickupDateTime(date.toISOString());
     },
     {
-      isRangePicker: tripType === "return",
-      rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
+      isRangePicker: false,
+      minDate: new Date(),
     }
   );
 
@@ -134,11 +134,11 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
       setReturnDateTime(date.toISOString());
     },
     {
-      isRangePicker: tripType === "return",
-      linkedPicker: pickupPickerRef?.current,
+      isRangePicker: false,
+      linkedPicker: null,
       minDate: pickupDateTime ? new Date(pickupDateTime) : new Date(),
-      rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
-      rangeEnd: returnDateTime ? new Date(returnDateTime) : null,
+      rangeStart: null,
+      rangeEnd: null,
     }
   );
 
