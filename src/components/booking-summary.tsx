@@ -3,6 +3,7 @@ import { useState} from "react";
 import { PickupDropoffLocation, TransferOption, TransferAddon } from "../types";
 import { apiService } from "../lib/axios";
 import { BookingRequest } from "../types/index";
+import { Link } from "@tanstack/react-router";
 
 interface BookingSummaryProps {
   onBack: () => void;
@@ -273,12 +274,12 @@ export function BookingSummary({
                   />
                   <span className="text-sm text-gray-700">
                     I Accept the{" "}
-                    <a
-                      href="/terms"
+                    <Link
+                      to="/terms"
                       className="text-primary-600 hover:text-primary-700 underline"
                     >
                       terms and conditions
-                    </a>
+                    </Link>
                   </span>
                 </label>
               </div>
