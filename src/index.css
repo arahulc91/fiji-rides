@@ -31,4 +31,42 @@
   scrollbar-width: thin;
   scrollbar-color: theme('colors.primary.500') theme('colors.gray.100');
 }
+.datetime-picker-wrapper .day.selected {
+  background-color: var(--primary-600);
+  color: white;
+  border-radius: 9999px;
+  z-index: 2;
+  position: relative;
+}
 
+.datetime-picker-wrapper .day.range-start,
+.datetime-picker-wrapper .day.range-end {
+  background-color: var(--primary-100);
+  color: var(--primary-900);
+  position: relative;
+}
+
+.datetime-picker-wrapper .day.in-range {
+  background-color: var(--primary-50);
+  color: var(--primary-900);
+}
+
+.datetime-picker-wrapper .day.range-start {
+  border-top-left-radius: 9999px;
+  border-bottom-left-radius: 9999px;
+}
+
+.datetime-picker-wrapper .day.range-end {
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+}
+
+.datetime-picker-wrapper .day.range-start.range-end {
+  border-radius: 9999px;
+}
+
+.datetime-picker-wrapper .day.disabled {
+  color: var(--gray-300);
+  cursor: not-allowed;
+  pointer-events: none;
+}

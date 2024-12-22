@@ -150,6 +150,11 @@ function TourDatePicker({
 }: Readonly<TourDatePickerProps>) {
   const [hasError, setHasError] = useState(false);
 
+  const rangeStart = new Date(bookingData.pickupDateTime);
+  const rangeEnd = bookingData.tripType === "return" && bookingData.returnDateTime 
+    ? new Date(bookingData.returnDateTime)
+    : rangeStart;
+
   const [datePickerRef] = useDateTimePicker(
     (date) => {
       const newDate = date.toISOString().split("T")[0];
@@ -183,16 +188,12 @@ function TourDatePicker({
       });
     },
     {
-      minDate: new Date(bookingData.pickupDateTime),
-      maxDate: bookingData.tripType === "return" && bookingData.returnDateTime 
-        ? new Date(bookingData.returnDateTime)
-        : undefined,
+      minDate: rangeStart,
+      maxDate: bookingData.tripType === "return" ? rangeEnd : undefined,
       dateOnly: true,
       isRangePicker: true,
-      rangeStart: new Date(bookingData.pickupDateTime),
-      rangeEnd: bookingData.tripType === "return" && bookingData.returnDateTime 
-        ? new Date(bookingData.returnDateTime)
-        : null,
+      rangeStart,
+      rangeEnd,
       linkedPicker: null
     }
   );

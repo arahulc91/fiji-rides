@@ -28,26 +28,6 @@ export default function TourDetailsModal({
     }
   }, [isOpen]);
 
-  // Add debug logging
-  console.log('TourDetailsModal Render:', {
-    isOpen,
-    photos,
-    title,
-    photosLength: photos.length,
-    currentPhotoIndex,
-    currentPhoto: photos[currentPhotoIndex],
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      console.log('Modal Opened with data:', {
-        photos,
-        title,
-        details: details.substring(0, 100) + '...',  // Log first 100 chars of details
-      });
-    }
-  }, [isOpen, photos, title, details]);
-
   const goToNextSlide = useCallback(() => {
     setCurrentPhotoIndex((current) => (current + 1) % photos.length);
   }, [photos.length]);

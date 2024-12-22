@@ -41,6 +41,7 @@ class DateTimePicker {
       ...options,
     };
 
+
     this.visible = false;
     const today = new Date();
     this.selectedDate = today;
@@ -352,17 +353,19 @@ class DateTimePicker {
                 .datetime-picker-wrapper .day.range-start {
                     background-color: #10b981;
                     color: white;
-                    border-radius: 9999px 0 0 9999px;
+                    border-top-left-radius: 9999px;
+                    border-bottom-left-radius: 9999px;
                 }
 
                 .datetime-picker-wrapper .day.range-end {
                     background-color: #10b981;
                     color: white;
-                    border-radius: 0 9999px 9999px 0;
+                    border-top-right-radius: 9999px;
+                    border-bottom-right-radius: 9999px;
                 }
 
                 .datetime-picker-wrapper .day.in-range {
-                    background-color: #d1fae5;
+                    background-color: #e5e7eb;
                     border-radius: 0;
                 }
 
@@ -943,18 +946,30 @@ class DateTimePicker {
       const minDate = new Date(this.options.minDate);
       minDate.setHours(0, 0, 0, 0);
       
-      // For today's date, we should also check the current time
-      const now = new Date();
-      const isToday = currentDate.getDate() === now.getDate() &&
-                     currentDate.getMonth() === now.getMonth() &&
-                     currentDate.getFullYear() === now.getFullYear();
-
-      // Add maxDate validation
       const maxDate = this.options.maxDate ? new Date(this.options.maxDate) : null;
       if (maxDate) maxDate.setHours(0, 0, 0, 0);
 
-      // Disable if date is before minDate or is today but time has passed
-      if (currentDate < minDate || (isToday && now.getHours() >= 22)) {
+      // Show range visualization without making it interactive
+      if (this.options.isRangePicker && this.options.rangeStart && this.options.rangeEnd) {
+        const rangeStart = new Date(this.options.rangeStart);
+        const rangeEnd = new Date(this.options.rangeEnd);
+        
+        rangeStart.setHours(0, 0, 0, 0);
+        rangeEnd.setHours(0, 0, 0, 0);
+        
+        if (currentDate.getTime() === rangeStart.getTime()) {
+          dayElement.classList.add("range-start");
+        }
+        if (currentDate.getTime() === rangeEnd.getTime()) {
+          dayElement.classList.add("range-end");
+        }
+        if (currentDate > rangeStart && currentDate < rangeEnd) {
+          dayElement.classList.add("in-range");
+        }
+      }
+
+      // Disable dates outside the range
+      if (currentDate < minDate || (maxDate && currentDate > maxDate)) {
         dayElement.classList.add("disabled");
       } else {
         if (day === this.selectedDate.getDate()) {
@@ -963,29 +978,40 @@ class DateTimePicker {
 
         dayElement.addEventListener("click", (e) => {
           e.stopPropagation();
-          grid
-            .querySelectorAll(".day")
-            .forEach((d) => d.classList.remove("selected"));
+          
+          grid.querySelectorAll(".day").forEach((d) => d.classList.remove("selected"));
           dayElement.classList.add("selected");
-
+          
           const newDate = new Date(this.selectedDate);
           newDate.setDate(day);
           this.selectedDate = newDate;
-
-          // Add highlight to time input after date selection
-          if (!this.options.dateOnly) {
+          
+          if (this.options.dateOnly) {
+            // For date-only picker, confirm and hide
+            if (this.options.onConfirm) {
+              this.options.onConfirm(this.selectedDate);
+            }
+            this.hide();
+          } else {
+            // For datetime picker, show time selection
             const timeInput = this.element.querySelector('.time-input');
-            timeInput.classList.add('time-input-highlight');
-            // Automatically open time picker
-            timeInput.click();
+            if (timeInput) {
+              timeInput.classList.add('time-input-highlight');
+              
+              // Trigger time selection
+              const timeDropdown = document.getElementById(this.portalId);
+              if (timeDropdown) {
+                timeDropdown.classList.add('show');
+                this.updateTime();
+              }
+            }
           }
-
-          this.updateUI();
         });
       }
+
+      dayElement.textContent = day;
     }
 
-    dayElement.textContent = day;
     grid.appendChild(dayElement);
   }
 
@@ -1018,11 +1044,9 @@ class DateTimePicker {
   previousMonth() {
     const newDate = new Date(this.selectedDate);
     newDate.setMonth(newDate.getMonth() - 1);
-    newDate.setDate(1); // Set to first of month for comparison
 
     const minDate = new Date(this.options.minDate);
-    minDate.setDate(1); // Set to first of month for comparison
-    minDate.setHours(0, 0, 0, 0);
+    minDate.setDate(1); // Compare with start of month
 
     if (newDate >= minDate) {
       this.selectedDate = newDate;
