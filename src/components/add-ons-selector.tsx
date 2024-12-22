@@ -148,16 +148,19 @@ function TourDatePicker({
   onTourDatesChange,
   bookingData,
 }: Readonly<TourDatePickerProps>) {
+  const [hasError, setHasError] = useState(false);
+
   const [datePickerRef] = useDateTimePicker(
     (date) => {
       const newDate = date.toISOString().split("T")[0];
+      setHasError(false);
       onTourDatesChange((prev: TourDate[]) => {
         const filtered = prev.filter(
           (td: TourDate) =>
-            group.adultAddon &&
-            td.tour_addon_id !== group.adultAddon.id &&
-            group.childAddon &&
-            td.tour_addon_id !== group.childAddon.id
+            !(
+              (group.adultAddon && td.tour_addon_id === group.adultAddon.id) ||
+              (group.childAddon && td.tour_addon_id === group.childAddon.id)
+            )
         );
 
         if (newDate) {
@@ -181,11 +184,16 @@ function TourDatePicker({
     },
     {
       minDate: new Date(bookingData.pickupDateTime),
-      maxDate:
-        bookingData.tripType === "return" && bookingData.returnDateTime
-          ? new Date(bookingData.returnDateTime)
-          : undefined,
+      maxDate: bookingData.tripType === "return" && bookingData.returnDateTime 
+        ? new Date(bookingData.returnDateTime)
+        : undefined,
       dateOnly: true,
+      isRangePicker: true,
+      rangeStart: new Date(bookingData.pickupDateTime),
+      rangeEnd: bookingData.tripType === "return" && bookingData.returnDateTime 
+        ? new Date(bookingData.returnDateTime)
+        : null,
+      linkedPicker: null
     }
   );
 
@@ -201,15 +209,18 @@ function TourDatePicker({
       <div className="text-sm font-medium text-gray-700 whitespace-nowrap">
         Tour Date:
       </div>
-      <input
-        ref={datePickerRef}
-        type="text"
-        value={currentDate ? new Date(currentDate).toLocaleDateString() : ""}
-        placeholder="Select date"
-        className="flex-1 px-2 py-1 text-sm text-secondary-500 rounded-lg border border-gray-200
-                 focus:ring-1 focus:ring-primary-500 focus:border-transparent"
-        readOnly
-      />
+      <div className="flex-1">
+        <input
+          ref={datePickerRef}
+          type="text"
+          value={currentDate ? new Date(currentDate).toLocaleDateString() : ""}
+          placeholder="Select date"
+          className={`w-full px-2 py-1 text-sm text-secondary-500 rounded-lg border 
+                     ${hasError ? 'border-red-500' : 'border-gray-200'}
+                     focus:ring-1 focus:ring-primary-500 focus:border-transparent`}
+          readOnly
+        />
+      </div>
     </div>
   );
 }
@@ -366,20 +377,31 @@ export function AddOnSelector({
   };
 
   const handleNext = () => {
-    // Validate that all tour addons have dates
-    const hasTourAddonsWithoutDates = Object.entries(selectedAddons).some(
-      ([id, quantity]) => {
-        const addon = addons.find((a) => a.id === parseInt(id));
-        return (
-          addon?.is_tour_addon &&
-          quantity > 0 &&
-          !tourDates.find((td) => td.tour_addon_id === parseInt(id))
+    let hasError = false;
+    const groupedTours = groupTourAddons(tourAddons);
+    
+    groupedTours.forEach(group => {
+      const hasAdultBooking = group.adultAddon && selectedAddons[group.adultAddon.id] > 0;
+      const hasChildBooking = group.childAddon && selectedAddons[group.childAddon.id] > 0;
+      
+      if ((hasAdultBooking || hasChildBooking)) {
+        const hasDate = tourDates.some(
+          td => 
+            (group.adultAddon && td.tour_addon_id === group.adultAddon.id) ||
+            (group.childAddon && td.tour_addon_id === group.childAddon.id)
         );
+        
+        if (!hasDate) {
+          hasError = true;
+          const datePickerElement = document.querySelector(`[data-group-id="${group.baseName}"]`);
+          if (datePickerElement) {
+            datePickerElement.classList.add('border-red-500');
+          }
+        }
       }
-    );
+    });
 
-    if (hasTourAddonsWithoutDates) {
-      // Show error or prevent proceeding
+    if (hasError) {
       return;
     }
 

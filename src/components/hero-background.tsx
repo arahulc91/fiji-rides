@@ -5,7 +5,7 @@ interface HeroBackgroundProps {
 
 export function HeroBackground({ children, className = '' }: Readonly<HeroBackgroundProps>) {
   return (
-    <div className={`relative isolate min-h-screen max-h-screen pt-16 flex items-center justify-center ${className}`}>
+    <div className={`relative isolate min-h-screen max-h-[120vh] pt-16 flex items-center justify-center ${className}`}>
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-secondary">
         <div 
