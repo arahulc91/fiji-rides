@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import logo from '../assets/logo.svg'
@@ -11,6 +11,7 @@ const navigation = [
 ]
 
 export function Header() {
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -23,6 +24,19 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.onbeforeunload = null;
+    window.removeEventListener('beforeunload', () => {});
+    
+    navigate({
+      to: "/",
+      search: {},
+      replace: true,
+    });
+    window.location.href = "/";
+  };
+
   return (
     <header 
     className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -34,7 +48,11 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
+            <Link 
+              to="/" 
+              className="flex items-center"
+              onClick={handleHomeClick}
+            >
               <img 
                 src={logo} 
                 alt="Fiji Rides Logo" 
@@ -42,7 +60,6 @@ export function Header() {
                   isScrolled ? 'opacity-90' : 'opacity-100'
                 }`}
               />
-             
             </Link>
           </div>
           
@@ -51,6 +68,7 @@ export function Header() {
               <Link
                 key={item.name}
                 to={item.path}
+                onClick={item.path === '/' ? handleHomeClick : undefined}
                 className={`text-sm font-medium transition-colors duration-300 ${
                   isScrolled 
                     ? 'text-white hover:text-primary' 
@@ -88,11 +106,16 @@ export function Header() {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={(e) => {
+                  setIsOpen(false);
+                  if (item.path === '/') {
+                    handleHomeClick(e);
+                  }
+                }}
                 className="block px-3 py-2 text-secondary hover:text-primary text-sm font-medium"
                 activeProps={{
                   className: "block px-3 py-2 text-primary font-semibold text-sm"
                 }}
-                onClick={() => setIsOpen(false)}
               >
                 {item.name}
               </Link>

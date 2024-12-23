@@ -1,8 +1,20 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { SocialIcon } from "react-social-icons";
 import logo from "../assets/logo.svg";
 
 export function Footer() {
+  const navigate = useNavigate();
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate({
+      to: "/",
+      search: {},
+      replace: true,
+    });
+    window.location.href = "/";
+  };
+
   return (
     <footer className="bg-[#111827] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -11,6 +23,7 @@ export function Footer() {
             <Link
               to="/"
               className="inline-flex items-center bg-white/5 rounded-2xl p-4 hover:bg-white/10 transition-colors"
+              onClick={handleHomeClick}
             >
               <div className="ml-3">
                 <img
@@ -38,8 +51,8 @@ export function Footer() {
                 <Link
                   to="/"
                   className="text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1.5"
+                  onClick={handleHomeClick}
                 >
-                 
                   <span>Home</span>
                 </Link>
               </li>
@@ -48,7 +61,6 @@ export function Footer() {
                   to="/about"
                   className="text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1.5"
                 >
-                
                   <span>About Us</span>
                 </Link>
               </li>
