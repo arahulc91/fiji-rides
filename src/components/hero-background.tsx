@@ -5,6 +5,7 @@ interface HeroBackgroundProps {
   children: React.ReactNode;
   className?: string;
   showCarousel?: boolean;
+  staticImage?: string;
 }
 
 const backgroundImages = [
@@ -14,7 +15,7 @@ const backgroundImages = [
 
 ];
 
-export function HeroBackground({ children, className = '', showCarousel = false }: Readonly<HeroBackgroundProps>) {
+export function HeroBackground({ children, className = '', showCarousel = false, staticImage }: Readonly<HeroBackgroundProps>) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
 
@@ -77,22 +78,53 @@ export function HeroBackground({ children, className = '', showCarousel = false 
         </div>
       )}
 
-      {/* Fallback Background Pattern */}
+      {/* Static Background - Modified */}
       {!showCarousel && (
-        <div className="absolute inset-0 bg-secondary">
-          <div 
-            className="absolute inset-0" 
-            style={{
-              background: 'radial-gradient(circle at top right, #0EB981 0%, transparent 50%)'
-            }}
-          />
-          <div 
-            className="absolute inset-0" 
-            style={{
-              background: 'radial-gradient(circle at bottom left, #0A8B61 0%, transparent 50%)'
-            }}
-          />
-          <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0">
+          {staticImage ? (
+            // Single image background
+            <div className="absolute inset-0 w-full h-full overflow-hidden">
+              <img 
+                src={staticImage}
+                alt="Background"
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => console.error('Image failed to load:', e)}
+              />
+              {/* Overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/60" />
+              
+              {/* Additional color overlays for brand consistency */}
+              <div 
+                className="absolute inset-0 mix-blend-overlay opacity-50" 
+                style={{
+                  background: 'radial-gradient(circle at top right, #0EB981 0%, transparent 50%)'
+                }}
+              />
+              <div 
+                className="absolute inset-0 mix-blend-overlay opacity-50" 
+                style={{
+                  background: 'radial-gradient(circle at bottom left, #0A8B61 0%, transparent 50%)'
+                }}
+              />
+            </div>
+          ) : (
+            // Fallback gradient background (existing code)
+            <div className="absolute inset-0 bg-secondary">
+              <div 
+                className="absolute inset-0" 
+                style={{
+                  background: 'radial-gradient(circle at top right, #0EB981 0%, transparent 50%)'
+                }}
+              />
+              <div 
+                className="absolute inset-0" 
+                style={{
+                  background: 'radial-gradient(circle at bottom left, #0A8B61 0%, transparent 50%)'
+                }}
+              />
+              <div className="absolute inset-0 bg-black/30" />
+            </div>
+          )}
         </div>
       )}
       

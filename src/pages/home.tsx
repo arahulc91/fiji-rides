@@ -34,6 +34,9 @@ interface BookingData {
   returnDateTime?: string;
 }
 
+// Add this constant at the top of the file, outside the component
+const HOME_HERO_IMAGE = '/assets/slideshow/FijiRidesHome.webp';
+
 function HomePage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/" });
@@ -301,7 +304,7 @@ function HomePage() {
     const handlePopState = () => {
       if (currentStep !== "booking") {
         const previousStep = currentStep === "summary" ? "addons" : "booking";
-        
+
         navigate({
           to: "/",
           search: {
@@ -322,7 +325,7 @@ function HomePage() {
       }
     };
 
-    // Add history entry for back button to work
+    // Add extra history entry to handle back button
     if (currentStep !== "booking") {
       window.history.pushState({ step: currentStep }, "");
     }
@@ -362,7 +365,11 @@ function HomePage() {
 
   return (
     <div className="flex flex-col overflow-x-hidden w-full">
-      <HeroBackground className="min-h-screen" showCarousel>
+      <HeroBackground 
+        className="min-h-screen" 
+        showCarousel={false}
+        staticImage={HOME_HERO_IMAGE}
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-24 w-full">
           <div
             className={`flex flex-col lg:flex-row lg:items-center gap-8 ${
