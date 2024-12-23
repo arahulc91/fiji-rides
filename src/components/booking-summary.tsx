@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState} from "react";
+import { useState } from "react";
 import { PickupDropoffLocation, TransferOption, TransferAddon } from "../types";
 import { apiService } from "../lib/axios";
 import { BookingRequest } from "../types/index";
@@ -100,9 +100,10 @@ export function BookingSummary({
     0
   );
 
-  const transferPrice = bookingData.tripType === "return" 
-    ? parseFloat(transferOption.price) * 2 
-    : parseFloat(transferOption.price);
+  const transferPrice =
+    bookingData.tripType === "return"
+      ? parseFloat(transferOption.price) * 2
+      : parseFloat(transferOption.price);
 
   const grandTotal = transferPrice + totalAddons;
 
@@ -177,7 +178,8 @@ export function BookingSummary({
                     Passengers
                   </div>
                   <div className="text-sm text-gray-900 font-semibold">
-                    {bookingData.passengers} {bookingData.passengers === 1 ? 'passenger' : 'passengers'}
+                    {bookingData.passengers}{" "}
+                    {bookingData.passengers === 1 ? "passenger" : "passengers"}
                   </div>
                 </div>
               </div>
@@ -218,7 +220,7 @@ export function BookingSummary({
               {/* Form Fields */}
               <div className="space-y-4">
                 <div>
-                  <label 
+                  <label
                     htmlFor="fullName"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
@@ -241,7 +243,7 @@ export function BookingSummary({
                   />
                 </div>
                 <div>
-                  <label 
+                  <label
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
@@ -252,7 +254,10 @@ export function BookingSummary({
                     type="email"
                     value={formData.email}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, email: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
                     }
                     className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-900
                                focus:ring-2 focus:ring-primary-500 focus:border-transparent

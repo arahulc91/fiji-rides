@@ -386,17 +386,19 @@ function HomePage() {
   // }, [currentStep, navigate]);
 
   // Add to state
-  const [tourDates, setTourDates] = useState<Array<{
-    tour_addon_id: number;
-    tour_date: string;
-  }>>([]);
+  const [tourDates, setTourDates] = useState<
+    Array<{
+      tour_addon_id: number;
+      tour_date: string;
+    }>
+  >([]);
 
   return (
     <div className="flex flex-col">
       <HeroBackground className="min-h-screen">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-24">
           <div
-            className={`flex items-center gap-8 ${
+            className={`flex flex-col lg:flex-row lg:items-center gap-8 ${
               currentStep !== "booking" ? "bg-white rounded-2xl" : ""
             }`}
           >
@@ -443,11 +445,13 @@ function HomePage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className={`transition-[width] duration-300 ease-in-out ${
+                    className={`${
+                      currentStep === "summary" ? "hidden lg:block" : "block"
+                    } transition-[width] duration-300 ease-in-out ${
                       currentStep === "summary"
-                        ? "w-[calc(100%-540px-2rem)]"
-                        : "w-[calc(100%-440px-2rem)]"
-                    } h-[680px]`}
+                        ? "lg:w-[calc(100%-540px-2rem)]"
+                        : "lg:w-[calc(100%-440px-2rem)]"
+                    } w-full h-[400px] lg:h-[680px]`}
                   >
                     {bookingData && (
                       <RouteMap
@@ -462,13 +466,15 @@ function HomePage() {
 
             {/* Form Container */}
             <div
-              className={`transition-[width] duration-300 ease-in-out ${
-                currentStep === "summary" ? "w-[540px]" : "w-[440px]"
+              className={`w-full lg:w-auto transition-[width] duration-300 ease-in-out ${
+                currentStep === "summary" ? "lg:w-[540px]" : "lg:w-[440px]"
               }`}
             >
               <div
-                className={`transition-[width] duration-300 ease-in-out ${
-                  currentStep === "summary" ? "w-full max-w-2xl" : "w-[440px]"
+                className={`w-full lg:w-auto transition-[width] duration-300 ease-in-out ${
+                  currentStep === "summary"
+                    ? "lg:w-full lg:max-w-2xl"
+                    : "lg:w-[440px]"
                 } ${
                   currentStep === "booking"
                     ? "bg-white rounded-2xl shadow-xl"
@@ -476,8 +482,10 @@ function HomePage() {
                 }`}
               >
                 <div
-                  className={`relative transition-all duration-300 ease-in-out ${
-                    currentStep === "summary" ? "w-[540px]" : "w-[440px]"
+                  className={`relative transition-all duration-300 ease-in-out w-full ${
+                    currentStep === "summary"
+                      ? "lg:w-[540px] min-h-[1080px] sm:min-h-[680px]"
+                      : "lg:w-[440px]"
                   } mx-auto h-[680px] pb-6`}
                 >
                   <AnimatePresence mode="wait">
@@ -561,7 +569,7 @@ function HomePage() {
                               transferOption={transferOptions[0]}
                               onBack={handleBack}
                               onNext={() => {
-                                console.log("Proceeding to payment"); 
+                                console.log("Proceeding to payment");
                               }}
                               tourDates={tourDates}
                             />
