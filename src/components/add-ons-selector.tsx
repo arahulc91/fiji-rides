@@ -198,12 +198,15 @@ function TourDatePicker({
     }
   );
 
-  const currentDate =
-    tourDates.find(
-      (td) =>
-        (group.adultAddon && td.tour_addon_id === group.adultAddon.id) ||
-        (group.childAddon && td.tour_addon_id === group.childAddon.id)
-    )?.tour_date ?? "";
+  const hasSelectedTours = 
+    (group.adultAddon && selectedAddons[group.adultAddon.id] > 0) ||
+    (group.childAddon && selectedAddons[group.childAddon.id] > 0);
+
+  const currentDate = tourDates.find(
+    (td) =>
+      (group.adultAddon && td.tour_addon_id === group.adultAddon.id) ||
+      (group.childAddon && td.tour_addon_id === group.childAddon.id)
+  )?.tour_date;
 
   return (
     <div className="flex items-center gap-2 mt-2">
@@ -216,9 +219,10 @@ function TourDatePicker({
           type="text"
           value={currentDate ? new Date(currentDate).toLocaleDateString() : ""}
           placeholder="Select date"
-          className={`w-full px-2 py-1 text-sm text-secondary-500 rounded-lg border 
-                     ${hasError ? 'border-red-500' : 'border-gray-200'}
-                     focus:ring-1 focus:ring-primary-500 focus:border-transparent`}
+          className={`w-full px-3 py-2 text-sm text-secondary-500 rounded-lg border 
+                     ${hasError ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}
+                     focus:ring-1 focus:ring-primary-500 focus:border-transparent
+                     ${!currentDate && hasSelectedTours ? 'border-red-500 ring-1 ring-red-500' : ''}`}
           readOnly
         />
       </div>

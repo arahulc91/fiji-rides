@@ -132,11 +132,13 @@ export function BookingSummary({
                 </h3>
                 <div className="bg-gray-50 rounded-xl p-4">
                   {transferOption.vehicle_image_base64 && (
-                    <img
-                      src={`data:image/jpeg;base64,${transferOption.vehicle_image_base64}`}
-                      alt="Vehicle"
-                      className="w-full h-32 object-cover rounded-lg mb-2"
-                    />
+                    <div className="aspect-[16/9] md:h-32 w-full mb-2">
+                      <img
+                        src={`data:image/jpeg;base64,${transferOption.vehicle_image_base64}`}
+                        alt="Vehicle"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
                   )}
                   <div className="text-sm font-medium text-gray-900">
                     {transferOption.transfer_option}
