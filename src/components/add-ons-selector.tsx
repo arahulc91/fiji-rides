@@ -1,20 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Info } from "lucide-react";
-import { PickupDropoffLocation } from "../types/index";
+import { TransferAddon, PickupDropoffLocation } from "../types";
 import TourDetailsModal from "./tourdetails";
 import { useDateTimePicker } from "../hooks/useDateTimePicker";
-
-interface TransferAddon {
-  id: number;
-  addon: string;
-  company: string;
-  price: string;
-  return_type: string;
-  additional_details: string;
-  photos: string[];
-  is_tour_addon: boolean;
-}
 
 interface BookingData {
   pickupLocation: PickupDropoffLocation;
@@ -242,8 +231,35 @@ export function AddOnSelector({
   tourDates,
   onTourDatesChange,
 }: Readonly<AddOnSelectorProps>) {
-  const popularAddons = addons.filter((addon) => !addon.is_tour_addon);
-  const tourAddons = addons.filter((addon) => addon.is_tour_addon);
+  const filterToursByRegion = useCallback((tours: TransferAddon[]) => {
+    const pickupRegions = bookingData.pickupLocation?.region_tags || [];
+    const dropoffRegions = bookingData.dropoffLocation?.region_tags || [];
+    const availableRegions = [...new Set([...pickupRegions, ...dropoffRegions])];
+
+    if (availableRegions.length === 0) return tours;
+
+    return tours.filter(tour => 
+      tour.region_tags.some(tag => availableRegions.includes(tag))
+    );
+  }, [bookingData.pickupLocation?.region_tags, bookingData.dropoffLocation?.region_tags]);
+
+  const [popularAddons, tourAddons] = useMemo(() => {
+    const popular: TransferAddon[] = [];
+    const tours: TransferAddon[] = [];
+
+    addons.forEach(addon => {
+      if (addon.is_tour_addon) {
+        tours.push(addon);
+      } else {
+        popular.push(addon);
+      }
+    });
+
+    // Filter tours based on region tags
+    const filteredTours = filterToursByRegion(tours);
+
+    return [popular, filteredTours];
+  }, [addons, filterToursByRegion]);
 
   const [expandedSection, setExpandedSection] = useState<"popular" | "tours">(
     popularAddons.length > 0 ? "popular" : "tours"

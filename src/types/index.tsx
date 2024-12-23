@@ -11,6 +11,7 @@ export interface ApiResponse<T> {
     description: string;
     latitude: number;
     longitude: number;
+    region_tags: string[];
     
   }
   
@@ -23,6 +24,7 @@ export interface ApiResponse<T> {
     additional_details: string;
     photos: string[];
     is_tour_addon: boolean;
+    region_tags: string[];
   }
   
   export interface TransferOption {
