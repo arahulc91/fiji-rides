@@ -395,7 +395,7 @@ function HomePage() {
 
   return (
     <div className="flex flex-col overflow-x-hidden w-full">
-      <HeroBackground className="min-h-screen">
+      <HeroBackground className="min-h-screen" showCarousel>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-24 w-full">
           <div
             className={`flex flex-col lg:flex-row lg:items-center gap-8 ${
