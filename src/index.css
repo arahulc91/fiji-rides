@@ -31,42 +31,60 @@
   scrollbar-width: thin;
   scrollbar-color: theme('colors.primary.500') theme('colors.gray.100');
 }
+
+/* Date Range Picker Styles */
+.datetime-picker-wrapper .day {
+  @apply relative cursor-pointer transition-colors;
+}
+
 .datetime-picker-wrapper .day.selected {
-  background-color: var(--primary-600);
-  color: white;
-  border-radius: 9999px;
-  z-index: 2;
-  position: relative;
+  @apply bg-primary-600 text-white rounded-full z-[2] relative;
 }
 
 .datetime-picker-wrapper .day.range-start,
 .datetime-picker-wrapper .day.range-end {
-  background-color: var(--primary-100);
-  color: var(--primary-900);
-  position: relative;
+  @apply bg-primary-100 text-primary-900 relative;
 }
 
 .datetime-picker-wrapper .day.in-range {
-  background-color: var(--primary-50);
-  color: var(--primary-900);
+  @apply bg-primary-50 text-primary-900;
 }
 
 .datetime-picker-wrapper .day.range-start {
-  border-top-left-radius: 9999px;
-  border-bottom-left-radius: 9999px;
+  @apply rounded-l-full;
 }
 
 .datetime-picker-wrapper .day.range-end {
-  border-top-right-radius: 9999px;
-  border-bottom-right-radius: 9999px;
+  @apply rounded-r-full;
 }
 
 .datetime-picker-wrapper .day.range-start.range-end {
-  border-radius: 9999px;
+  @apply rounded-full;
+}
+
+.datetime-picker-wrapper .day.in-range:hover {
+  @apply bg-primary-100;
 }
 
 .datetime-picker-wrapper .day.disabled {
-  color: var(--gray-300);
-  cursor: not-allowed;
-  pointer-events: none;
+  @apply text-gray-300 cursor-not-allowed pointer-events-none;
+}
+
+/* Add a pseudo-element for the range background */
+.datetime-picker-wrapper .day.in-range::before {
+  content: '';
+  @apply absolute inset-0 bg-primary-50 -z-[1];
+}
+
+.datetime-picker-wrapper .day.range-start::after,
+.datetime-picker-wrapper .day.range-end::before {
+  @apply absolute top-0 bottom-0 w-1/2 bg-[#10b981];
+}
+
+.datetime-picker-wrapper .day.range-start::after {
+  @apply right-0;
+}
+
+.datetime-picker-wrapper .day.range-end::before {
+  @apply left-0;
 }

@@ -119,36 +119,85 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
     }
   }, [pickupLocations, pickupLocation]);
 
-  const [pickupRef] = useDateTimePicker(
+  const [pickupRef, pickupPickerRef] = useDateTimePicker(
     (date) => {
       setPickupDateTime(date.toISOString());
+      // Clear return date if it's before the new pickup date
+      if (returnDateTime && new Date(returnDateTime) <= date) {
+        setReturnDateTime('');
+      }
+      
+      // Update both pickers to show the range
+      if (pickupPickerRef.current && returnPickerRef.current) {
+        const rangeEnd = returnDateTime ? new Date(returnDateTime) : null;
+        pickupPickerRef.current.options.rangeStart = date;
+        pickupPickerRef.current.options.rangeEnd = rangeEnd;
+        returnPickerRef.current.options.rangeStart = date;
+        returnPickerRef.current.options.rangeEnd = rangeEnd;
+      }
     },
     {
-      isRangePicker: false,
+      isRangePicker: tripType === 'return',
       minDate: new Date(),
+      rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
+      rangeEnd: tripType === 'return' ? (returnDateTime ? new Date(returnDateTime) : null) : null
     }
   );
 
   const [returnRef, returnPickerRef] = useDateTimePicker(
     (date) => {
       setReturnDateTime(date.toISOString());
+      
+      // Update both pickers to show the range
+      if (pickupPickerRef.current && returnPickerRef.current) {
+        const rangeStart = pickupDateTime ? new Date(pickupDateTime) : null;
+        pickupPickerRef.current.options.rangeStart = rangeStart;
+        pickupPickerRef.current.options.rangeEnd = date;
+        returnPickerRef.current.options.rangeStart = rangeStart;
+        returnPickerRef.current.options.rangeEnd = date;
+      }
     },
     {
-      isRangePicker: false,
-      linkedPicker: null,
+      isRangePicker: tripType === 'return',
+      enabled: tripType === 'return',
+      linkedPicker: pickupPickerRef.current,
       minDate: pickupDateTime ? new Date(pickupDateTime) : new Date(),
-      rangeStart: null,
-      rangeEnd: null,
+      rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
+      rangeEnd: returnDateTime ? new Date(returnDateTime) : null
     }
   );
 
-  // Update return picker options when pickup date changes
+  // Update range display when trip type changes
   useEffect(() => {
-    if (returnPickerRef.current && pickupDateTime) {
-      returnPickerRef.current.options.rangeStart = new Date(pickupDateTime);
-      returnPickerRef.current.options.minDate = new Date(pickupDateTime);
+    if (pickupPickerRef.current) {
+      pickupPickerRef.current.options.isRangePicker = tripType === 'return';
+      if (tripType === 'one-way') {
+        pickupPickerRef.current.options.rangeEnd = null;
+      }
     }
-  }, [pickupDateTime]);
+    if (returnRef.current && tripType === 'return') {
+      // Re-run the useDateTimePicker hook's initialization logic
+      const newOptions = {
+        isRangePicker: true,
+        linkedPicker: pickupPickerRef.current,
+        minDate: pickupDateTime ? new Date(pickupDateTime) : new Date(),
+        rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
+        rangeEnd: returnDateTime ? new Date(returnDateTime) : null
+      };
+      
+      // Update the options of the existing picker
+      if (returnPickerRef.current) {
+        Object.assign(returnPickerRef.current.options, newOptions);
+      }
+    }
+  }, [tripType, pickupDateTime, returnDateTime]);
+
+  // Reset return date when switching to one-way
+  useEffect(() => {
+    if (tripType === 'one-way') {
+      setReturnDateTime('');
+    }
+  }, [tripType]);
 
   // Add this useEffect to reset dropoff location when pickup location changes
   useEffect(() => {

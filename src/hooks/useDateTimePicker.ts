@@ -18,6 +18,7 @@ interface DateTimePickerOptions {
   rangeEnd?: Date | null;
   linkedPicker?: DateTimePicker | null;
   dateOnly?: boolean;
+  enabled?: boolean;
 }
 
 interface DateTimePicker {
@@ -39,25 +40,26 @@ export function useDateTimePicker(
   const pickerRef = useRef<DateTimePicker | null>(null);
 
   useEffect(() => {
-    if (inputRef.current && !pickerRef.current) {
-      pickerRef.current = new window.DateTimePicker({
-        minDate: new Date(),
-        onConfirm: (date: Date) => {
-          if (onConfirm) {
-            onConfirm(date);
-          }
-        },
-        ...options
-      });
-      pickerRef.current?.attach(inputRef.current);
-    }
-
-    return () => {
+    if (inputRef.current && (!pickerRef.current || options.enabled === false)) {
       if (pickerRef.current) {
-        // Clean up if needed
+        inputRef.current.value = '';
+        pickerRef.current = null;
       }
-    };
-  }, [onConfirm, options]);
+
+      if (options.enabled !== false) {
+        pickerRef.current = new window.DateTimePicker({
+          minDate: new Date(),
+          onConfirm: (date: Date) => {
+            if (onConfirm) {
+              onConfirm(date);
+            }
+          },
+          ...options
+        });
+        pickerRef.current?.attach(inputRef.current);
+      }
+    }
+  }, [onConfirm, options.enabled]);
 
   return [inputRef, pickerRef] as const;
 } 

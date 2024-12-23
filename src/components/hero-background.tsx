@@ -11,7 +11,7 @@ const backgroundImages = [
   '/assets/slideshow/cp-fiji-hm.webp',
   '/assets/slideshow/Fiji-Travel-Business-Image-jpg.webp',
   '/assets/slideshow/garden-of-the-sleeping-giant-fiji-image-5-feat-img.webp',
-  // Using the images you already have in your slideshow folder
+
 ];
 
 export function HeroBackground({ children, className = '', showCarousel = false }: Readonly<HeroBackgroundProps>) {
