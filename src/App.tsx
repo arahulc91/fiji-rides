@@ -1,20 +1,20 @@
-import { 
-  Outlet, 
-  RouterProvider, 
-  createRouter, 
+import {
+  Outlet,
+  RouterProvider,
+  createRouter,
   createRootRoute,
-  createRoute 
-} from '@tanstack/react-router'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import HomePage from './pages/home'
-import AboutPage from './pages/about'
-import FaqsPage from './pages/faqs'
-import ContactPage from './pages/contact'
-import { Header } from './components/header'
-import { Footer } from './components/footer'
-import TermsPage from './pages/terms';
-import { NotFoundPage } from './pages/404'
-import { PaymentStatusPage } from './pages/payment-status'
+  createRoute,
+} from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import HomePage from "./pages/home";
+import AboutPage from "./pages/about";
+import FaqsPage from "./pages/faqs";
+import ContactPage from "./pages/contact";
+import { Header } from "./components/header";
+import { Footer } from "./components/footer";
+import TermsPage from "./pages/terms";
+import { NotFoundPage } from "./pages/404";
+import { PaymentStatusPage } from "./pages/payment-status";
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -24,7 +24,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
     },
   },
-})
+});
 
 // Create a root route
 const rootRoute = createRootRoute({
@@ -39,11 +39,11 @@ const rootRoute = createRootRoute({
       </div>
     </QueryClientProvider>
   ),
-})
+});
 
 // Update the HomeSearchParams interface
 export interface HomeSearchParams {
-  step?: 'booking' | 'addons' | 'summary';
+  step?: "booking" | "addons" | "summary";
   bookingData?: string;
   addons?: string;
 }
@@ -51,66 +51,65 @@ export interface HomeSearchParams {
 // Update home route with search params validation
 const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/',
+  path: "/",
   validateSearch: (search: Record<string, unknown>): HomeSearchParams => {
     const validated: HomeSearchParams = {};
-    if (search.step) validated.step = search.step as HomeSearchParams['step'];
+    if (search.step) validated.step = search.step as HomeSearchParams["step"];
     if (search.bookingData) validated.bookingData = String(search.bookingData);
     if (search.addons) validated.addons = String(search.addons);
     return validated;
   },
   component: HomePage,
-})
+});
 
 const aboutRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/about',
+  path: "/about",
   component: AboutPage,
-})
+});
 
 const contactRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/contact',
+  path: "/contact",
   component: ContactPage,
-})
+});
 
 const faqsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/faqs',
+  path: "/faqs",
   component: FaqsPage,
-})
+});
 
 const privacyRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/privacy',
+  path: "/privacy",
   component: () => <div>Privacy Policy Page</div>, // Placeholder
-})
+});
 
 const termsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/terms',
+  path: "/terms",
   component: TermsPage,
-})
+});
 
 // Create payment status route with search params validation
 const paymentStatusRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/payment-status',
+  path: "/payment-status",
   validateSearch: (search: Record<string, unknown>) => {
-  
     return {
-      order_id : search.order_id as string,
+      order_id: search.order_id as string,
     } as const;
   },
   component: PaymentStatusPage,
-})
+});
 
 // Create a catch-all route for 404
 const notFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '*',
+  path: "*",
   component: NotFoundPage,
-})
+});
 
 // Create and configure the router
 const routeTree = rootRoute.addChildren([
@@ -122,19 +121,19 @@ const routeTree = rootRoute.addChildren([
   termsRoute,
   paymentStatusRoute, // Add payment status route
   notFoundRoute, // Add the catch-all route last
-])
+]);
 
-const router = createRouter({ routeTree })
+const router = createRouter({ routeTree });
 
 // Register the router for type safety
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }
 
 function App() {
-  return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;

@@ -298,12 +298,10 @@ function HomePage() {
 
   // Handle browser back/forward navigation
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
-      e.preventDefault();
-
+    const handlePopState = () => {
       if (currentStep !== "booking") {
         const previousStep = currentStep === "summary" ? "addons" : "booking";
-
+        
         navigate({
           to: "/",
           search: {
@@ -324,7 +322,7 @@ function HomePage() {
       }
     };
 
-    // Add extra history entry to handle back button
+    // Add history entry for back button to work
     if (currentStep !== "booking") {
       window.history.pushState({ step: currentStep }, "");
     }
@@ -334,26 +332,6 @@ function HomePage() {
       window.removeEventListener("popstate", handlePopState);
     };
   }, [currentStep, bookingData, selectedAddons, navigate]);
-
-  // Block browser back when not on first step
-  useEffect(() => {
-    const blockBrowserBack = (event: BeforeUnloadEvent) => {
-      if (currentStep !== "booking") {
-        event.preventDefault();
-        // Modern browsers don't require returnValue
-        return "Are you sure you want to leave? Your booking progress will be lost.";
-      }
-    };
-
-    if (currentStep !== "booking") {
-      window.history.pushState(null, "", window.location.href);
-      window.addEventListener("beforeunload", blockBrowserBack);
-    }
-
-    return () => {
-      window.removeEventListener("beforeunload", blockBrowserBack);
-    };
-  }, [currentStep]);
 
   // Update URL when state changes
   useEffect(() => {
@@ -373,17 +351,6 @@ function HomePage() {
       replace: true,
     });
   }, [currentStep, bookingData, selectedAddons, navigate]);
-
-  // Handle back navigation
-  // const handlePopState = useCallback(() => {
-  //   navigate({
-  //     to: '/',
-  //     search: {
-  //       step: currentStep === "summary" ? "addons" : "booking"
-  //     },
-  //     replace: true
-  //   });
-  // }, [currentStep, navigate]);
 
   // Add to state
   const [tourDates, setTourDates] = useState<
