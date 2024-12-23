@@ -25,7 +25,7 @@ export function Header() {
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-[#111827] shadow-lg' 
           : 'bg-transparent'
@@ -82,8 +82,8 @@ export function Header() {
       </div>
 
       {isOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-white">
+        <div className="md:hidden overflow-hidden">
+          <div className="px-4 pt-2 pb-3 space-y-1 bg-white sm:px-6">
             {navigation.map(item => (
               <Link
                 key={item.path}
@@ -97,7 +97,6 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
-           
           </div>
         </div>
       )}

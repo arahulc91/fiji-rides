@@ -394,9 +394,9 @@ function HomePage() {
   >([]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col overflow-x-hidden w-full">
       <HeroBackground className="min-h-screen">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-24 w-full">
           <div
             className={`flex flex-col lg:flex-row lg:items-center gap-8 ${
               currentStep !== "booking" ? "bg-white rounded-2xl" : ""
@@ -587,9 +587,10 @@ function HomePage() {
         </div>
       </HeroBackground>
 
-      <div className="bg-white">
+      {/* Features Section */}
+      <div className="bg-white w-full">
         <motion.div
-          className="mx-auto max-w-7xl px-6 py-24 lg:px-8"
+          className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -676,8 +677,8 @@ function HomePage() {
       {/* Divider */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-primary-200 to-transparent" />
 
-      {/* Why Choose Section Header */}
-      <div className="bg-primary-50 border-primary-100">
+      {/* Why Choose Section */}
+      <div className="bg-primary-50 border-primary-100 w-full">
         <motion.div
           className="mx-auto max-w-7xl px-6 pt-16 lg:px-8"
           initial={{ opacity: 0, y: 20 }}
@@ -745,7 +746,7 @@ function HomePage() {
       </div>
 
       {/* Vehicle Showcase Section */}
-      <div className="bg-primary-50 border-b border-primary-100">
+      <div className="bg-primary-50 border-b border-primary-100 w-full">
         <div className="max-w-7xl mx-auto px-6 py-24 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Carousel Section */}
@@ -868,7 +869,7 @@ function HomePage() {
       </div>
 
       {/* Social Proof Section */}
-      <div className="bg-white border-t border-primary-100">
+      <div className="bg-white border-t border-primary-100 w-full">
         <div className="max-w-7xl mx-auto px-6 py-16 lg:px-8">
           <motion.div
             className="text-center mb-12"
