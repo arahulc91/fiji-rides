@@ -18,6 +18,8 @@ import { BookingSummary } from "../components/booking-summary";
 import { PickupDropoffLocation } from "../types/index";
 import { RouteMap } from "../components/route-map";
 import { useNavigate, useSearch } from "@tanstack/react-router";
+import { AboutSection } from "../components/about-section";
+import { FaqsSection } from "../components/faqs-section";
 
 interface VehicleSlide {
   image: string;
@@ -842,20 +844,35 @@ function HomePage() {
         </div>
       </div>
 
+      {/* About Section */}
+      <AboutSection />
+
+      {/* FAQs Section */}
+      <FaqsSection />
+
       {/* Social Proof Section */}
       <div className="bg-white border-t border-primary-100 w-full">
-        <div className="max-w-7xl mx-auto px-6 py-16 lg:px-8">
+        <div className="max-w-7xl mx-auto px-6 py-24 lg:px-8">
           <motion.div
-            className="text-center mb-12"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-2xl font-semibold text-secondary-500">
+            <h2 className="text-3xl font-bold tracking-tight text-secondary-500 sm:text-4xl">
               Trusted by Travelers Worldwide
             </h2>
-            <div className="mt-4 h-1 w-20 bg-primary-300 mx-auto rounded-full" />
+            <p className="mt-4 text-lg leading-8 text-secondary-400">
+              See what our guests are saying about their experience with Fiji Rides
+            </p>
+            <motion.div
+              className="mt-4 h-1 w-20 bg-content-primary mx-auto rounded-full"
+              initial={{ width: 0 }}
+              whileInView={{ width: 80 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            />
           </motion.div>
 
           <motion.div

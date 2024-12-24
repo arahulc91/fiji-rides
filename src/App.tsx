@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import HomePage from "./pages/home";
-import AboutPage from "./pages/about";
 import FaqsPage from "./pages/faqs";
 import ContactPage from "./pages/contact";
 import { Header } from "./components/header";
@@ -62,11 +61,11 @@ const homeRoute = createRoute({
   component: HomePage,
 });
 
-const aboutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/about",
-  component: AboutPage,
-});
+// const aboutRoute = createRoute({
+//   getParentRoute: () => rootRoute,
+//   path: "/about",
+//   component: AboutPage,
+// });
 
 const contactRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -114,7 +113,6 @@ const notFoundRoute = createRoute({
 // Create and configure the router
 const routeTree = rootRoute.addChildren([
   homeRoute,
-  aboutRoute,
   contactRoute,
   faqsRoute,
   privacyRoute,

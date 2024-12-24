@@ -1,12 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Phone, Mail } from 'lucide-react'
 import logo from '../assets/logo.svg'
 
 const navigation = [
   { name: 'Home', path: '/' },
-  { name: 'About', path: '/about' },
-  { name: 'FAQs', path: '/faqs' },
   { name: 'Contact', path: '/contact' },
 ]
 
@@ -39,7 +37,7 @@ export function Header() {
 
   return (
     <header 
-    className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-[#111827] shadow-lg' 
           : 'bg-transparent'
@@ -63,29 +61,45 @@ export function Header() {
             </Link>
           </div>
           
-          <div className="hidden md:flex items-center space-x-12">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                onClick={item.path === '/' ? handleHomeClick : undefined}
-                className={`text-sm font-medium transition-colors duration-300 ${
-                  isScrolled 
-                    ? 'text-white hover:text-primary' 
-                    : 'text-white/90 hover:text-white'
-                }`}
-                activeProps={{
-                  className: `text-sm font-medium transition-colors duration-300 ${
+          <div className="hidden md:flex items-center">
+            <div className="flex items-center space-x-8 mr-8">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  onClick={item.path === '/' ? handleHomeClick : undefined}
+                  className={`text-sm font-medium transition-colors duration-300 ${
                     isScrolled 
-                      ? 'text-primary font-semibold' 
-                      : 'text-white font-semibold'
-                  }`
-                }}
-              >
-                {item.name}
-              </Link>
-            ))}
-           
+                      ? 'text-white hover:text-primary' 
+                      : 'text-white/90 hover:text-white'
+                  }`}
+                  activeProps={{
+                    className: `text-sm font-medium transition-colors duration-300 ${
+                      isScrolled 
+                        ? 'text-primary font-semibold' 
+                        : 'text-white font-semibold'
+                    }`
+                  }}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+
+            {/* Combined Contact Information */}
+            <div className="flex items-center bg-[#111827]/80 hover:bg-[#111827] px-4 py-2 rounded-full transition-all duration-300">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <Mail className="h-4 w-4 text-primary-500" />
+                  <span className="text-xs text-white">info@fijirides.com</span>
+                </div>
+                <div className="w-px h-3 bg-white/20" />
+                <div className="flex items-center gap-1.5">
+                  <Phone className="h-4 w-4 text-primary-500" />
+                  <span className="text-xs text-white">+679 6724244</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="md:hidden">
@@ -99,6 +113,7 @@ export function Header() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden overflow-hidden">
           <div className="px-4 pt-2 pb-3 space-y-1 bg-white sm:px-6">
@@ -120,6 +135,20 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Mobile Combined Contact Information */}
+            <div className="px-3 py-4">
+              <div className="flex flex-col space-y-2 text-secondary">
+                <a href="mailto:info@fijirides.com" className="flex items-center gap-1.5">
+                  <Mail className="h-4 w-4 text-primary-500" />
+                  <span className="text-sm">info@fijirides.com</span>
+                </a>
+                <a href="tel:+6799994377" className="flex items-center gap-1.5">
+                  <Phone className="h-4 w-4 text-primary-500" />
+                  <span className="text-sm">+679 9994377</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       )}

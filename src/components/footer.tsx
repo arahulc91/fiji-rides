@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { SocialIcon } from "react-social-icons";
 import logo from "../assets/logo.svg";
 
 export function Footer() {
@@ -15,10 +14,26 @@ export function Footer() {
     window.location.href = "/";
   };
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // If we're not on the home page, navigate there first
+      navigate({ to: "/" });
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
+
   return (
     <footer className="bg-[#111827] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="col-span-1">
             <Link
               to="/"
@@ -42,27 +57,26 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="md:ml-auto md:mr-auto">
+          <div className="md:ml-auto">
             <h3 className="text-lg font-semibold text-white mb-6">
               Quick Links
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link
-                  to="/"
-                  className="text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1.5"
-                  onClick={handleHomeClick}
-                >
-                  <span>Home</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/about"
+                <button
+                  onClick={() => scrollToSection('about-section')}
                   className="text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1.5"
                 >
                   <span>About Us</span>
-                </Link>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => scrollToSection('faqs-section')}
+                  className="text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1.5"
+                >
+                  <span>FAQs</span>
+                </button>
               </li>
               <li>
                 <Link
@@ -73,57 +87,6 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
-
-          <div className="md:ml-auto">
-            <h3 className="text-lg font-semibold text-white mb-6">Support</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/faqs"
-                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
-                >
-                  <span>FAQs</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/terms"
-                  className="text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
-                >
-                  <span>Terms of Service</span>
-                </Link>
-              </li>
-            </ul>
-
-            <div className="mt-8">
-              <h4 className="text-sm font-semibold text-white mb-4">
-                Follow Us
-              </h4>
-              <div className="flex space-x-4">
-                <SocialIcon
-                  url="https://facebook.com"
-                  target="_blank"
-                  bgColor="transparent"
-                  fgColor="#9CA3AF"
-                  className="hover:opacity-75 transition-opacity !h-8 !w-8"
-                />
-                <SocialIcon
-                  url="https://twitter.com"
-                  target="_blank"
-                  bgColor="transparent"
-                  fgColor="#9CA3AF"
-                  className="hover:opacity-75 transition-opacity !h-8 !w-8"
-                />
-                <SocialIcon
-                  url="https://instagram.com"
-                  target="_blank"
-                  bgColor="transparent"
-                  fgColor="#9CA3AF"
-                  className="hover:opacity-75 transition-opacity !h-8 !w-8"
-                />
-              </div>
-            </div>
           </div>
         </div>
 
