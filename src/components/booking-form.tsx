@@ -376,7 +376,7 @@ export function BookingForm({
                   placeholder="From: Address, airport, hotel"
                   isLoading={isLoadingPickup}
                   id="pickup-location"
-                  className={`border-0 focus:ring-0 ${
+                  className={`border-0 focus:ring-0 text-center ${
                     errors.pickupLocation 
                       ? 'bg-red-50' 
                       : 'bg-transparent hover:bg-gray-50 focus:bg-white'
@@ -400,9 +400,9 @@ export function BookingForm({
                       "repeating-linear-gradient(to bottom, #9CA3AF 0, #9CA3AF 4px, transparent 4px, transparent 8px)",
                   }}
                 />
-                <div className="flex items-center">
+                <div className="flex items-center relative">
                   <div
-                    className="h-[1px] flex-1 ml-12"
+                    className="h-[1px] flex-1 ml-12 mr-8"
                     style={{
                       background:
                         "repeating-linear-gradient(to right, #E5E7EB 0, #E5E7EB 4px, transparent 4px, transparent 8px)",
@@ -427,9 +427,9 @@ export function BookingForm({
                         isSwapping.current = false;
                       }, 0);
                     }}
-                    className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 
+                    className="px-2 rounded-full hover:bg-gray-100 active:bg-gray-200 
                                transition-colors duration-150 focus:outline-none 
-                               focus:ring-2 focus:ring-primary-500"
+                               focus:ring-2 focus:ring-primary-500 z-10 absolute right-0"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -458,7 +458,7 @@ export function BookingForm({
                   placeholder="To: Address, airport, hotel"
                   isLoading={isLoadingDropoff}
                   id="dropoff-location"
-                  className={`border-0 focus:ring-0 ${
+                  className={`border-0 focus:ring-0 text-center ${
                     errors.dropoffLocation 
                       ? 'bg-red-50' 
                       : 'bg-transparent hover:bg-gray-50 focus:bg-white'
