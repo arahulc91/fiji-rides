@@ -6,6 +6,7 @@ import { LocationAutocomplete } from "./location-autocomplete";
 import { PickupDropoffLocation } from "../types";
 import { useDateTimePicker } from "../hooks/useDateTimePicker";
 import { z } from "zod";
+import { MapPin, Flag } from "lucide-react";
 
 type TripType = "one-way" | "return";
 
@@ -25,24 +26,28 @@ interface BookingFormProps {
 
 // Add validation schema
 const bookingFormSchema = z.object({
-  pickupLocation: z.object({
-    id: z.number(),
-    description: z.string(),
-  }).nullable(),
-  dropoffLocation: z.object({
-    id: z.number(),
-    description: z.string(),
-  }).nullable(),
+  pickupLocation: z
+    .object({
+      id: z.number(),
+      description: z.string(),
+    })
+    .nullable(),
+  dropoffLocation: z
+    .object({
+      id: z.number(),
+      description: z.string(),
+    })
+    .nullable(),
   passengers: z.number().min(1).max(22),
   tripType: z.enum(["one-way", "return"]),
   pickupDateTime: z.string().min(1, "Pickup date & time is required"),
-  returnDateTime: z.string().optional().refine(
-    (date) => {
+  returnDateTime: z
+    .string()
+    .optional()
+    .refine((date) => {
       if (!date) return true;
       return new Date(date) > new Date();
-    },
-    "Return date must be in the future"
-  ),
+    }, "Return date must be in the future"),
 });
 
 type BookingFormData = z.infer<typeof bookingFormSchema>;
@@ -55,29 +60,34 @@ interface FormErrors {
   returnDateTime?: string;
 }
 
-export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>) {
-  const [tripType, setTripType] = useState<TripType>(() => 
-    initialData?.tripType ?? "return"
+export function BookingForm({
+  onNext,
+  initialData,
+}: Readonly<BookingFormProps>) {
+  const [tripType, setTripType] = useState<TripType>(
+    () => initialData?.tripType ?? "return"
   );
-  
-  const [passengers, setPassengers] = useState(() => 
-    initialData?.passengers ?? 1
+
+  const [passengers, setPassengers] = useState(
+    () => initialData?.passengers ?? 1
   );
-  
-  const [pickupLocation, setPickupLocation] = useState<PickupDropoffLocation | null>(() => 
-    initialData?.pickupLocation ?? null
+
+  const [pickupLocation, setPickupLocation] =
+    useState<PickupDropoffLocation | null>(
+      () => initialData?.pickupLocation ?? null
+    );
+
+  const [dropoffLocation, setDropoffLocation] =
+    useState<PickupDropoffLocation | null>(
+      () => initialData?.dropoffLocation ?? null
+    );
+
+  const [pickupDateTime, setPickupDateTime] = useState(
+    () => initialData?.pickupDateTime ?? ""
   );
-  
-  const [dropoffLocation, setDropoffLocation] = useState<PickupDropoffLocation | null>(() => 
-    initialData?.dropoffLocation ?? null
-  );
-  
-  const [pickupDateTime, setPickupDateTime] = useState(() => 
-    initialData?.pickupDateTime ?? ""
-  );
-  
-  const [returnDateTime, setReturnDateTime] = useState(() => 
-    initialData?.returnDateTime ?? ""
+
+  const [returnDateTime, setReturnDateTime] = useState(
+    () => initialData?.returnDateTime ?? ""
   );
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -124,9 +134,9 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
       setPickupDateTime(date.toISOString());
       // Clear return date if it's before the new pickup date
       if (returnDateTime && new Date(returnDateTime) <= date) {
-        setReturnDateTime('');
+        setReturnDateTime("");
       }
-      
+
       // Update both pickers to show the range
       if (pickupPickerRef.current && returnPickerRef.current) {
         const rangeEnd = returnDateTime ? new Date(returnDateTime) : null;
@@ -137,17 +147,22 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
       }
     },
     {
-      isRangePicker: tripType === 'return',
+      isRangePicker: tripType === "return",
       minDate: new Date(),
       rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
-      rangeEnd: tripType === 'return' ? (returnDateTime ? new Date(returnDateTime) : null) : null
+      rangeEnd:
+        tripType === "return"
+          ? returnDateTime
+            ? new Date(returnDateTime)
+            : null
+          : null,
     }
   );
 
   const [returnRef, returnPickerRef] = useDateTimePicker(
     (date) => {
       setReturnDateTime(date.toISOString());
-      
+
       // Update both pickers to show the range
       if (pickupPickerRef.current && returnPickerRef.current) {
         const rangeStart = pickupDateTime ? new Date(pickupDateTime) : null;
@@ -158,33 +173,32 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
       }
     },
     {
-      isRangePicker: tripType === 'return',
-      enabled: tripType === 'return',
+      isRangePicker: tripType === "return",
       linkedPicker: pickupPickerRef.current,
       minDate: pickupDateTime ? new Date(pickupDateTime) : new Date(),
       rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
-      rangeEnd: returnDateTime ? new Date(returnDateTime) : null
+      rangeEnd: returnDateTime ? new Date(returnDateTime) : null,
     }
   );
 
   // Update range display when trip type changes
   useEffect(() => {
     if (pickupPickerRef.current) {
-      pickupPickerRef.current.options.isRangePicker = tripType === 'return';
-      if (tripType === 'one-way') {
+      pickupPickerRef.current.options.isRangePicker = tripType === "return";
+      if (tripType === "one-way") {
         pickupPickerRef.current.options.rangeEnd = null;
       }
     }
-    if (returnRef.current && tripType === 'return') {
+    if (returnRef.current && tripType === "return") {
       // Re-run the useDateTimePicker hook's initialization logic
       const newOptions = {
         isRangePicker: true,
         linkedPicker: pickupPickerRef.current,
         minDate: pickupDateTime ? new Date(pickupDateTime) : new Date(),
         rangeStart: pickupDateTime ? new Date(pickupDateTime) : null,
-        rangeEnd: returnDateTime ? new Date(returnDateTime) : null
+        rangeEnd: returnDateTime ? new Date(returnDateTime) : null,
       };
-      
+
       // Update the options of the existing picker
       if (returnPickerRef.current) {
         Object.assign(returnPickerRef.current.options, newOptions);
@@ -194,14 +208,17 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
 
   // Reset return date when switching to one-way
   useEffect(() => {
-    if (tripType === 'one-way') {
-      setReturnDateTime('');
+    if (tripType === "one-way") {
+      setReturnDateTime("");
     }
   }, [tripType]);
 
-  // Add this useEffect to reset dropoff location when pickup location changes
+  const isSwapping = useRef(false);
+
   useEffect(() => {
-    setDropoffLocation(null);
+    if (!isSwapping.current && pickupLocation) {
+      setDropoffLocation(null);
+    }
   }, [pickupLocation]);
 
   function handleSubmit(e: React.FormEvent) {
@@ -217,7 +234,7 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
 
     // Collect all validation errors at once
     const newErrors: FormErrors = {};
-    
+
     // Remove the try-catch block and combine all validations
     if (!formData.pickupLocation) {
       newErrors.pickupLocation = "Pickup location is required";
@@ -239,7 +256,8 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
           const path = err.path[0] as keyof FormErrors;
-          if (!newErrors[path]) { // Only add if not already present
+          if (!newErrors[path]) {
+            // Only add if not already present
             newErrors[path] = err.message;
           }
         });
@@ -257,192 +275,273 @@ export function BookingForm({ onNext, initialData }: Readonly<BookingFormProps>)
   return (
     <div className="h-full flex flex-col">
       {/* Main content */}
-      <div className="flex-1 px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
-          {/* Trip Type Selection */}
-          <motion.div
-            className="flex justify-center space-x-8 text-sm"
-            initial={false}
-          >
-            <motion.label
-              className="inline-flex items-center cursor-pointer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <input
-                type="radio"
-                className="form-radio text-primary-600 h-4 w-4"
-                checked={tripType === "one-way"}
-                onChange={() => setTripType("one-way")}
-              />
-              <motion.span
-                className="ml-2 font-medium"
-                animate={{
-                  fontWeight: tripType === "one-way" ? 600 : 500,
-                  color: tripType === "one-way" ? "#4B5563" : "#6B7280",
-                }}
-              >
-                One-way
-              </motion.span>
-            </motion.label>
-            <motion.label
-              className="inline-flex items-center cursor-pointer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <input
-                type="radio"
-                className="form-radio text-primary-600 h-4 w-4"
-                checked={tripType === "return"}
-                onChange={() => setTripType("return")}
-              />
-              <motion.span
-                className="ml-2 font-medium"
-                animate={{
-                  fontWeight: tripType === "return" ? 600 : 500,
-                  color: tripType === "return" ? "#4B5563" : "#6B7280",
-                }}
-              >
-                Return
-              </motion.span>
-            </motion.label>
-          </motion.div>
+      <div className="flex-1 px-4 pt-2 sm:px-6 sm:pt-3 lg:px-8 lg:pt-4">
+        <div className="max-w-md mx-auto">
+          <h2 className="text-2xl font-semibold text-center mb-3 text-secondary-500">
+            Book a Transfer
+          </h2>
 
-          {/* Number of Passengers */}
-          <div className="text-center">
-            <label
-              htmlFor="decrement-passengers"
-              className="block text-sm font-medium text-gray-700 mb-2"
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Trip Type Selection */}
+            <motion.div
+              className="flex justify-center space-x-8 text-sm"
+              initial={false}
             >
-              Number of Passengers
-            </label>
-            <div className="flex items-center justify-center space-x-4">
-              <button
-                type="button"
-                id="decrement-passengers"
-                onClick={() => setPassengers(Math.max(1, passengers - 1))}
-                className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors text-lg font-medium"
+              <motion.label
+                className="inline-flex items-center cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                -
-              </button>
-              <span className="text-lg font-medium w-8 text-center text-gray-700">
-                {passengers}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPassengers(Math.min(22, passengers + 1))}
-                className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors text-lg font-medium"
+                <input
+                  type="radio"
+                  className="form-radio text-primary-600 h-4 w-4"
+                  checked={tripType === "one-way"}
+                  onChange={() => setTripType("one-way")}
+                />
+                <motion.span
+                  className="ml-2 font-medium"
+                  animate={{
+                    fontWeight: tripType === "one-way" ? 600 : 500,
+                    color: tripType === "one-way" ? "#4B5563" : "#6B7280",
+                  }}
+                >
+                  One-way
+                </motion.span>
+              </motion.label>
+              <motion.label
+                className="inline-flex items-center cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                +
-              </button>
+                <input
+                  type="radio"
+                  className="form-radio text-primary-600 h-4 w-4"
+                  checked={tripType === "return"}
+                  onChange={() => setTripType("return")}
+                />
+                <motion.span
+                  className="ml-2 font-medium"
+                  animate={{
+                    fontWeight: tripType === "return" ? 600 : 500,
+                    color: tripType === "return" ? "#4B5563" : "#6B7280",
+                  }}
+                >
+                  Return
+                </motion.span>
+              </motion.label>
+            </motion.div>
+
+            {/* Number of Passengers */}
+            <div className="text-center">
+              <label
+                htmlFor="decrement-passengers"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Number of Passengers
+              </label>
+              <div className="flex items-center justify-center space-x-4">
+                <button
+                  type="button"
+                  id="decrement-passengers"
+                  onClick={() => setPassengers(Math.max(1, passengers - 1))}
+                  className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors text-lg font-medium"
+                >
+                  -
+                </button>
+                <span className="text-lg font-medium w-8 text-center text-gray-700">
+                  {passengers}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPassengers(Math.min(22, passengers + 1))}
+                  className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors text-lg font-medium"
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Pickup Location - Remove error message */}
-          <div className="text-center">
-            <label
-              htmlFor="pickup-location"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Pickup Location
-            </label>
-            <LocationAutocomplete
-              locations={pickupLocations}
-              value={pickupLocation}
-              onChange={(location) => setPickupLocation(location as PickupDropoffLocation)}
-              placeholder="Nadi International Airport"
-              isLoading={isLoadingPickup}
-              id="pickup-location"
-              className={errors.pickupLocation ? 'border-red-500' : ''}
-            />
-          </div>
+            {/* Combined Location Field */}
+            <div className={`relative bg-white rounded-xl shadow-sm overflow-hidden
+                             border transition-colors duration-200
+                             ${Object.keys(errors).some(key => key.includes('Location')) 
+                               ? 'border-red-200 ring-1 ring-red-500' 
+                               : 'border-gray-200 hover:border-gray-300'}`}>
+              {/* Pickup Location */}
+              <div className="relative">
+                <LocationAutocomplete
+                  locations={pickupLocations}
+                  value={pickupLocation}
+                  onChange={(location) => setPickupLocation(location as PickupDropoffLocation)}
+                  placeholder="From: Address, airport, hotel"
+                  isLoading={isLoadingPickup}
+                  id="pickup-location"
+                  className={`border-0 focus:ring-0 ${
+                    errors.pickupLocation 
+                      ? 'bg-red-50' 
+                      : 'bg-transparent hover:bg-gray-50 focus:bg-white'
+                  }`}
+                  icon={
+                    <div className="relative">
+                      <MapPin className={`h-5 w-5 ${
+                        errors.pickupLocation ? 'text-red-400' : 'text-gray-400'
+                      }`} />
+                    </div>
+                  }
+                />
+              </div>
 
-          {/* Dropoff Location - Remove error message */}
-          <div className="text-center">
-            <label
-              htmlFor="dropoff-location"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Dropoff Location
-            </label>
-            <LocationAutocomplete
-              locations={dropoffLocations}
-              value={dropoffLocation}
-              onChange={(location) => setDropoffLocation(location as PickupDropoffLocation)}
-              placeholder="Select hotel/resort"
-              isLoading={isLoadingDropoff}
-              id="dropoff-location"
-              className={errors.dropoffLocation ? 'border-red-500' : ''}
-            />
-          </div>
-
-          {/* Pickup Date & Time */}
-          <div className="text-center">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {tripType === "return" ? "Pickup Date & Time" : "Date & Time"}
-            </label>
-            <input
-              ref={pickupRef}
-              type="text"
-              placeholder="dd/mm/yyyy | hh:mm"
-              className={`w-full px-4 py-3 rounded-xl bg-white border ${
-                errors.pickupDateTime ? 'border-red-500' : 'border-gray-200'
-              } text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm`}
-              readOnly
-            />
-           
-          </div>
-
-          {/* Return Date & Time */}
-          <AnimatePresence mode="wait">
-            {tripType === "return" && (
-              <motion.div
-                initial={{ height: 0, opacity: 0, y: -10 }}
-                animate={{
-                  height: "auto",
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    height: { duration: 0.3, ease: "easeOut" },
-                    opacity: { duration: 0.2, delay: 0.1 },
-                    y: { duration: 0.2, delay: 0.1 },
-                  },
-                }}
-                exit={{
-                  height: 0,
-                  opacity: 0,
-                  y: -10,
-                  transition: {
-                    height: { duration: 0.2, ease: "easeIn" },
-                    opacity: { duration: 0.1 },
-                    y: { duration: 0.1 },
-                  },
-                }}
-                className="overflow-hidden"
-              >
-                <div className="text-center pt-2">
-                  <label
-                    htmlFor="return-date-time"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Return Date & Time
-                  </label>
-                  <input
-                    ref={returnRef}
-                    type="text"
-                    placeholder="dd/mm/yyyy | hh:mm"
-                    className={`w-full px-4 py-3 rounded-xl bg-white border ${
-                      errors.returnDateTime ? 'border-red-500' : 'border-gray-200'
-                    } text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm`}
-                    readOnly
-                    id="return-date-time"
+              {/* Connecting Line and Divider */}
+              <div className="relative">
+                <div
+                  className="absolute left-[25px] w-[2px] top-[-10px] h-[calc(100%+20px)] z-10"
+                  style={{
+                    background:
+                      "repeating-linear-gradient(to bottom, #9CA3AF 0, #9CA3AF 4px, transparent 4px, transparent 8px)",
+                  }}
+                />
+                <div className="flex items-center">
+                  <div
+                    className="h-[1px] flex-1 ml-12"
+                    style={{
+                      background:
+                        "repeating-linear-gradient(to right, #E5E7EB 0, #E5E7EB 4px, transparent 4px, transparent 8px)",
+                    }}
                   />
-                
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Store both values first
+                      const temp1 = pickupLocation;
+                      const temp2 = dropoffLocation;
+                      
+                      // Disable the useEffect temporarily
+                      isSwapping.current = true;
+                      
+                      // Then update both states
+                      setPickupLocation(temp2);
+                      setDropoffLocation(temp1);
+                      
+                      // Re-enable the useEffect after the swap
+                      setTimeout(() => {
+                        isSwapping.current = false;
+                      }, 0);
+                    }}
+                    className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 
+                               transition-colors duration-150 focus:outline-none 
+                               focus:ring-2 focus:ring-primary-500"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-gray-400"
+                    >
+                      <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+                    </svg>
+                  </button>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </form>
+              </div>
+
+              {/* Dropoff Location */}
+              <div className="relative">
+                <LocationAutocomplete
+                  locations={dropoffLocations}
+                  value={dropoffLocation}
+                  onChange={(location) => setDropoffLocation(location as PickupDropoffLocation)}
+                  placeholder="To: Address, airport, hotel"
+                  isLoading={isLoadingDropoff}
+                  id="dropoff-location"
+                  className={`border-0 focus:ring-0 ${
+                    errors.dropoffLocation 
+                      ? 'bg-red-50' 
+                      : 'bg-transparent hover:bg-gray-50 focus:bg-white'
+                  }`}
+                  icon={
+                    <div className="relative">
+                      <Flag className={`h-5 w-5 ${
+                        errors.dropoffLocation ? 'text-red-400' : 'text-gray-400'
+                      }`} />
+                    </div>
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Pickup Date & Time */}
+            <div className="text-center">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {tripType === "return" ? "Pickup Date & Time" : "Date & Time"}
+              </label>
+              <input
+                ref={pickupRef}
+                type="text"
+                placeholder="dd/mm/yyyy | hh:mm"
+                className={`w-full px-4 py-3 rounded-xl bg-white border ${
+                  errors.pickupDateTime ? "border-red-500" : "border-gray-200"
+                } text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm`}
+                readOnly
+              />
+            </div>
+
+            {/* Return Date & Time */}
+            <AnimatePresence mode="wait">
+              {tripType === "return" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0, y: -10 }}
+                  animate={{
+                    height: "auto",
+                    opacity: 1,
+                    y: 0,
+                    transition: {
+                      height: { duration: 0.3, ease: "easeOut" },
+                      opacity: { duration: 0.2, delay: 0.1 },
+                      y: { duration: 0.2, delay: 0.1 },
+                    },
+                  }}
+                  exit={{
+                    height: 0,
+                    opacity: 0,
+                    y: -10,
+                    transition: {
+                      height: { duration: 0.2, ease: "easeIn" },
+                      opacity: { duration: 0.1 },
+                      y: { duration: 0.1 },
+                    },
+                  }}
+                  className="overflow-hidden"
+                >
+                  <div className="text-center pt-2">
+                    <label
+                      htmlFor="return-date-time"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Return Date & Time
+                    </label>
+                    <input
+                      ref={returnRef}
+                      type="text"
+                      placeholder="dd/mm/yyyy | hh:mm"
+                      className={`w-full px-4 py-3 rounded-xl bg-white border ${
+                        errors.returnDateTime
+                          ? "border-red-500"
+                          : "border-gray-200"
+                      } text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-sm`}
+                      readOnly
+                      id="return-date-time"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </form>
+        </div>
       </div>
 
       {/* Bottom section with errors and button */}

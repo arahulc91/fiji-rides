@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 interface Location {
   id: number;
@@ -15,6 +15,7 @@ interface LocationAutocompleteProps {
   isLoading?: boolean;
   id?: string;
   className?: string;
+  icon?: React.ReactNode;
 }
 
 export function LocationAutocomplete({
@@ -25,6 +26,7 @@ export function LocationAutocomplete({
   isLoading = false,
   id,
   className,
+  icon,
 }: Readonly<LocationAutocompleteProps>) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -133,32 +135,39 @@ export function LocationAutocomplete({
   };
 
   return (
-    <div id={id} ref={wrapperRef} className={`relative w-full `}>
+    <div id={id} ref={wrapperRef} className="relative w-full">
       <button
         type="button"
         className="relative w-full cursor-pointer"
         onClick={() => setIsOpen(true)}
       >
+        <div className="absolute inset-y-0 left-0 flex items-center pl-4">
+          {icon || <MapPin className="h-5 w-5 text-gray-400" />}
+        </div>
+
         <input
           type="text"
-          className={`w-full cursor-pointer px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 
-                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-center text-sm pr-12 ${className}`}
+          className={`w-full cursor-pointer px-4 py-3 pl-12 rounded-xl bg-white border border-gray-200 
+                     text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent 
+                     transition-all text-left text-sm pr-12 ${className}`}
           placeholder={placeholder}
           value={inputValue}
           onChange={handleInputChange}
           onClick={() => setIsOpen(true)}
         />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-          <ChevronDown
-            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          />
-        </div>
+      
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 rounded-xl bg-white py-1.5 shadow-xl ring-1 ring-black ring-opacity-5 max-h-60 overflow-auto">
+        <div 
+          className="absolute z-[100] w-full mt-2 rounded-xl bg-white py-1.5 shadow-xl ring-1 ring-black ring-opacity-5 max-h-60 overflow-auto"
+          style={{ 
+            position: 'fixed', 
+            left: wrapperRef.current?.getBoundingClientRect()?.left ?? 0, 
+            top: (wrapperRef.current?.getBoundingClientRect()?.bottom ?? 0) + 8, 
+            width: wrapperRef.current?.offsetWidth ?? 0 
+          }}
+        >
           {renderDropdownContent()}
         </div>
       )}
